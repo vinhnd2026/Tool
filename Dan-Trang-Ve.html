@@ -1,0 +1,2707 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>In Vé Số</title>
+    <!-- Google Fonts hỗ trợ tiếng Việt -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Dancing+Script:wght@700&family=Lobster&family=Montserrat:ital,wght@0,500;0,700;1,500&family=Oswald:wght@500;700&family=Playfair+Display:ital,wght@0,700;1,700&family=Roboto+Mono:wght@500;700&family=Roboto:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Thư viện đọc/ghi file Excel (SheetJS) -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+    <style>
+        :root {
+            --page-w: 210mm;
+            --page-h: 297mm;
+            --cols: 2;
+            --rows: 10;
+            --page-margin: 10mm;
+            --grid-gap: 2mm;
+            --bg-img: url('card.jpg');
+            --bg-img-back: none;
+            --ratio: 2.1;
+            --card-w: 90mm;
+            --card-h: 42.8mm;
+            --card-border-width: 0px;
+            --card-border-style: dashed;
+            --card-border-color: #cbd5e1;
+            --card-border-radius: 0px;
+            --crop-size: 3mm;
+            --crop-offset: 1mm;
+            --crop-color: #475569;
+            --crop-thickness: 0.3mm;
+            --preview-zoom: 1;
+
+            /* Màu sắc giao diện (Accent Palette) */
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #eff6ff;
+            --border-color: #e2e8f0;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: 'Be Vietnam Pro', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f1f5f9;
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            font-size: 13px;
+        }
+
+        /* ================= SIDEBAR GIAO DIỆN CÓ MÀU ================= */
+        .control-panel {
+            width: 380px;
+            background: #ffffff;
+            border-right: 1px solid var(--border-color);
+            height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            z-index: 1000;
+            box-shadow: 4px 0 15px rgba(0,0,0,0.03);
+        }
+
+        .panel-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(to right, #f8fafc, #ffffff);
+        }
+
+        .panel-header h1 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .status-dot {
+            font-size: 11.5px;
+            color: #059669;
+            background: #ecfdf5;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .status-dot::before {
+            content: "";
+            width: 6px;
+            height: 6px;
+            background: #059669;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        /* Thanh chuyển Tab có màu điểm nhấn */
+        .nav-tabs {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            padding: 8px 16px;
+            background: #f8fafc;
+            border-bottom: 1px solid var(--border-color);
+            gap: 5px;
+        }
+
+        .nav-tab {
+            padding: 8px 4px;
+            text-align: center;
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .nav-tab:hover { color: var(--primary); background: #f1f5f9; }
+        .nav-tab.active {
+            background: var(--primary);
+            color: #ffffff;
+            box-shadow: 0 2px 5px rgba(37, 99, 235, 0.25);
+        }
+
+        .panel-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+        }
+
+        .tab-pane { display: none; }
+        .tab-pane.active { display: block; }
+
+        .group-card {
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 14px;
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+        }
+
+        .group-title {
+            font-size: 11.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #475569;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px dashed var(--border-color);
+            padding-bottom: 6px;
+        }
+
+        .control-group { margin-bottom: 12px; }
+        .control-group:last-child { margin-bottom: 0; }
+
+        .control-group label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 5px;
+        }
+
+        .val-badge {
+            font-weight: 600;
+            color: var(--primary);
+            font-variant-numeric: tabular-nums;
+            background: var(--primary-light);
+            padding: 1px 6px;
+            border-radius: 4px;
+        }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+
+        input[type="text"], input[type="number"], select, textarea {
+            width: 100%;
+            padding: 7px 10px;
+            font-size: 12.5px;
+            font-family: inherit;
+            color: var(--text-main);
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            transition: all 0.15s;
+        }
+        input[type="text"]:focus, input[type="number"]:focus, select:focus, textarea:focus {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        input[type="range"] {
+            width: 100%;
+            accent-color: var(--primary);
+            cursor: pointer;
+            height: 6px;
+        }
+
+        input[type="color"] {
+            width: 100%;
+            height: 32px;
+            padding: 2px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: #f8fafc;
+            cursor: pointer;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 11.5px;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        /* Segmented Control / Pill Buttons */
+        .segmented {
+            display: flex;
+            background: #f1f5f9;
+            padding: 3px;
+            border-radius: 8px;
+            gap: 3px;
+        }
+        .seg-btn {
+            flex: 1;
+            padding: 6px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .seg-btn.active {
+            background: #ffffff;
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+        }
+
+        /* Nút bấm phụ */
+        .btn-outline {
+            width: 100%;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--primary);
+            background: var(--primary-light);
+            border: 1px solid #bfdbfe;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn-outline:hover { background: #dbeafe; border-color: #93c5fd; }
+
+        .btn-mini {
+            padding: 5px 9px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #475569;
+            transition: all 0.15s;
+        }
+        .btn-mini:hover { background: #f8fafc; border-color: var(--primary); color: var(--primary); }
+        .btn-mini.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+        .btn-mini.danger { color: #dc2626; border-color: #fca5a5; background: #fef2f2; }
+        .btn-mini.danger:hover { background: #fee2e2; }
+
+        .field-pills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .field-pill {
+            padding: 6px 12px;
+            font-size: 11.5px;
+            font-weight: 600;
+            border: 1px solid var(--border-color);
+            background: #f8fafc;
+            color: #475569;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .field-pill.active {
+            background: var(--primary);
+            color: #ffffff;
+            border-color: var(--primary);
+        }
+
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #334155;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+        .checkbox-row input { cursor: pointer; accent-color: var(--primary); width: 16px; height: 16px; }
+
+        .hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        /* ================= CUSTOM FONT PREVIEW DROPDOWN ================= */
+        .font-select-wrapper {
+            position: relative;
+        }
+        .font-dropdown-trigger {
+            width: 100%;
+            padding: 8px 10px;
+            background: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: var(--text-main);
+        }
+        .font-dropdown-trigger:hover { border-color: var(--primary); }
+
+        .font-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 260px;
+            overflow-y: auto;
+            z-index: 1050;
+            display: none;
+            margin-top: 4px;
+        }
+        .font-dropdown-menu.show { display: block; }
+
+        .font-option {
+            padding: 9px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.1s;
+        }
+        .font-option:hover { background: var(--primary-light); color: var(--primary); }
+        .font-option-name { font-size: 11px; color: var(--text-muted); margin-bottom: 2px; }
+        .font-option-preview { font-size: 15px; }
+
+        /* Chân trang cố định của Sidebar */
+        .panel-footer {
+            padding: 14px 20px;
+            border-top: 1px solid var(--border-color);
+            background: #f8fafc;
+            display: grid;
+            grid-template-columns: 1.3fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            padding: 10px 14px;
+            background: var(--primary);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.15s, transform 0.05s;
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+        }
+        .btn-primary:hover { background: var(--primary-hover); }
+        .btn-primary:active { transform: scale(0.98); }
+
+        .btn-secondary {
+            padding: 10px 14px;
+            background: #ffffff;
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .btn-secondary:hover { background: #f1f5f9; border-color: #cbd5e1; }
+
+        /* ================= KHU VỰC XEM TRƯỚC & THANH TRẠNG THÁI ================= */
+        .workspace {
+            margin-left: 380px;
+            width: calc(100% - 380px);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 65px 24px 30px 24px;
+        }
+
+        .floating-toolbar {
+            position: fixed;
+            top: 12px;
+            left: calc(380px + 24px);
+            right: 24px;
+            max-width: 920px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            z-index: 900;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .toolbar-metrics {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .metric-item b { color: var(--text-main); }
+
+        .zoom-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ================= TRANG IN & THẺ VÉ ================= */
+        #print-area {
+            transform: scale(var(--preview-zoom));
+            transform-origin: top center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .page-label {
+            font-size: 11.5px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin: 0 0 6px 0;
+            align-self: flex-start;
+        }
+
+        .page {
+            background-color: white;
+            width: var(--page-w);
+            height: var(--page-h);
+            margin: 0 auto 24px auto;
+            padding: var(--page-margin);
+            box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            display: grid;
+            gap: var(--grid-gap);
+            position: relative;
+            border-radius: 4px;
+        }
+
+        .page.mode-auto {
+            grid-template-columns: repeat(var(--cols), 1fr);
+            grid-template-rows: repeat(var(--rows), 1fr);
+        }
+
+        .page.mode-exact {
+            grid-template-columns: repeat(var(--cols), var(--card-w));
+            grid-template-rows: repeat(var(--rows), var(--card-h));
+            justify-content: center;
+            align-content: center;
+        }
+
+        .card-wrapper {
+            container-type: size;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        .card {
+            position: relative;
+            background-image: var(--bg-img);
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            box-sizing: border-box;
+            border: var(--card-border-width) var(--card-border-style) var(--card-border-color);
+            border-radius: var(--card-border-radius);
+        }
+
+        .page.mode-auto .card {
+            aspect-ratio: var(--ratio);
+            width: min(100cqw, 100cqh * var(--ratio));
+        }
+
+        .page.mode-exact .card {
+            width: var(--card-w);
+            height: var(--card-h);
+        }
+
+        .card.card-back {
+            background-image: var(--bg-img-back);
+        }
+
+        .card-inner {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+
+        /* Dấu cắt góc công nghiệp (Crop Marks +) */
+        .crop-mark {
+            position: absolute;
+            width: var(--crop-size);
+            height: var(--crop-size);
+            pointer-events: none;
+            z-index: 20;
+            display: none;
+        }
+        .show-crops .crop-mark { display: block; }
+
+        .crop-mark::before, .crop-mark::after {
+            content: "";
+            position: absolute;
+            background-color: var(--crop-color);
+        }
+        .crop-mark::before {
+            width: 100%;
+            height: var(--crop-thickness);
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+        }
+        .crop-mark::after {
+            height: 100%;
+            width: var(--crop-thickness);
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        /* Tâm dấu lùi ra ngoài góc vé một khoảng = crop-offset + nửa chiều dài dấu,
+           nên đầu trong của dấu cách mép vé đúng bằng --crop-offset (mm) */
+        .crop-tl { top: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); left: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); }
+        .crop-tr { top: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); right: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); }
+        .crop-bl { bottom: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); left: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); }
+        .crop-br { bottom: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); right: calc((var(--crop-offset) + var(--crop-size) / 2) * -1); }
+
+        .card-field {
+            position: absolute;
+            transform-origin: 0 0;
+            white-space: nowrap;
+            user-select: none;
+            line-height: 1;
+        }
+
+        .editable-card .card-field {
+            cursor: move;
+        }
+        .editable-card .card-field.selected-field {
+            outline: 2px solid var(--primary);
+            outline-offset: 4px;
+            background: rgba(37, 99, 235, 0.05);
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background-color: white; margin: 0; }
+            .workspace { margin-left: 0; padding: 0; width: 100%; display: block; }
+            #print-area { transform: none !important; display: block; }
+            .page-label { display: none !important; }
+            .page { margin: 0; box-shadow: none; page-break-after: always; break-after: page; border-radius: 0; }
+            .editable-card .card-field.selected-field { outline: none !important; background: transparent !important; }
+        }
+    </style>
+    <style id="dynamic-page-style">
+        @media print {
+            @page { size: 210mm 297mm; margin: 0; }
+        }
+    </style>
+    <style id="custom-uploaded-fonts"></style>
+</head>
+<body>
+
+    <!-- ================= SIDEBAR ĐIỀU KHIỂN ================= -->
+    <aside class="control-panel no-print">
+        <div class="panel-header">
+            <h1>Dàn Trang Vé</h1>
+            <span class="status-dot" id="save-status">Đã lưu tự động</span>
+        </div>
+
+        <div class="nav-tabs">
+            <button type="button" class="nav-tab active" onclick="switchTab('tab-layout', this)">1. Giấy & Vé</button>
+            <button type="button" class="nav-tab" onclick="switchTab('tab-data', this)">2. Dữ Liệu</button>
+            <button type="button" class="nav-tab" onclick="switchTab('tab-text', this)">3. Chữ & Góc</button>
+            <button type="button" class="nav-tab" onclick="switchTab('tab-system', this)">4. Cấu Hình</button>
+        </div>
+
+        <div class="panel-body">
+
+            <!-- ================= TAB 1: GIẤY & VÉ ================= -->
+            <div id="tab-layout" class="tab-pane active">
+                <div class="group-card">
+                    <div class="group-title">Ảnh Nền Mặt Trước</div>
+                    <div class="control-group">
+                        <label>Chọn ảnh từ máy:</label>
+                        <input type="file" id="inp-img-file" accept="image/*" style="font-size:11.5px;">
+                    </div>
+                    <div class="control-group">
+                        <label>Hoặc tên file ảnh cùng thư mục:</label>
+                        <input type="text" id="inp-img-path" value="card.jpg">
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-title">Khổ Giấy & Chiều Xoay</div>
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Khổ giấy:</label>
+                            <select id="sel-paper-size">
+                                <option value="A4">A4 (210 × 297 mm)</option>
+                                <option value="A3">A3 (297 × 420 mm)</option>
+                                <option value="A5">A5 (148 × 210 mm)</option>
+                                <option value="Letter">Letter (216 × 279 mm)</option>
+                                <option value="Custom">Tự nhập (mm)...</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Chiều giấy:</label>
+                            <div class="segmented">
+                                <button type="button" id="btn-orient-p" class="seg-btn active" onclick="setOrientation('portrait')">Dọc</button>
+                                <button type="button" id="btn-orient-l" class="seg-btn" onclick="setOrientation('landscape')">Ngang</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="custom-paper-box" class="grid-2" style="display:none; margin-top:8px;">
+                        <div class="control-group">
+                            <label>Rộng giấy (mm):</label>
+                            <input type="number" id="inp-paper-w" value="210" min="20" max="1500" step="1">
+                        </div>
+                        <div class="control-group">
+                            <label>Cao giấy (mm):</label>
+                            <input type="number" id="inp-paper-h" value="297" min="20" max="1500" step="1">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-title">Kích Thước Vé & Lưới</div>
+                    <div class="control-group">
+                        <label>Chế độ kích thước vé:</label>
+                        <div class="segmented">
+                            <button type="button" id="btn-size-auto" class="seg-btn active" onclick="setSizeMode('auto')">Co giãn theo lưới</button>
+                            <button type="button" id="btn-size-exact" class="seg-btn" onclick="setSizeMode('exact')">Kích thước chuẩn (mm)</button>
+                        </div>
+                    </div>
+
+                    <div id="exact-size-box" style="display:none; margin-top:10px; padding:10px; background:#f8fafc; border-radius:6px; border:1px solid var(--border-color);">
+                        <div class="grid-2">
+                            <div class="control-group">
+                                <label>Rộng vé (mm):</label>
+                                <input type="number" id="inp-card-w" value="90" min="5" max="1000" step="0.5">
+                            </div>
+                            <div class="control-group">
+                                <label>Cao vé (mm):</label>
+                                <input type="number" id="inp-card-h" value="43" min="5" max="1000" step="0.5">
+                            </div>
+                        </div>
+                        <label class="checkbox-row" style="margin-bottom:8px;">
+                            <input type="checkbox" id="chk-lock-ratio" checked>
+                            Khoá tỷ lệ chuẩn theo ảnh gốc
+                        </label>
+                        <button type="button" class="btn-outline" onclick="autoFitGridFromCardSize()">
+                            📐 Tự tính số Cột × Hàng tối đa vừa giấy
+                        </button>
+                    </div>
+
+                    <div class="grid-2" style="margin-top:10px;">
+                        <div class="control-group">
+                            <label>Số cột <span id="val-cols" class="val-badge">2</span></label>
+                            <input type="range" id="inp-cols" min="1" max="10" value="2">
+                        </div>
+                        <div class="control-group">
+                            <label>Số hàng <span id="val-rows" class="val-badge">10</span></label>
+                            <input type="range" id="inp-rows" min="1" max="25" value="10">
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Lề giấy (mm) <span id="val-margin" class="val-badge">10</span></label>
+                            <input type="range" id="inp-margin" min="0" max="25" step="0.5" value="10">
+                        </div>
+                        <div class="control-group">
+                            <label>Khe hở vé (mm) <span id="val-gap" class="val-badge">2</span></label>
+                            <input type="range" id="inp-gap" min="0" max="15" step="0.5" value="2">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-title">Dấu Cắt Góc (+) & Viền Vé</div>
+                    <label class="checkbox-row" style="margin-top:0; margin-bottom:10px; font-weight:600;">
+                        <input type="checkbox" id="chk-crop-marks">
+                        Hiện dấu cắt chữ thập (+) ở 4 góc vé
+                    </label>
+
+                    <div id="crop-settings-box" class="grid-3" style="display:none; margin-bottom:10px;">
+                        <div class="control-group">
+                            <label>Dài (mm):</label>
+                            <input type="number" id="inp-crop-size" value="3" min="1" max="10" step="0.5">
+                        </div>
+                        <div class="control-group">
+                            <label>Nét (mm):</label>
+                            <input type="number" id="inp-crop-thick" value="0.3" min="0.1" max="2" step="0.1">
+                        </div>
+                        <div class="control-group">
+                            <label>Màu:</label>
+                            <input type="color" id="inp-crop-color" value="#475569">
+                        </div>
+                    </div>
+
+                    <div id="crop-offset-box" style="display:none; margin-bottom:10px; padding:9px 10px; background:#fffbeb; border:1px solid #fde68a; border-radius:6px;">
+                        <div class="control-group" style="margin-bottom:4px;">
+                            <label>Khoảng cách dấu (+) tới mép vé <span id="val-crop-offset" class="val-badge">1mm</span></label>
+                            <input type="range" id="inp-crop-offset" min="0" max="10" step="0.5" value="1">
+                        </div>
+                        <div class="hint" style="margin-top:0;">
+                            Là khoảng hở giữa <b>đầu trong của dấu +</b> và <b>góc vé</b>. <b>0mm</b> = đầu dấu chạm đúng góc vé.
+                            Tăng lên <b>1.5–3mm</b> để dấu lùi hẳn ra ngoài vùng vé — khi cắt theo dấu sẽ không phạm vào vé.
+                            Nếu vé xếp sát nhau, đừng đặt lớn hơn khe hở giữa các vé.
+                        </div>
+                    </div>
+
+                    <div class="grid-3">
+                        <div class="control-group">
+                            <label>Viền (px):</label>
+                            <input type="number" id="inp-border-w" min="0" max="15" step="0.5" value="0">
+                        </div>
+                        <div class="control-group">
+                            <label>Kiểu:</label>
+                            <select id="inp-border-style">
+                                <option value="dashed">Nét đứt</option>
+                                <option value="solid">Nét liền</option>
+                                <option value="dotted">Nét chấm</option>
+                            </select>
+                        </div>
+                        <div class="control-group">
+                            <label>Màu viền:</label>
+                            <input type="color" id="inp-border-color" value="#cbd5e1">
+                        </div>
+                    </div>
+
+                    <div class="control-group" style="margin-top:8px;">
+                        <label>Bo góc (px) <span id="val-radius" class="val-badge">0</span></label>
+                        <input type="range" id="inp-radius" min="0" max="30" step="1" value="0">
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-title">In 2 Mặt (Duplex)</div>
+                    <div class="control-group">
+                        <label>Chế độ:</label>
+                        <select id="sel-duplex">
+                            <option value="none">Chỉ 1 mặt</option>
+                            <option value="interleaved">Xen kẽ Trước - Sau (Tự động)</option>
+                            <option value="back-only">Chỉ mặt sau (In đảo tay)</option>
+                        </select>
+                    </div>
+
+                    <div id="duplex-settings-box" style="display:none; margin-top:8px;">
+                        <div class="control-group">
+                            <label>Ảnh mặt sau từ máy:</label>
+                            <input type="file" id="inp-back-file" accept="image/*" style="font-size:11.5px;">
+                        </div>
+                        <div class="control-group">
+                            <label>Hoặc tên file mặt sau:</label>
+                            <input type="text" id="inp-back-path" placeholder="card-back.jpg">
+                        </div>
+                        <div class="control-group" style="margin-top:10px;">
+                            <label>Dữ liệu chèn lên mặt sau:</label>
+                            <select id="sel-back-data-source" style="font-weight:600;">
+                                <option value="same">Dùng chung dữ liệu mặt trước (Mirror)</option>
+                                <option value="independent">Dữ liệu riêng cho mặt sau</option>
+                                <option value="none">Không chèn chữ (chỉ ảnh nền)</option>
+                            </select>
+                            <div class="hint">
+                                Chọn <b>Dữ liệu riêng</b> để mặt sau có nguồn dữ liệu và vị trí chữ riêng,
+                                chèn giống hệt mặt trước: đánh số tự động, hoặc Excel / Paste nhiều cột.
+                                Dòng thứ <i>i</i> của dữ liệu mặt sau sẽ in vào mặt sau của vé thứ <i>i</i>.
+                            </div>
+                        </div>
+                        <div id="back-independent-shortcuts" style="display:none; margin-top:8px;">
+                            <div class="grid-2">
+                                <button type="button" class="btn-outline" onclick="gotoTab('tab-data')">① Nhập dữ liệu mặt sau</button>
+                                <button type="button" class="btn-outline" onclick="gotoBackFieldEditor()">② Chỉnh chữ mặt sau</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 2: DỮ LIỆU ================= -->
+            <div id="tab-data" class="tab-pane">
+                <div class="group-card">
+                    <div class="group-title">Nguồn Dữ Liệu</div>
+                    <div class="control-group">
+                        <select id="sel-mode" style="font-weight:600;">
+                            <option value="sequence">1. Đánh số tự động</option>
+                            <option value="none">2. Không điền số (Chỉ ảnh)</option>
+                            <option value="multi">3. Nhiều giá trị (Excel / Paste)</option>
+                        </select>
+                    </div>
+
+                    <div id="mode-sequence-box">
+                        <div class="grid-3">
+                            <div class="control-group">
+                                <label>Từ số:</label>
+                                <input type="number" id="seq-start" value="1">
+                            </div>
+                            <div class="control-group">
+                                <label>Đến số:</label>
+                                <input type="number" id="seq-end" value="100">
+                            </div>
+                            <div class="control-group">
+                                <label>Bước:</label>
+                                <input type="number" id="seq-step" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="control-group">
+                                <label>Độ dài:</label>
+                                <input type="number" id="seq-pad" value="3" min="1" max="10">
+                            </div>
+                            <div class="control-group">
+                                <label>Tiền tố:</label>
+                                <input type="text" id="seq-prefix" placeholder="VE-">
+                            </div>
+                            <div class="control-group">
+                                <label>Hậu tố:</label>
+                                <input type="text" id="seq-suffix" placeholder="-VIP">
+                            </div>
+                        </div>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-twin-number">
+                            Nhân đôi số nhảy (Cuống vé + Thân vé)
+                        </label>
+                    </div>
+
+                    <div id="mode-none-box" style="display:none;">
+                        <div class="control-group">
+                            <label>Tổng số lượng phiếu:</label>
+                            <input type="number" id="none-total" value="20" min="1" max="10000">
+                        </div>
+                    </div>
+
+                    <div id="mode-multi-box" style="display:none;">
+                        <div class="control-group">
+                            <button type="button" class="btn-outline" onclick="downloadSampleExcel()">
+                                📥 Tải file Excel mẫu (.xlsx)
+                            </button>
+                        </div>
+                        <div class="control-group">
+                            <label>Tải file Excel / CSV:</label>
+                            <input type="file" id="inp-excel-file" accept=".xlsx,.xls,.csv" style="font-size:11.5px;">
+                        </div>
+                        <div class="control-group">
+                            <label>Hoặc Paste cột từ Excel:</label>
+                            <textarea id="inp-paste-data" placeholder="001&#9;Nguyễn Văn A&#9;Giải Nhất"></textarea>
+                        </div>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-has-header">
+                            Bỏ qua dòng tiêu đề đầu tiên
+                        </label>
+                    </div>
+                </div>
+
+                <div class="group-card" id="back-data-card" style="display:none; border-color:#c4b5fd; background:#faf5ff;">
+                    <div class="group-title" style="color:#6d28d9;">Dữ Liệu Mặt Sau (Riêng)</div>
+                    <div class="control-group">
+                        <select id="sel-back-mode" style="font-weight:600;">
+                            <option value="sequence">1. Đánh số tự động (mặt sau)</option>
+                            <option value="none">2. Không điền số (Chỉ ảnh)</option>
+                            <option value="multi">3. Nhiều giá trị (Excel / Paste)</option>
+                        </select>
+                    </div>
+
+                    <div id="back-mode-sequence-box">
+                        <div class="grid-3">
+                            <div class="control-group">
+                                <label>Từ số:</label>
+                                <input type="number" id="back-seq-start" value="1">
+                            </div>
+                            <div class="control-group">
+                                <label>Đến số:</label>
+                                <input type="number" id="back-seq-end" value="100">
+                            </div>
+                            <div class="control-group">
+                                <label>Bước:</label>
+                                <input type="number" id="back-seq-step" value="1" min="1">
+                            </div>
+                        </div>
+                        <div class="grid-3">
+                            <div class="control-group">
+                                <label>Độ dài:</label>
+                                <input type="number" id="back-seq-pad" value="3" min="1" max="10">
+                            </div>
+                            <div class="control-group">
+                                <label>Tiền tố:</label>
+                                <input type="text" id="back-seq-prefix" placeholder="SAU-">
+                            </div>
+                            <div class="control-group">
+                                <label>Hậu tố:</label>
+                                <input type="text" id="back-seq-suffix" placeholder="">
+                            </div>
+                        </div>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-back-twin-number">
+                            Nhân đôi số nhảy (2 vị trí trên mặt sau)
+                        </label>
+                    </div>
+
+                    <div id="back-mode-none-box" style="display:none;">
+                        <div class="control-group">
+                            <label>Tổng số lượng phiếu (mặt sau):</label>
+                            <input type="number" id="back-none-total" value="20" min="1" max="10000">
+                        </div>
+                    </div>
+
+                    <div id="back-mode-multi-box" style="display:none;">
+                        <div class="control-group">
+                            <button type="button" class="btn-outline" onclick="downloadSampleExcelBack()">
+                                📥 Tải file Excel mẫu mặt sau (.xlsx)
+                            </button>
+                        </div>
+                        <div class="control-group">
+                            <label>Tải file Excel / CSV (mặt sau):</label>
+                            <input type="file" id="inp-back-excel-file" accept=".xlsx,.xls,.csv" style="font-size:11.5px;">
+                        </div>
+                        <div class="control-group">
+                            <label>Hoặc Paste cột từ Excel (mặt sau):</label>
+                            <textarea id="inp-back-paste-data" placeholder="BS-001&#9;Nội dung mặt sau"></textarea>
+                        </div>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-back-has-header">
+                            Bỏ qua dòng tiêu đề đầu tiên
+                        </label>
+                    </div>
+                    <div class="hint" id="back-count-hint" style="margin-top:8px;"></div>
+                    <div class="hint">
+                        Sau khi nhập xong, sang tab <b>3. Chữ &amp; Góc</b>, chọn <b>Mặt sau</b> để chỉnh font,
+                        vị trí, góc xoay cho từng cột mặt sau — kéo thả trực tiếp trên vé mặt sau đầu tiên.
+                    </div>
+                </div>
+
+                <div class="group-card">
+                    <div class="group-title">Thứ Tự Cắt Xếp Chồng</div>
+                    <div class="control-group">
+                        <div class="segmented">
+                            <button type="button" id="btn-order-normal" class="seg-btn active" onclick="setOrderMode('normal')">Thứ tự thường</button>
+                            <button type="button" id="btn-order-stack" class="seg-btn" onclick="setOrderMode('cutstack')">Chồng cắt (Cut-Stack)</button>
+                        </div>
+                        <div class="hint" id="order-hint" style="margin-top:8px;">
+                            * <b>Thứ tự thường:</b> In tuần tự từng trang từ đầu đến cuối.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 3: CHỮ & GÓC (CÓ LIVE FONT PREVIEW) ================= -->
+            <div id="tab-text" class="tab-pane">
+                <div class="group-card" id="field-settings-box">
+                    <div class="group-title">
+                        <span>Trường Giá Trị Trên Vé</span>
+                        <div id="multi-field-actions" style="display:none; gap:4px;">
+                            <button type="button" class="btn-mini" onclick="addField()">+ Cột</button>
+                            <button type="button" class="btn-mini danger" onclick="removeCurrentField()">Xoá</button>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Mặt đang chỉnh sửa:</label>
+                        <div class="segmented">
+                            <button type="button" id="btn-edit-front" class="seg-btn active" onclick="setEditingSide('front')">Mặt trước</button>
+                            <button type="button" id="btn-edit-back" class="seg-btn" onclick="setEditingSide('back')">Mặt sau</button>
+                        </div>
+                        <div class="hint" id="edit-side-hint">Đang chỉnh các trường in trên <b>mặt trước</b>.</div>
+                    </div>
+
+                    <div class="hint" style="margin-bottom:8px;">
+                        💡 <b>Mẹo:</b> Có thể dùng chuột <b>kéo thả chữ</b> trực tiếp trên chiếc vé đầu tiên của mặt đang chỉnh.
+                    </div>
+
+                    <div id="field-tabs-container" class="field-pills"></div>
+
+                    <!-- Ô CHỌN PHÔNG CHỮ VỚI GIAO DIỆN XEM TRƯỚC TRỰC TIẾP -->
+                    <div class="control-group">
+                        <label>Phông chữ (Xem trước trực tiếp):</label>
+                        <div class="font-select-wrapper">
+                            <div class="font-dropdown-trigger" id="font-trigger" onclick="toggleFontDropdown()">
+                                <span id="font-trigger-text" style="font-family: Arial;">Arial (Mặc định)</span>
+                                <span>▼</span>
+                            </div>
+                            <div class="font-dropdown-menu" id="font-dropdown-list">
+                                <!-- Các mục font được nạp động bằng JavaScript với đúng style của font đó -->
+                            </div>
+                        </div>
+                        
+                        <div class="grid-2" style="margin-top:7px;">
+                            <button type="button" class="btn-outline" style="font-size:11px; padding:5px;" onclick="scanSystemFonts()">
+                                🔍 Quét font máy tính
+                            </button>
+                            <label class="btn-outline" style="font-size:11px; padding:5px; margin:0; cursor:pointer;">
+                                📁 Nạp file .TTF / .OTF
+                                <input type="file" id="inp-font-file" accept=".ttf,.otf,.woff,.woff2" multiple style="display:none;">
+                            </label>
+                        </div>
+                        <div class="hint" id="font-status-hint" style="margin-top:4px;">
+                            * Gõ hoặc chọn font. Danh sách tự hiển thị đúng kiểu chữ để bạn chọn.
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top:10px;">
+                        <div class="control-group">
+                            <label>Ngang X <span id="val-x" class="val-badge">65.5%</span></label>
+                            <input type="range" id="inp-x" min="0" max="100" step="0.2" value="65.5">
+                        </div>
+                        <div class="control-group">
+                            <label>Dọc Y <span id="val-y" class="val-badge">78.5%</span></label>
+                            <input type="range" id="inp-y" min="0" max="100" step="0.2" value="78.5">
+                        </div>
+                    </div>
+
+                    <div class="grid-2" style="margin-top:4px;">
+                        <div class="control-group">
+                            <label>Căn lề:</label>
+                            <div class="segmented">
+                                <button type="button" id="btn-align-left" class="seg-btn" onclick="setFieldAlign('left')">Trái</button>
+                                <button type="button" id="btn-align-center" class="seg-btn active" onclick="setFieldAlign('center')">Giữa</button>
+                                <button type="button" id="btn-align-right" class="seg-btn" onclick="setFieldAlign('right')">Phải</button>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label>Xoay nhanh:</label>
+                            <div style="display:flex; gap:4px;">
+                                <button type="button" class="btn-mini" style="flex:1;" onclick="setFieldRotation(0)">0°</button>
+                                <button type="button" class="btn-mini" style="flex:1;" onclick="setFieldRotation(-90)">-90°</button>
+                                <button type="button" class="btn-mini" style="flex:1;" onclick="setFieldRotation(90)">90°</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Góc xoay tuỳ chỉnh <span id="val-rotate" class="val-badge">0°</span></label>
+                        <input type="range" id="inp-rotate" min="-180" max="180" step="1" value="0">
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Cỡ chữ <span id="val-size" class="val-badge">14pt</span></label>
+                            <input type="range" id="inp-size" min="5" max="72" step="0.5" value="14">
+                        </div>
+                        <div class="control-group">
+                            <label>Màu & Kiểu:</label>
+                            <div style="display:flex; gap:5px;">
+                                <input type="color" id="inp-color" value="#2563eb" style="flex:1;">
+                                <button type="button" id="btn-bold" class="btn-mini active" onclick="toggleStyle('bold')"><b>B</b></button>
+                                <button type="button" id="btn-italic" class="btn-mini" onclick="toggleStyle('italic')"><i>I</i></button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid-2">
+                        <div class="control-group">
+                            <label>Viền chữ <span id="val-stroke" class="val-badge">0px</span></label>
+                            <input type="range" id="inp-stroke-w" min="0" max="5" step="0.2" value="0">
+                        </div>
+                        <div class="control-group">
+                            <label>Màu viền chữ:</label>
+                            <input type="color" id="inp-stroke-color" value="#ffffff">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ================= TAB 4: CẤU HÌNH ================= -->
+            <div id="tab-system" class="tab-pane">
+                <div class="group-card">
+                    <div class="group-title">Lưu & Khôi Phục Preset</div>
+                    <div class="hint" style="margin-bottom:10px;">
+                        Thông số được tự động lưu vào trình duyệt. Bạn cũng có thể xuất ra file <b>.json</b> để lưu riêng.
+                    </div>
+                    <div class="control-group">
+                        <button type="button" class="btn-outline" onclick="exportPresetJSON()">
+                            📤 Xuất cấu hình (.json)
+                        </button>
+                    </div>
+                    <div class="control-group">
+                        <label>Nhập cấu hình từ file:</label>
+                        <input type="file" id="inp-preset-file" accept=".json" style="font-size:11.5px;">
+                    </div>
+                    <div class="control-group" style="margin-top:12px;">
+                        <button type="button" class="btn-outline" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2;" onclick="resetAllSettings()">
+                            🔄 Khôi phục mặc định ban đầu
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel-footer">
+            <button type="button" class="btn-primary" onclick="window.print()">🖨️ In Ngay / Lưu PDF</button>
+            <button type="button" class="btn-secondary" onclick="saveToHTML()">💾 Xuất HTML</button>
+        </div>
+    </aside>
+
+    <!-- ================= KHU VỰC XEM TRƯỚC ================= -->
+    <main class="workspace">
+        <div class="floating-toolbar no-print">
+            <div class="toolbar-metrics">
+                <span class="metric-item">Khổ giấy: <b id="lbl-paper-info">A4 Dọc (210×297mm)</b></span>
+                <span class="metric-item">Cỡ vé: <b id="lbl-card-info">Tự động</b></span>
+                <span class="metric-item">Tổng vé: <b id="lbl-total-cards">100</b></span>
+                <span class="metric-item">Tổng trang: <b id="lbl-total-pages">5</b></span>
+            </div>
+            <div class="zoom-controls">
+                <span>Thu phóng:</span>
+                <input type="range" id="inp-zoom" min="0.4" max="1.4" step="0.05" value="0.85" style="width:80px;">
+                <b id="val-zoom">85%</b>
+            </div>
+        </div>
+
+        <div id="print-area"></div>
+    </main>
+
+    <script>
+        const STORAGE_KEY = 'STUDIO_IN_VE_CONFIG_V4';
+        const printArea = document.getElementById('print-area');
+        const rootStyle = document.documentElement.style;
+        const dynamicPageStyle = document.getElementById('dynamic-page-style');
+        const customUploadedFontsStyle = document.getElementById('custom-uploaded-fonts');
+
+        const PAPER_PRESETS = {
+            A4: { w: 210, h: 297 },
+            A3: { w: 297, h: 420 },
+            A5: { w: 148, h: 210 },
+            Letter: { w: 215.9, h: 279.4 }
+        };
+
+        const POPULAR_FONTS = [
+            "Arial", "Times New Roman", "Segoe UI", "Calibri", "Tahoma", "Verdana", 
+            "Consolas", "Courier New", "Georgia", "Impact", 
+            "Be Vietnam Pro", "Roboto", "Roboto Mono", "Montserrat", "Oswald", 
+            "Playfair Display", "Lobster", "Dancing Script",
+            "UTM Avo", "UTM Bebas", "UTM Helve", "SVN-Gilroy", "SVN-Gotham"
+        ];
+
+        let state = {
+            paperPreset: 'A4',
+            orientation: 'portrait',
+            customPaperW: 210,
+            customPaperH: 297,
+            sizeMode: 'auto',
+            cardW: 90,
+            cardH: 43,
+            lockRatio: true,
+            cols: 2,
+            rows: 10,
+            margin: 10,
+            gap: 2,
+            cropMarks: false,
+            cropSize: 3,
+            cropOffset: 1,
+            cropThick: 0.3,
+            cropColor: '#475569',
+            borderW: 0,
+            borderStyle: 'dashed',
+            borderColor: '#cbd5e1',
+            borderRadius: 0,
+            duplexMode: 'none',
+            backShowFields: false,
+            backDataSource: 'same',
+            backDataMode: 'sequence',
+            backSeqStart: 1,
+            backSeqEnd: 100,
+            backSeqStep: 1,
+            backSeqPad: 3,
+            backSeqPrefix: '',
+            backSeqSuffix: '',
+            backTwinNumber: false,
+            backNoneTotal: 20,
+            backPasteData: "BS-001\tMặt sau vé 1\nBS-002\tMặt sau vé 2\nBS-003\tMặt sau vé 3",
+            backHasHeader: false,
+            backFields: [
+                {
+                    name: "Cột 1 (Sau)",
+                    x: 50,
+                    y: 50,
+                    size: 14,
+                    font: "Arial",
+                    color: "#9333ea",
+                    bold: true,
+                    italic: false,
+                    align: "center",
+                    rotate: 0,
+                    strokeW: 0,
+                    strokeColor: "#ffffff"
+                }
+            ],
+            dataMode: 'sequence',
+            seqStart: 1,
+            seqEnd: 100,
+            seqStep: 1,
+            seqPad: 3,
+            seqPrefix: '',
+            seqSuffix: '',
+            twinNumber: false,
+            noneTotal: 20,
+            pasteData: "001\tNguyễn Văn A\tGiải Nhất\n002\tTrần Thị B\tGiải Nhì\n003\tLê Văn C\tGiải Ba\n004\tPhạm Thị D\tKhuyến Khích",
+            hasHeader: false,
+            orderMode: 'normal',
+            imgPath: 'card.jpg',
+            backPath: '',
+            fields: [
+                {
+                    name: "Cột 1",
+                    x: 65.5,
+                    y: 78.5,
+                    size: 14,
+                    font: "Arial",
+                    color: "#2563eb",
+                    bold: true,
+                    italic: false,
+                    align: "center",
+                    rotate: 0,
+                    strokeW: 0,
+                    strokeColor: "#ffffff"
+                }
+            ]
+        };
+
+        let currentRatio = 2.1;
+        let currentBgUrl = "card.jpg";
+        let currentBackUrl = "";
+        let activeFieldIndex = 0;
+        let editingSide = 'front';
+        let allAvailableFonts = [...POPULAR_FONTS];
+
+        // ================= XÂY DỰNG DROPDOWN XEM TRƯỚC FONT TRỰC TIẾP =================
+        function buildFontDropdown(filterText = "") {
+            const listEl = document.getElementById('font-dropdown-list');
+            listEl.innerHTML = '';
+
+            const lowerFilter = filterText.toLowerCase();
+            const filtered = allAvailableFonts.filter(f => f.toLowerCase().includes(lowerFilter));
+
+            if (filtered.length === 0 && filterText.trim() !== "") {
+                filtered.unshift(filterText.trim()); // Cho phép chọn tên font tự gõ
+            }
+
+            filtered.forEach(fontName => {
+                const opt = document.createElement('div');
+                opt.className = 'font-option';
+                opt.innerHTML = `
+                    <div class="font-option-name">${fontName}</div>
+                    <div class="font-option-preview" style="font-family: ${formatFontFamilyCSS(fontName)};">Vé Số Trúng Thưởng 123</div>
+                `;
+                opt.onclick = () => {
+                    selectFont(fontName);
+                    closeFontDropdown();
+                };
+                listEl.appendChild(opt);
+            });
+        }
+
+        function toggleFontDropdown() {
+            const menu = document.getElementById('font-dropdown-list');
+            menu.classList.toggle('show');
+            if (menu.classList.contains('show')) {
+                buildFontDropdown();
+            }
+        }
+
+        function selectFont(fontName) {
+            const f = getEditingFields()[activeFieldIndex];
+            if (!f) return;
+            f.font = fontName;
+            document.getElementById('font-trigger-text').innerText = fontName;
+            document.getElementById('font-trigger-text').style.fontFamily = formatFontFamilyCSS(fontName);
+            applyFieldStylesToDOM(activeFieldIndex);
+            saveStateToLocal();
+        }
+
+        // Đóng dropdown khi click ra ngoài
+        window.addEventListener('click', function(e) {
+            if (!e.target.closest('.font-select-wrapper')) {
+                document.getElementById('font-dropdown-list').classList.remove('show');
+            }
+        });
+
+        // ================= QUÉT FONT MÁY TÍNH & NẠP FILE .TTF / .OTF =================
+        async function scanSystemFonts() {
+            const hintEl = document.getElementById('font-status-hint');
+            if (!('queryLocalFonts' in window)) {
+                hintEl.innerHTML = `⚠️ Trình duyệt không hỗ trợ quét tự động. Hãy dùng nút <b>Nạp file .TTF / .OTF</b>!`;
+                return;
+            }
+            try {
+                hintEl.innerHTML = `⏳ Đang quét danh sách font trên máy...`;
+                const localFonts = await window.queryLocalFonts();
+                const families = new Set(allAvailableFonts);
+                localFonts.forEach(f => families.add(f.family));
+                allAvailableFonts = Array.from(families).sort();
+                buildFontDropdown();
+                hintEl.innerHTML = `✅ Đã quét thành công <b>${allAvailableFonts.length} bộ font</b> từ máy tính!`;
+            } catch (err) {
+                hintEl.innerHTML = `💡 Hãy bấm <b>Nạp file .TTF / .OTF</b> để đưa font trực tiếp vào phần mềm.`;
+            }
+        }
+
+        document.getElementById('inp-font-file').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            if (!files.length) return;
+            const hintEl = document.getElementById('font-status-hint');
+
+            files.forEach((file, idx) => {
+                const rawName = file.name.replace(/\.(ttf|otf|woff2?|TTF|OTF|WOFF2?)$/, '');
+                const cleanFontName = rawName.replace(/['"]/g, '').trim();
+
+                const reader = new FileReader();
+                reader.onload = function(evt) {
+                    const dataUrl = evt.target.result;
+                    customUploadedFontsStyle.innerHTML += `\n@font-face { font-family: '${cleanFontName}'; src: url('${dataUrl}'); }\n`;
+
+                    if (!allAvailableFonts.includes(cleanFontName)) {
+                        allAvailableFonts.unshift(cleanFontName);
+                    }
+
+                    if (idx === files.length - 1) {
+                        selectFont(cleanFontName);
+                        hintEl.innerHTML = `✅ Đã nạp & áp dụng font <b>${cleanFontName}</b>!`;
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        function formatFontFamilyCSS(fontStr) {
+            if (!fontStr) return 'Arial, sans-serif';
+            const trimmed = fontStr.trim();
+            if (trimmed.includes(',') || trimmed.startsWith("'") || trimmed.startsWith('"')) {
+                return trimmed;
+            }
+            return `'${trimmed}', sans-serif`;
+        }
+
+        // ================= ĐIỀU HƯỚNG TAB & LAYOUT =================
+        function switchTab(tabId, btnEl) {
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btnEl.classList.add('active');
+        }
+
+        function gotoTab(tabId) {
+            const map = { 'tab-layout': 0, 'tab-data': 1, 'tab-text': 2, 'tab-system': 3 };
+            const btn = document.querySelectorAll('.nav-tab')[map[tabId]];
+            if (btn) switchTab(tabId, btn);
+        }
+
+        function gotoBackFieldEditor() {
+            setEditingSide('back');
+            gotoTab('tab-text');
+        }
+
+        function fetchImageRatio(src) {
+            if (!src) return;
+            const img = new Image();
+            img.onload = function() {
+                if (this.naturalWidth && this.naturalHeight) {
+                    currentRatio = this.naturalWidth / this.naturalHeight;
+                    rootStyle.setProperty('--ratio', currentRatio);
+                    if (state.lockRatio) {
+                        state.cardH = Math.round((state.cardW / currentRatio) * 10) / 10;
+                        document.getElementById('inp-card-h').value = state.cardH;
+                        updateLayoutCSS();
+                    }
+                    updateTopToolbarInfo();
+                }
+            };
+            img.src = src;
+        }
+
+        function getPaperDimensions() {
+            let baseW = state.customPaperW;
+            let baseH = state.customPaperH;
+            if (state.paperPreset !== 'Custom' && PAPER_PRESETS[state.paperPreset]) {
+                baseW = PAPER_PRESETS[state.paperPreset].w;
+                baseH = PAPER_PRESETS[state.paperPreset].h;
+            }
+            if (state.orientation === 'landscape') {
+                return { w: Math.max(baseW, baseH), h: Math.min(baseW, baseH) };
+            }
+            return { w: Math.min(baseW, baseH), h: Math.max(baseW, baseH) };
+        }
+
+        function autoFitGridFromCardSize() {
+            const paper = getPaperDimensions();
+            const availW = paper.w - 2 * state.margin;
+            const availH = paper.h - 2 * state.margin;
+            const maxCols = Math.max(1, Math.floor((availW + state.gap) / (state.cardW + state.gap)));
+            const maxRows = Math.max(1, Math.floor((availH + state.gap) / (state.cardH + state.gap)));
+
+            state.cols = Math.min(10, maxCols);
+            state.rows = Math.min(25, maxRows);
+            document.getElementById('inp-cols').value = state.cols;
+            document.getElementById('inp-rows').value = state.rows;
+            updateLayoutCSS();
+            renderPages();
+            saveStateToLocal();
+        }
+
+        function updateLayoutCSS() {
+            const paper = getPaperDimensions();
+            rootStyle.setProperty('--page-w', paper.w + 'mm');
+            rootStyle.setProperty('--page-h', paper.h + 'mm');
+            rootStyle.setProperty('--cols', state.cols);
+            rootStyle.setProperty('--rows', state.rows);
+            rootStyle.setProperty('--page-margin', state.margin + 'mm');
+            rootStyle.setProperty('--grid-gap', state.gap + 'mm');
+            rootStyle.setProperty('--card-w', state.cardW + 'mm');
+            rootStyle.setProperty('--card-h', state.cardH + 'mm');
+            rootStyle.setProperty('--card-border-width', state.borderW + 'px');
+            rootStyle.setProperty('--card-border-style', state.borderStyle);
+            rootStyle.setProperty('--card-border-color', state.borderColor);
+            rootStyle.setProperty('--card-border-radius', state.borderRadius + 'px');
+            rootStyle.setProperty('--crop-size', state.cropSize + 'mm');
+            rootStyle.setProperty('--crop-thickness', state.cropThick + 'mm');
+            rootStyle.setProperty('--crop-offset', (state.cropOffset || 0) + 'mm');
+            const cropOffsetBadge = document.getElementById('val-crop-offset');
+            if (cropOffsetBadge) cropOffsetBadge.innerText = (state.cropOffset || 0) + 'mm';
+            rootStyle.setProperty('--crop-color', state.cropColor);
+
+            dynamicPageStyle.innerHTML = `@media print { @page { size: ${paper.w}mm ${paper.h}mm; margin: 0; } }`;
+
+            document.getElementById('val-cols').innerText = state.cols;
+            document.getElementById('val-rows').innerText = state.rows;
+            document.getElementById('val-margin').innerText = state.margin;
+            document.getElementById('val-gap').innerText = state.gap;
+            document.getElementById('val-radius').innerText = state.borderRadius;
+
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.toggle('mode-auto', state.sizeMode === 'auto');
+                p.classList.toggle('mode-exact', state.sizeMode === 'exact');
+                p.classList.toggle('show-crops', state.cropMarks);
+            });
+
+            updateTopToolbarInfo();
+        }
+
+        function updateTopToolbarInfo() {
+            const paper = getPaperDimensions();
+            const orientLabel = state.orientation === 'portrait' ? 'Dọc' : 'Ngang';
+            document.getElementById('lbl-paper-info').innerText = `${state.paperPreset} ${orientLabel} (${paper.w}×${paper.h}mm)`;
+
+            if (state.sizeMode === 'exact') {
+                document.getElementById('lbl-card-info').innerText = `${state.cardW} × ${state.cardH} mm`;
+            } else {
+                const availW = (paper.w - 2 * state.margin - (state.cols - 1) * state.gap) / state.cols;
+                const availH = (paper.h - 2 * state.margin - (state.rows - 1) * state.gap) / state.rows;
+                const realW = Math.min(availW, availH * currentRatio);
+                const realH = realW / currentRatio;
+                document.getElementById('lbl-card-info').innerText = `~${realW.toFixed(1)} × ${realH.toFixed(1)} mm`;
+            }
+        }
+
+        function setOrientation(orient) {
+            state.orientation = orient;
+            document.getElementById('btn-orient-p').classList.toggle('active', orient === 'portrait');
+            document.getElementById('btn-orient-l').classList.toggle('active', orient === 'landscape');
+            updateLayoutCSS();
+            saveStateToLocal();
+        }
+
+        function setSizeMode(mode) {
+            state.sizeMode = mode;
+            document.getElementById('btn-size-auto').classList.toggle('active', mode === 'auto');
+            document.getElementById('btn-size-exact').classList.toggle('active', mode === 'exact');
+            document.getElementById('exact-size-box').style.display = mode === 'exact' ? 'block' : 'none';
+            updateLayoutCSS();
+            saveStateToLocal();
+        }
+
+        function setOrderMode(mode) {
+            state.orderMode = mode;
+            document.getElementById('btn-order-normal').classList.toggle('active', mode === 'normal');
+            document.getElementById('btn-order-stack').classList.toggle('active', mode === 'cutstack');
+            const hint = document.getElementById('order-hint');
+            if (mode === 'cutstack') {
+                hint.innerHTML = `* <b>Chồng cắt (Cut-Stack):</b> Xếp các xấp giấy sau khi xén là tự động đúng thứ tự 1 đến hết.`;
+            } else {
+                hint.innerHTML = `* <b>Thứ tự thường:</b> In tuần tự từng trang một.`;
+            }
+            renderPages();
+            saveStateToLocal();
+        }
+
+        function parseMultiRows() {
+            const raw = state.pasteData || '';
+            if (!raw.trim()) return [];
+            const lines = raw.split(/\r?\n/).filter(line => line.trim() !== "");
+            const parsed = lines.map(line => {
+                if (line.includes("\t")) return line.split("\t").map(s => s.trim());
+                if (line.includes(";")) return line.split(";").map(s => s.trim());
+                return line.split(",").map(s => s.trim());
+            });
+            return state.hasHeader && parsed.length > 0 ? parsed.slice(1) : parsed;
+        }
+
+        function syncMultiFieldsFromData() {
+            if (state.dataMode === 'sequence') {
+                const needed = state.twinNumber ? 2 : 1;
+                while (state.fields.length < needed) {
+                    state.fields.push({
+                        name: "Số phụ (Cuống)",
+                        x: 20,
+                        y: 78.5,
+                        size: state.fields[0].size,
+                        font: state.fields[0].font,
+                        color: state.fields[0].color,
+                        bold: true,
+                        italic: false,
+                        align: "center",
+                        rotate: 0,
+                        strokeW: 0,
+                        strokeColor: "#ffffff"
+                    });
+                }
+            } else if (state.dataMode === 'multi') {
+                const rows = parseMultiRows();
+                let maxCols = 1;
+                rows.forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+                while (state.fields.length < maxCols) {
+                    const idx = state.fields.length;
+                    state.fields.push({
+                        name: `Cột ${idx + 1}`,
+                        x: Math.min(88, 25 + idx * 25),
+                        y: Math.min(88, 45 + idx * 15),
+                        size: 13,
+                        font: "Arial",
+                        color: idx === 0 ? "#2563eb" : "#1e293b",
+                        bold: true,
+                        italic: false,
+                        align: "center",
+                        rotate: 0,
+                        strokeW: 0,
+                        strokeColor: "#ffffff"
+                    });
+                }
+            }
+            renderFieldTabs();
+            loadFieldToControls(activeFieldIndex);
+        }
+
+        // ================= DỮ LIỆU & TRƯỜNG CHỮ CHO MẶT SAU =================
+        function getSideFields(side) {
+            return side === 'back' ? state.backFields : state.fields;
+        }
+
+        function getEditingFields() {
+            return getSideFields(editingSide);
+        }
+
+        function getBackFieldCount() {
+            if (state.duplexMode === 'none' || state.backDataSource === 'none') return 0;
+            if (state.backDataSource === 'same') return getActiveFieldCount();
+            if (state.backDataMode === 'none') return 0;
+            if (state.backDataMode === 'sequence') return state.backTwinNumber ? 2 : 1;
+            return state.backFields.length;
+        }
+
+        function parseBackMultiRows() {
+            const raw = state.backPasteData || '';
+            if (!raw.trim()) return [];
+            const lines = raw.split(/\r?\n/).filter(line => line.trim() !== "");
+            const parsed = lines.map(line => {
+                if (line.includes("\t")) return line.split("\t").map(s => s.trim());
+                if (line.includes(";")) return line.split(";").map(s => s.trim());
+                return line.split(",").map(s => s.trim());
+            });
+            return state.backHasHeader && parsed.length > 0 ? parsed.slice(1) : parsed;
+        }
+
+        function ensureBackField(idx) {
+            if (!Array.isArray(state.backFields)) state.backFields = [];
+            if (!state.backFields[idx]) {
+                const base = state.backFields[0] || state.fields[0] || { size: 14, font: "Arial", color: "#9333ea" };
+                state.backFields[idx] = {
+                    name: `Cột ${idx + 1} (Sau)`,
+                    x: Math.min(88, 30 + idx * 20),
+                    y: Math.min(88, 40 + idx * 15),
+                    size: base.size || 14,
+                    font: base.font || "Arial",
+                    color: "#9333ea",
+                    bold: true,
+                    italic: false,
+                    align: "center",
+                    rotate: 0,
+                    strokeW: 0,
+                    strokeColor: "#ffffff"
+                };
+            }
+            return state.backFields[idx];
+        }
+
+        function syncBackFieldsFromData() {
+            if (state.backDataSource !== 'independent') return;
+            ensureBackField(0);
+            if (state.backDataMode === 'sequence') {
+                const needed = state.backTwinNumber ? 2 : 1;
+                for (let i = 0; i < needed; i++) ensureBackField(i);
+            } else if (state.backDataMode === 'multi') {
+                const rows = parseBackMultiRows();
+                let maxCols = 1;
+                rows.forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+                for (let i = 0; i < maxCols; i++) ensureBackField(i);
+            }
+            if (editingSide === 'back') {
+                renderFieldTabs();
+                loadFieldToControls(activeFieldIndex);
+            }
+        }
+
+        function generateBackCardsData() {
+            const list = [];
+            if (state.backDataMode === 'none') {
+                const total = Math.max(1, parseInt(state.backNoneTotal) || 1);
+                for (let i = 0; i < total; i++) list.push([]);
+            } else if (state.backDataMode === 'sequence') {
+                const start = parseInt(state.backSeqStart) || 0;
+                const end = parseInt(state.backSeqEnd) || 0;
+                const step = Math.max(1, parseInt(state.backSeqStep) || 1);
+                const pad = Math.max(1, parseInt(state.backSeqPad) || 1);
+                const prefix = state.backSeqPrefix || '';
+                const suffix = state.backSeqSuffix || '';
+                if (start <= end) {
+                    for (let n = start; n <= end; n += step) {
+                        const txt = prefix + String(n).padStart(pad, '0') + suffix;
+                        list.push(state.backTwinNumber ? [txt, txt] : [txt]);
+                    }
+                } else {
+                    for (let n = start; n >= end; n -= step) {
+                        const txt = prefix + String(n).padStart(pad, '0') + suffix;
+                        list.push(state.backTwinNumber ? [txt, txt] : [txt]);
+                    }
+                }
+            } else if (state.backDataMode === 'multi') {
+                parseBackMultiRows().forEach(r => list.push(r));
+            }
+            return list;
+        }
+
+        function downloadSampleExcelBack() {
+            const sampleRows = [
+                ["Mã Mặt Sau", "Nội Dung Mặt Sau"],
+                ["BS-001", "Điều lệ / thông tin in ở mặt sau vé 1"],
+                ["BS-002", "Điều lệ / thông tin in ở mặt sau vé 2"],
+                ["BS-003", "Điều lệ / thông tin in ở mặt sau vé 3"]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "MatSau");
+            XLSX.writeFile(wb, "Mau_In_Ve_Mat_Sau.xlsx");
+        }
+
+        function updateBackDataCardVisibility() {
+            const isIndependent = state.duplexMode !== 'none' && state.backDataSource === 'independent';
+            const card = document.getElementById('back-data-card');
+            if (card) card.style.display = isIndependent ? 'block' : 'none';
+            const shortcuts = document.getElementById('back-independent-shortcuts');
+            if (shortcuts) shortcuts.style.display = isIndependent ? 'block' : 'none';
+            updateEditingSideUI();
+        }
+
+        function updateBackCountHint(frontCount, backCount, isIndependent) {
+            const el = document.getElementById('back-count-hint');
+            if (!el) return;
+            if (!isIndependent) { el.innerHTML = ''; return; }
+            if (frontCount === backCount) {
+                el.innerHTML = `✅ Mặt trước có <b>${frontCount}</b> vé, dữ liệu mặt sau có <b>${backCount}</b> dòng — khớp nhau, dòng <i>i</i> in vào mặt sau của vé <i>i</i>.`;
+            } else {
+                el.innerHTML = `⚠️ Mặt trước có <b>${frontCount}</b> vé nhưng dữ liệu mặt sau có <b>${backCount}</b> dòng. ` +
+                    `Vé nào thiếu dòng mặt sau sẽ để trắng mặt sau; tổng số vé lấy theo phía nhiều hơn (riêng chế độ "Chỉ mặt sau" thì lấy theo số dòng mặt sau).`;
+            }
+        }
+
+        function updateFieldActionsVisibility() {
+            const el = document.getElementById('multi-field-actions');
+            if (!el) return;
+            const show = editingSide === 'back'
+                ? (state.backDataSource === 'independent' && state.backDataMode === 'multi')
+                : (state.dataMode === 'multi');
+            el.style.display = show ? 'flex' : 'none';
+        }
+
+        function updateEditingSideUI() {
+            const btnF = document.getElementById('btn-edit-front');
+            const btnB = document.getElementById('btn-edit-back');
+            const hint = document.getElementById('edit-side-hint');
+            if (btnF) btnF.classList.toggle('active', editingSide === 'front');
+            if (btnB) btnB.classList.toggle('active', editingSide === 'back');
+            if (btnB) btnB.style.opacity = (state.duplexMode !== 'none' && state.backDataSource === 'independent') ? '1' : '0.55';
+            if (!hint) return;
+            if (editingSide === 'back') {
+                hint.innerHTML = 'Đang chỉnh các trường in trên <b>mặt sau</b> (dữ liệu riêng). Kéo thả trực tiếp trên vé mặt sau đầu tiên.';
+            } else if (state.duplexMode !== 'none' && state.backDataSource === 'same') {
+                hint.innerHTML = 'Đang chỉnh <b>mặt trước</b>. Mặt sau đang <b>dùng chung</b> các trường này (Mirror) — sửa ở đây sẽ áp dụng cho cả mặt sau.';
+            } else if (state.duplexMode !== 'none' && state.backDataSource === 'independent') {
+                hint.innerHTML = 'Đang chỉnh <b>mặt trước</b>. Mặt sau có trường chữ riêng — bấm nút <b>Mặt sau</b> ở trên để chỉnh.';
+            } else if (state.duplexMode !== 'none' && state.backDataSource === 'none') {
+                hint.innerHTML = 'Đang chỉnh <b>mặt trước</b>. Mặt sau hiện <b>không chèn chữ</b> (chỉ in ảnh nền).';
+            } else {
+                hint.innerHTML = 'Đang chỉnh các trường in trên <b>mặt trước</b>.';
+            }
+        }
+
+        function setEditingSide(side) {
+            if (side === 'back' && state.backDataSource !== 'independent') {
+                editingSide = 'front';
+                updateEditingSideUI();
+                const hint = document.getElementById('edit-side-hint');
+                if (hint) {
+                    hint.innerHTML = state.duplexMode === 'none'
+                        ? '⚠️ Chưa bật in 2 mặt. Vào tab <b>1. Giấy &amp; Vé</b> → mục <b>In 2 Mặt</b> để bật trước.'
+                        : '⚠️ Mặt sau chưa dùng dữ liệu riêng. Vào tab <b>1. Giấy &amp; Vé</b> → <b>Dữ liệu chèn lên mặt sau</b> → chọn <b>Dữ liệu riêng cho mặt sau</b>.';
+                }
+                return;
+            }
+            editingSide = side;
+            activeFieldIndex = 0;
+            if (side === 'back') syncBackFieldsFromData();
+            updateEditingSideUI();
+            renderFieldTabs();
+            loadFieldToControls(0);
+            highlightSelectedField();
+        }
+
+        function downloadSampleExcel() {
+            const sampleRows = [
+                ["Mã Số Vé", "Họ Và Tên", "Hạng Giải"],
+                ["VE-001", "Nguyễn Văn An", "Giải Đặc Biệt"],
+                ["VE-002", "Trần Thị Bình", "Giải Nhất"],
+                ["VE-003", "Lê Hoàng Cường", "Giải Nhì"]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(sampleRows);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "DanhSach");
+            XLSX.writeFile(wb, "Mau_In_Ve.xlsx");
+        }
+
+        function getActiveFieldCount() {
+            if (state.dataMode === 'none') return 0;
+            if (state.dataMode === 'sequence') return state.twinNumber ? 2 : 1;
+            return state.fields.length;
+        }
+
+        function renderFieldTabs() {
+            const container = document.getElementById('field-tabs-container');
+            container.innerHTML = '';
+            const isBack = editingSide === 'back';
+            const count = isBack ? getBackFieldCount() : getActiveFieldCount();
+            if (activeFieldIndex >= count) activeFieldIndex = Math.max(0, count - 1);
+
+            for (let i = 0; i < count; i++) {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'field-pill' + (i === activeFieldIndex ? ' active' : '');
+                const mode = isBack ? state.backDataMode : state.dataMode;
+                if (mode === 'sequence') {
+                    btn.textContent = isBack
+                        ? (i === 0 ? 'Số chính (Mặt sau)' : 'Số phụ (Mặt sau)')
+                        : (i === 0 ? 'Số chính (Thân)' : 'Số phụ (Cuống)');
+                } else {
+                    btn.textContent = isBack ? `Cột ${i + 1} (Sau)` : `Cột ${i + 1}`;
+                }
+                btn.onclick = () => {
+                    activeFieldIndex = i;
+                    renderFieldTabs();
+                    loadFieldToControls(i);
+                    highlightSelectedField();
+                };
+                container.appendChild(btn);
+            }
+            updateFieldActionsVisibility();
+        }
+
+        function addField() {
+            const arr = getEditingFields();
+            const idx = arr.length;
+            arr.push({
+                name: `Cột ${idx + 1}`,
+                x: 50,
+                y: 50,
+                size: 14,
+                font: "Arial",
+                color: "#1e293b",
+                bold: true,
+                italic: false,
+                align: "center",
+                rotate: 0,
+                strokeW: 0,
+                strokeColor: "#ffffff"
+            });
+            activeFieldIndex = idx;
+            renderFieldTabs();
+            loadFieldToControls(activeFieldIndex);
+            renderPages();
+            saveStateToLocal();
+        }
+
+        function removeCurrentField() {
+            const arr = getEditingFields();
+            if (arr.length <= 1) return;
+            arr.splice(activeFieldIndex, 1);
+            activeFieldIndex = Math.max(0, activeFieldIndex - 1);
+            renderFieldTabs();
+            loadFieldToControls(activeFieldIndex);
+            renderPages();
+            saveStateToLocal();
+        }
+
+        function loadFieldToControls(index) {
+            const fieldsArr = getEditingFields();
+            const f = fieldsArr[index] || fieldsArr[0];
+            if (!f) return;
+            
+            document.getElementById('font-trigger-text').innerText = f.font;
+            document.getElementById('font-trigger-text').style.fontFamily = formatFontFamilyCSS(f.font);
+
+            document.getElementById('inp-x').value = f.x;
+            document.getElementById('inp-y').value = f.y;
+            document.getElementById('inp-size').value = f.size;
+            document.getElementById('inp-color').value = f.color;
+            document.getElementById('inp-rotate').value = f.rotate || 0;
+            document.getElementById('inp-stroke-w').value = f.strokeW || 0;
+            document.getElementById('inp-stroke-color').value = f.strokeColor || '#ffffff';
+
+            document.getElementById('btn-bold').classList.toggle('active', !!f.bold);
+            document.getElementById('btn-italic').classList.toggle('active', !!f.italic);
+
+            const align = f.align || 'center';
+            document.getElementById('btn-align-left').classList.toggle('active', align === 'left');
+            document.getElementById('btn-align-center').classList.toggle('active', align === 'center');
+            document.getElementById('btn-align-right').classList.toggle('active', align === 'right');
+
+            document.getElementById('val-x').innerText = f.x + '%';
+            document.getElementById('val-y').innerText = f.y + '%';
+            document.getElementById('val-size').innerText = f.size + 'pt';
+            document.getElementById('val-rotate').innerText = (f.rotate || 0) + '°';
+            document.getElementById('val-stroke').innerText = (f.strokeW || 0) + 'px';
+        }
+
+        function getFieldTransformCSS(f) {
+            const align = f.align || 'center';
+            const anchorX = align === 'left' ? '0%' : (align === 'right' ? '-100%' : '-50%');
+            const rot = f.rotate || 0;
+            return `rotate(${rot}deg) translate(${anchorX}, -50%)`;
+        }
+
+        function applyFieldStylesToDOM(fieldIdx) {
+            applyFieldStylesForSide(editingSide, fieldIdx);
+            // Mặt sau dùng chung trường mặt trước thì cập nhật luôn cả phía mặt sau
+            if (editingSide === 'front' && state.backDataSource === 'same' && state.duplexMode !== 'none') {
+                applyFieldStylesForSide('back', fieldIdx);
+            }
+        }
+
+        function applyFieldStylesForSide(side, fieldIdx) {
+            const f = getSideFields(side)[fieldIdx];
+            if (!f) return;
+            document.querySelectorAll(`.card-field[data-side="${side}"][data-field-index="${fieldIdx}"]`).forEach(el => {
+                el.style.left = f.x + '%';
+                el.style.top = f.y + '%';
+                el.style.fontSize = f.size + 'pt';
+                el.style.fontFamily = formatFontFamilyCSS(f.font);
+                el.style.color = f.color;
+                el.style.fontWeight = f.bold ? 'bold' : 'normal';
+                el.style.fontStyle = f.italic ? 'italic' : 'normal';
+                el.style.transform = getFieldTransformCSS(f);
+                if (f.strokeW > 0) {
+                    el.style.webkitTextStroke = `${f.strokeW}px ${f.strokeColor}`;
+                    el.style.paintOrder = 'stroke fill';
+                } else {
+                    el.style.webkitTextStroke = '0px transparent';
+                }
+            });
+        }
+
+        function setFieldAlign(align) {
+            const f = getEditingFields()[activeFieldIndex];
+            if (!f) return;
+            f.align = align;
+            loadFieldToControls(activeFieldIndex);
+            applyFieldStylesToDOM(activeFieldIndex);
+            saveStateToLocal();
+        }
+
+        function setFieldRotation(deg) {
+            const f = getEditingFields()[activeFieldIndex];
+            if (!f) return;
+            f.rotate = deg;
+            loadFieldToControls(activeFieldIndex);
+            applyFieldStylesToDOM(activeFieldIndex);
+            saveStateToLocal();
+        }
+
+        function toggleStyle(type) {
+            const f = getEditingFields()[activeFieldIndex];
+            if (!f) return;
+            if (type === 'bold') f.bold = !f.bold;
+            if (type === 'italic') f.italic = !f.italic;
+            loadFieldToControls(activeFieldIndex);
+            applyFieldStylesToDOM(activeFieldIndex);
+            saveStateToLocal();
+        }
+
+        function highlightSelectedField() {
+            document.querySelectorAll('.editable-card .card-field').forEach(el => {
+                const idx = parseInt(el.getAttribute('data-field-index'));
+                const sideMatch = el.getAttribute('data-side') === editingSide || state.backDataSource === 'same';
+                el.classList.toggle('selected-field', idx === activeFieldIndex && sideMatch);
+            });
+        }
+
+        function generateCardsData() {
+            const list = [];
+            if (state.dataMode === 'none') {
+                const total = Math.max(1, parseInt(state.noneTotal) || 1);
+                for (let i = 0; i < total; i++) list.push([]);
+            } else if (state.dataMode === 'sequence') {
+                const start = parseInt(state.seqStart) || 0;
+                const end = parseInt(state.seqEnd) || 0;
+                const step = Math.max(1, parseInt(state.seqStep) || 1);
+                const pad = Math.max(1, parseInt(state.seqPad) || 1);
+                const prefix = state.seqPrefix || '';
+                const suffix = state.seqSuffix || '';
+
+                if (start <= end) {
+                    for (let n = start; n <= end; n += step) {
+                        const txt = prefix + String(n).padStart(pad, '0') + suffix;
+                        list.push(state.twinNumber ? [txt, txt] : [txt]);
+                    }
+                } else {
+                    for (let n = start; n >= end; n -= step) {
+                        const txt = prefix + String(n).padStart(pad, '0') + suffix;
+                        list.push(state.twinNumber ? [txt, txt] : [txt]);
+                    }
+                }
+            } else if (state.dataMode === 'multi') {
+                const rows = parseMultiRows();
+                rows.forEach(r => list.push(r));
+            }
+            return list;
+        }
+
+        function createCardElement(rowValues, isBackSide, isFirstEditable) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'card-wrapper';
+            if (!rowValues) return wrapper;
+
+            const card = document.createElement('div');
+            card.className = 'card' + (isBackSide ? ' card-back' : '') + (isFirstEditable ? ' editable-card' : '');
+
+            ['tl', 'tr', 'bl', 'br'].forEach(pos => {
+                const mark = document.createElement('div');
+                mark.className = `crop-mark crop-${pos}`;
+                card.appendChild(mark);
+            });
+
+            const inner = document.createElement('div');
+            inner.className = 'card-inner';
+
+            const side = isBackSide ? 'back' : 'front';
+            let shouldRenderText = state.dataMode !== 'none';
+            if (isBackSide) {
+                if (state.backDataSource === 'none') shouldRenderText = false;
+                else if (state.backDataSource === 'independent') shouldRenderText = state.backDataMode !== 'none';
+            }
+            if (shouldRenderText) {
+                const maxFields = isBackSide ? getBackFieldCount() : getActiveFieldCount();
+                const sideFields = getSideFields(side);
+                for (let fIdx = 0; fIdx < maxFields; fIdx++) {
+                    const val = rowValues[fIdx] !== undefined ? rowValues[fIdx] : '';
+                    const fConf = sideFields[fIdx] || sideFields[0];
+                    if (!fConf) continue;
+
+                    const fieldEl = document.createElement('div');
+                    fieldEl.className = 'card-field';
+                    fieldEl.setAttribute('data-field-index', fIdx);
+                    fieldEl.setAttribute('data-side', side);
+                    fieldEl.textContent = val;
+
+                    fieldEl.style.left = fConf.x + '%';
+                    fieldEl.style.top = fConf.y + '%';
+                    fieldEl.style.fontSize = fConf.size + 'pt';
+                    fieldEl.style.fontFamily = formatFontFamilyCSS(fConf.font);
+                    fieldEl.style.color = fConf.color;
+                    fieldEl.style.fontWeight = fConf.bold ? 'bold' : 'normal';
+                    fieldEl.style.fontStyle = fConf.italic ? 'italic' : 'normal';
+                    fieldEl.style.transform = getFieldTransformCSS(fConf);
+                    if (fConf.strokeW > 0) {
+                        fieldEl.style.webkitTextStroke = `${fConf.strokeW}px ${fConf.strokeColor}`;
+                        fieldEl.style.paintOrder = 'stroke fill';
+                    }
+
+                    if (isFirstEditable) {
+                        attachDragBehavior(fieldEl, card, fIdx, side);
+                    }
+                    inner.appendChild(fieldEl);
+                }
+            }
+
+            card.appendChild(inner);
+            wrapper.appendChild(card);
+            return wrapper;
+        }
+
+        function renderPages() {
+            printArea.innerHTML = '';
+            const cols = state.cols;
+            const rows = state.rows;
+            const cardsPerPage = cols * rows;
+
+            const cardsData = generateCardsData();
+            const useBackIndependent = state.duplexMode !== 'none' && state.backDataSource === 'independent';
+            const backCardsData = useBackIndependent ? generateBackCardsData() : cardsData;
+            let totalCards = cardsData.length;
+            if (useBackIndependent) {
+                totalCards = state.duplexMode === 'back-only' ? backCardsData.length : Math.max(cardsData.length, backCardsData.length);
+            }
+            const numLogicalPages = Math.max(1, Math.ceil(totalCards / cardsPerPage));
+            updateBackCountHint(cardsData.length, backCardsData.length, useBackIndependent);
+
+            let firstFrontRendered = false;
+            let firstBackRendered = false;
+            let totalPhysicalPages = 0;
+
+            for (let p = 0; p < numLogicalPages; p++) {
+                const pageSlots = [];
+                for (let s = 0; s < cardsPerPage; s++) {
+                    let dataIdx = state.orderMode === 'cutstack' ? (s * numLogicalPages + p) : (p * cardsPerPage + s);
+                    pageSlots.push(dataIdx < totalCards ? cardsData[dataIdx] : null);
+                }
+
+                if (state.duplexMode !== 'back-only') {
+                    if (state.duplexMode === 'interleaved') {
+                        const lbl = document.createElement('div');
+                        lbl.className = 'page-label no-print';
+                        lbl.textContent = `Tờ ${p + 1} - MẶT TRƯỚC`;
+                        printArea.appendChild(lbl);
+                    }
+
+                    const frontPage = document.createElement('div');
+                    frontPage.className = `page mode-${state.sizeMode}` + (state.cropMarks ? ' show-crops' : '');
+
+                    for (let s = 0; s < cardsPerPage; s++) {
+                        const isEditable = !firstFrontRendered && pageSlots[s] !== null;
+                        if (isEditable) firstFrontRendered = true;
+                        frontPage.appendChild(createCardElement(pageSlots[s], false, isEditable));
+                    }
+                    printArea.appendChild(frontPage);
+                    totalPhysicalPages++;
+                }
+
+                if (state.duplexMode === 'interleaved' || state.duplexMode === 'back-only') {
+                    const lbl = document.createElement('div');
+                    lbl.className = 'page-label no-print';
+                    lbl.textContent = `Tờ ${p + 1} - MẶT SAU (Mirror)`;
+                    printArea.appendChild(lbl);
+
+                    const backPageSlots = [];
+                    for (let s = 0; s < cardsPerPage; s++) {
+                        let dataIdx = state.orderMode === 'cutstack' ? (s * numLogicalPages + p) : (p * cardsPerPage + s);
+                        backPageSlots.push(dataIdx < backCardsData.length ? backCardsData[dataIdx] : null);
+                    }
+
+                    const backPage = document.createElement('div');
+                    backPage.className = `page mode-${state.sizeMode}` + (state.cropMarks ? ' show-crops' : '');
+
+                    for (let r = 0; r < rows; r++) {
+                        for (let c = 0; c < cols; c++) {
+                            const mirroredCol = cols - 1 - c;
+                            const slotIdx = r * cols + mirroredCol;
+                            const isEditable = !firstBackRendered && backPageSlots[slotIdx] !== null;
+                            if (isEditable) firstBackRendered = true;
+                            backPage.appendChild(createCardElement(backPageSlots[slotIdx], true, isEditable));
+                        }
+                    }
+                    printArea.appendChild(backPage);
+                    totalPhysicalPages++;
+                }
+            }
+
+            document.getElementById('lbl-total-cards').innerText = totalCards;
+            document.getElementById('lbl-total-pages').innerText = totalPhysicalPages;
+            highlightSelectedField();
+        }
+
+        function attachDragBehavior(fieldEl, cardEl, fieldIdx, side) {
+            fieldEl.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                // Kéo chữ ở mặt nào thì chuyển trình chỉnh sửa sang mặt đó (khi mặt sau dùng dữ liệu riêng)
+                if (side === 'back' && state.backDataSource === 'independent') editingSide = 'back';
+                else if (side === 'front') editingSide = 'front';
+                updateEditingSideUI();
+                activeFieldIndex = fieldIdx;
+                renderFieldTabs();
+                loadFieldToControls(fieldIdx);
+                highlightSelectedField();
+
+                const rect = cardEl.getBoundingClientRect();
+
+                function onMouseMove(moveEvt) {
+                    let newX = ((moveEvt.clientX - rect.left) / rect.width) * 100;
+                    let newY = ((moveEvt.clientY - rect.top) / rect.height) * 100;
+                    newX = Math.max(0, Math.min(100, Math.round(newX * 5) / 5));
+                    newY = Math.max(0, Math.min(100, Math.round(newY * 5) / 5));
+
+                    getSideFields(side)[fieldIdx].x = newX;
+                    getSideFields(side)[fieldIdx].y = newY;
+                    document.getElementById('inp-x').value = newX;
+                    document.getElementById('inp-y').value = newY;
+                    document.getElementById('val-x').innerText = newX + '%';
+                    document.getElementById('val-y').innerText = newY + '%';
+
+                    applyFieldStylesToDOM(fieldIdx);
+                    if (side === 'back' && state.backDataSource === 'same') applyFieldStylesForSide('back', fieldIdx);
+                }
+
+                function onMouseUp() {
+                    window.removeEventListener('mousemove', onMouseMove);
+                    window.removeEventListener('mouseup', onMouseUp);
+                    saveStateToLocal();
+                }
+
+                window.addEventListener('mousemove', onMouseMove);
+                window.addEventListener('mouseup', onMouseUp);
+            });
+        }
+
+        function saveStateToLocal() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                document.getElementById('save-status').textContent = 'Đã lưu tự động';
+            } catch (e) {}
+        }
+
+        function loadStateFromLocal() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    const hadBackSource = Object.prototype.hasOwnProperty.call(parsed, 'backDataSource');
+                    state = Object.assign({}, state, parsed);
+                    if (!hadBackSource) {
+                        // Cấu hình cũ: ô "In kèm chữ mặt sau" bật = dùng chung dữ liệu, tắt = không chèn chữ
+                        state.backDataSource = parsed.backShowFields ? 'same' : 'none';
+                    }
+                    if (!Array.isArray(state.backFields) || state.backFields.length === 0) {
+                        state.backFields = [{
+                            name: "Cột 1 (Sau)", x: 50, y: 50, size: 14, font: "Arial",
+                            color: "#9333ea", bold: true, italic: false, align: "center",
+                            rotate: 0, strokeW: 0, strokeColor: "#ffffff"
+                        }];
+                    }
+                    if (typeof state.cropOffset !== 'number') state.cropOffset = 1;
+                }
+            } catch (e) {}
+        }
+
+        function exportPresetJSON() {
+            const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cau-hinh-in-ve.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        function resetAllSettings() {
+            if (!confirm('Khôi phục lại thiết lập mặc định ban đầu?')) return;
+            localStorage.removeItem(STORAGE_KEY);
+            location.reload();
+        }
+
+        function syncUIFromState() {
+            document.getElementById('inp-img-path').value = state.imgPath;
+            document.getElementById('sel-paper-size').value = state.paperPreset;
+            document.getElementById('custom-paper-box').style.display = state.paperPreset === 'Custom' ? 'grid' : 'none';
+            document.getElementById('inp-paper-w').value = state.customPaperW;
+            document.getElementById('inp-paper-h').value = state.customPaperH;
+
+            document.getElementById('btn-orient-p').classList.toggle('active', state.orientation === 'portrait');
+            document.getElementById('btn-orient-l').classList.toggle('active', state.orientation === 'landscape');
+
+            document.getElementById('btn-size-auto').classList.toggle('active', state.sizeMode === 'auto');
+            document.getElementById('btn-size-exact').classList.toggle('active', state.sizeMode === 'exact');
+            document.getElementById('exact-size-box').style.display = state.sizeMode === 'exact' ? 'block' : 'none';
+            document.getElementById('inp-card-w').value = state.cardW;
+            document.getElementById('inp-card-h').value = state.cardH;
+            document.getElementById('chk-lock-ratio').checked = state.lockRatio;
+
+            document.getElementById('inp-cols').value = state.cols;
+            document.getElementById('inp-rows').value = state.rows;
+            document.getElementById('inp-margin').value = state.margin;
+            document.getElementById('inp-gap').value = state.gap;
+
+            document.getElementById('chk-crop-marks').checked = state.cropMarks;
+            document.getElementById('crop-settings-box').style.display = state.cropMarks ? 'grid' : 'none';
+            document.getElementById('crop-offset-box').style.display = state.cropMarks ? 'block' : 'none';
+            document.getElementById('inp-crop-size').value = state.cropSize;
+            document.getElementById('inp-crop-thick').value = state.cropThick;
+            document.getElementById('inp-crop-color').value = state.cropColor;
+
+            document.getElementById('inp-border-w').value = state.borderW;
+            document.getElementById('inp-border-style').value = state.borderStyle;
+            document.getElementById('inp-border-color').value = state.borderColor;
+            document.getElementById('inp-radius').value = state.borderRadius;
+
+            document.getElementById('sel-duplex').value = state.duplexMode;
+            document.getElementById('duplex-settings-box').style.display = state.duplexMode !== 'none' ? 'block' : 'none';
+            document.getElementById('inp-back-path').value = state.backPath || '';
+            document.getElementById('sel-back-data-source').value = state.backDataSource || 'same';
+            document.getElementById('sel-back-mode').value = state.backDataMode || 'sequence';
+            document.getElementById('back-mode-sequence-box').style.display = state.backDataMode === 'sequence' ? 'block' : 'none';
+            document.getElementById('back-mode-none-box').style.display = state.backDataMode === 'none' ? 'block' : 'none';
+            document.getElementById('back-mode-multi-box').style.display = state.backDataMode === 'multi' ? 'block' : 'none';
+            document.getElementById('back-seq-start').value = state.backSeqStart;
+            document.getElementById('back-seq-end').value = state.backSeqEnd;
+            document.getElementById('back-seq-step').value = state.backSeqStep;
+            document.getElementById('back-seq-pad').value = state.backSeqPad;
+            document.getElementById('back-seq-prefix').value = state.backSeqPrefix;
+            document.getElementById('back-seq-suffix').value = state.backSeqSuffix;
+            document.getElementById('chk-back-twin-number').checked = state.backTwinNumber;
+            document.getElementById('back-none-total').value = state.backNoneTotal;
+            document.getElementById('inp-back-paste-data').value = state.backPasteData;
+            document.getElementById('chk-back-has-header').checked = state.backHasHeader;
+            updateBackDataCardVisibility();
+
+            document.getElementById('sel-mode').value = state.dataMode;
+            document.getElementById('mode-sequence-box').style.display = state.dataMode === 'sequence' ? 'block' : 'none';
+            document.getElementById('mode-none-box').style.display = state.dataMode === 'none' ? 'block' : 'none';
+            document.getElementById('mode-multi-box').style.display = state.dataMode === 'multi' ? 'block' : 'none';
+            updateFieldActionsVisibility();
+
+            document.getElementById('seq-start').value = state.seqStart;
+            document.getElementById('seq-end').value = state.seqEnd;
+            document.getElementById('seq-step').value = state.seqStep;
+            document.getElementById('seq-pad').value = state.seqPad;
+            document.getElementById('seq-prefix').value = state.seqPrefix;
+            document.getElementById('seq-suffix').value = state.seqSuffix;
+            document.getElementById('chk-twin-number').checked = state.twinNumber;
+            document.getElementById('none-total').value = state.noneTotal;
+            document.getElementById('inp-paste-data').value = state.pasteData;
+            document.getElementById('chk-has-header').checked = state.hasHeader;
+
+            document.getElementById('btn-order-normal').classList.toggle('active', state.orderMode === 'normal');
+            document.getElementById('btn-order-stack').classList.toggle('active', state.orderMode === 'cutstack');
+
+            currentBgUrl = state.imgPath.trim().replace(/\\/g, '/');
+            rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
+            if (state.backPath) {
+                currentBackUrl = state.backPath.trim().replace(/\\/g, '/');
+                rootStyle.setProperty('--bg-img-back', `url('${currentBackUrl}')`);
+            }
+
+            document.getElementById('inp-crop-offset').value = state.cropOffset || 0;
+            fetchImageRatio(currentBgUrl);
+            syncMultiFieldsFromData();
+            syncBackFieldsFromData();
+            updateEditingSideUI();
+            updateLayoutCSS();
+            renderPages();
+        }
+
+        function saveToHTML() {
+            const paper = getPaperDimensions();
+            const currentStyles = `
+                :root {
+                    --page-w: ${paper.w}mm;
+                    --page-h: ${paper.h}mm;
+                    --cols: ${state.cols};
+                    --rows: ${state.rows};
+                    --page-margin: ${state.margin}mm;
+                    --grid-gap: ${state.gap}mm;
+                    --bg-img: url('${currentBgUrl}');
+                    --bg-img-back: ${currentBackUrl ? `url('${currentBackUrl}')` : 'none'};
+                    --ratio: ${currentRatio};
+                    --card-w: ${state.cardW}mm;
+                    --card-h: ${state.cardH}mm;
+                    --card-border-width: ${state.borderW}px;
+                    --card-border-style: ${state.borderStyle};
+                    --card-border-color: ${state.borderColor};
+                    --card-border-radius: ${state.borderRadius}px;
+                    --crop-size: ${state.cropSize}mm;
+                    --crop-thickness: ${state.cropThick}mm;
+                    --crop-offset: ${state.cropOffset || 0}mm;
+                    --crop-color: ${state.cropColor};
+                    --preview-zoom: 1;
+                }
+                .workspace { margin-left: 0 !important; width: 100% !important; padding: 0 !important; }
+                .card-field.selected-field { outline: none !important; background: transparent !important; }
+            `;
+
+            const clonedHtml = document.documentElement.cloneNode(true);
+            clonedHtml.querySelectorAll('.no-print').forEach(el => el.remove());
+            clonedHtml.querySelectorAll('script').forEach(s => s.remove());
+
+            const styleTag = document.createElement('style');
+            styleTag.innerHTML = currentStyles;
+            clonedHtml.querySelector('head').appendChild(styleTag);
+
+            const finalHTML = "<!DOCTYPE html>\n" + clonedHtml.outerHTML;
+            const blob = new Blob([finalHTML], { type: "text/html;charset=utf-8" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "ve-da-dan-trang.html";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Lắng nghe sự kiện
+        document.getElementById('inp-img-path').addEventListener('input', e => {
+            state.imgPath = e.target.value;
+            currentBgUrl = state.imgPath.trim().replace(/\\/g, '/');
+            rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
+            fetchImageRatio(currentBgUrl);
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-img-file').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                currentBgUrl = evt.target.result;
+                rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
+                fetchImageRatio(currentBgUrl);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('inp-back-path').addEventListener('input', e => {
+            state.backPath = e.target.value;
+            currentBackUrl = state.backPath.trim().replace(/\\/g, '/');
+            rootStyle.setProperty('--bg-img-back', currentBackUrl ? `url('${currentBackUrl}')` : 'none');
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-back-file').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                currentBackUrl = evt.target.result;
+                rootStyle.setProperty('--bg-img-back', `url('${currentBackUrl}')`);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('sel-paper-size').addEventListener('change', e => {
+            state.paperPreset = e.target.value;
+            document.getElementById('custom-paper-box').style.display = state.paperPreset === 'Custom' ? 'grid' : 'none';
+            updateLayoutCSS();
+            saveStateToLocal();
+        });
+
+        ['inp-paper-w', 'inp-paper-h'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                state.customPaperW = parseFloat(document.getElementById('inp-paper-w').value) || 210;
+                state.customPaperH = parseFloat(document.getElementById('inp-paper-h').value) || 297;
+                updateLayoutCSS();
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('inp-card-w').addEventListener('input', e => {
+            state.cardW = parseFloat(e.target.value) || 10;
+            if (state.lockRatio && currentRatio) {
+                state.cardH = Math.round((state.cardW / currentRatio) * 10) / 10;
+                document.getElementById('inp-card-h').value = state.cardH;
+            }
+            updateLayoutCSS();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-card-h').addEventListener('input', e => {
+            state.cardH = parseFloat(e.target.value) || 10;
+            if (state.lockRatio && currentRatio) {
+                state.cardW = Math.round((state.cardH * currentRatio) * 10) / 10;
+                document.getElementById('inp-card-w').value = state.cardW;
+            }
+            updateLayoutCSS();
+            saveStateToLocal();
+        });
+
+        document.getElementById('chk-lock-ratio').addEventListener('change', e => {
+            state.lockRatio = e.target.checked;
+            if (state.lockRatio && currentRatio) {
+                state.cardH = Math.round((state.cardW / currentRatio) * 10) / 10;
+                document.getElementById('inp-card-h').value = state.cardH;
+                updateLayoutCSS();
+            }
+            saveStateToLocal();
+        });
+
+        ['inp-cols', 'inp-rows'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                state.cols = parseInt(document.getElementById('inp-cols').value) || 1;
+                state.rows = parseInt(document.getElementById('inp-rows').value) || 1;
+                updateLayoutCSS();
+                renderPages();
+                saveStateToLocal();
+            });
+        });
+
+        ['inp-margin', 'inp-gap', 'inp-border-w', 'inp-border-style', 'inp-border-color', 'inp-radius', 'inp-crop-size', 'inp-crop-thick', 'inp-crop-color', 'inp-crop-offset'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                state.margin = parseFloat(document.getElementById('inp-margin').value) || 0;
+                state.gap = parseFloat(document.getElementById('inp-gap').value) || 0;
+                state.borderW = parseFloat(document.getElementById('inp-border-w').value) || 0;
+                state.borderStyle = document.getElementById('inp-border-style').value;
+                state.borderColor = document.getElementById('inp-border-color').value;
+                state.borderRadius = parseFloat(document.getElementById('inp-radius').value) || 0;
+                state.cropSize = parseFloat(document.getElementById('inp-crop-size').value) || 3;
+                state.cropThick = parseFloat(document.getElementById('inp-crop-thick').value) || 0.3;
+                state.cropColor = document.getElementById('inp-crop-color').value;
+                state.cropOffset = parseFloat(document.getElementById('inp-crop-offset').value) || 0;
+                updateLayoutCSS();
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('chk-crop-marks').addEventListener('change', e => {
+            state.cropMarks = e.target.checked;
+            document.getElementById('crop-settings-box').style.display = state.cropMarks ? 'grid' : 'none';
+            document.getElementById('crop-offset-box').style.display = state.cropMarks ? 'block' : 'none';
+            updateLayoutCSS();
+            saveStateToLocal();
+        });
+
+        document.getElementById('sel-duplex').addEventListener('change', e => {
+            state.duplexMode = e.target.value;
+            document.getElementById('duplex-settings-box').style.display = state.duplexMode !== 'none' ? 'block' : 'none';
+            if (state.duplexMode === 'none' && editingSide === 'back') setEditingSide('front');
+            updateBackDataCardVisibility();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('sel-back-data-source').addEventListener('change', e => {
+            state.backDataSource = e.target.value;
+            state.backShowFields = state.backDataSource === 'same';
+            if (state.backDataSource !== 'independent' && editingSide === 'back') setEditingSide('front');
+            syncBackFieldsFromData();
+            updateBackDataCardVisibility();
+            renderFieldTabs();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('sel-back-mode').addEventListener('change', e => {
+            state.backDataMode = e.target.value;
+            document.getElementById('back-mode-sequence-box').style.display = state.backDataMode === 'sequence' ? 'block' : 'none';
+            document.getElementById('back-mode-none-box').style.display = state.backDataMode === 'none' ? 'block' : 'none';
+            document.getElementById('back-mode-multi-box').style.display = state.backDataMode === 'multi' ? 'block' : 'none';
+            syncBackFieldsFromData();
+            if (editingSide === 'back') { renderFieldTabs(); loadFieldToControls(activeFieldIndex); }
+            renderPages();
+            saveStateToLocal();
+        });
+
+        ['back-seq-start', 'back-seq-end', 'back-seq-step', 'back-seq-pad', 'back-seq-prefix', 'back-seq-suffix', 'back-none-total'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                state.backSeqStart = parseInt(document.getElementById('back-seq-start').value) || 0;
+                state.backSeqEnd = parseInt(document.getElementById('back-seq-end').value) || 0;
+                state.backSeqStep = parseInt(document.getElementById('back-seq-step').value) || 1;
+                state.backSeqPad = parseInt(document.getElementById('back-seq-pad').value) || 1;
+                state.backSeqPrefix = document.getElementById('back-seq-prefix').value;
+                state.backSeqSuffix = document.getElementById('back-seq-suffix').value;
+                state.backNoneTotal = parseInt(document.getElementById('back-none-total').value) || 1;
+                renderPages();
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('chk-back-twin-number').addEventListener('change', e => {
+            state.backTwinNumber = e.target.checked;
+            syncBackFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-back-paste-data').addEventListener('input', e => {
+            state.backPasteData = e.target.value;
+            syncBackFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('chk-back-has-header').addEventListener('change', e => {
+            state.backHasHeader = e.target.checked;
+            syncBackFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-back-excel-file').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                const tsvText = rows
+                    .filter(r => r.some(cell => String(cell).trim() !== ""))
+                    .map(r => r.join("\t"))
+                    .join("\n");
+                state.backPasteData = tsvText;
+                document.getElementById('inp-back-paste-data').value = tsvText;
+                syncBackFieldsFromData();
+                renderPages();
+                saveStateToLocal();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        document.getElementById('sel-mode').addEventListener('change', e => {
+            state.dataMode = e.target.value;
+            document.getElementById('mode-sequence-box').style.display = state.dataMode === 'sequence' ? 'block' : 'none';
+            document.getElementById('mode-none-box').style.display = state.dataMode === 'none' ? 'block' : 'none';
+            document.getElementById('mode-multi-box').style.display = state.dataMode === 'multi' ? 'block' : 'none';
+            updateFieldActionsVisibility();
+            syncMultiFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        ['seq-start', 'seq-end', 'seq-step', 'seq-pad', 'seq-prefix', 'seq-suffix', 'none-total'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                state.seqStart = parseInt(document.getElementById('seq-start').value) || 0;
+                state.seqEnd = parseInt(document.getElementById('seq-end').value) || 0;
+                state.seqStep = parseInt(document.getElementById('seq-step').value) || 1;
+                state.seqPad = parseInt(document.getElementById('seq-pad').value) || 1;
+                state.seqPrefix = document.getElementById('seq-prefix').value;
+                state.seqSuffix = document.getElementById('seq-suffix').value;
+                state.noneTotal = parseInt(document.getElementById('none-total').value) || 1;
+                renderPages();
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('chk-twin-number').addEventListener('change', e => {
+            state.twinNumber = e.target.checked;
+            syncMultiFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-paste-data').addEventListener('input', e => {
+            state.pasteData = e.target.value;
+            syncMultiFieldsFromData();
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('chk-has-header').addEventListener('change', e => {
+            state.hasHeader = e.target.checked;
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-excel-file').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                const data = new Uint8Array(evt.target.result);
+                const workbook = XLSX.read(data, { type: 'array' });
+                const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+                const rows = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: "" });
+                const tsvText = rows
+                    .filter(r => r.some(cell => String(cell).trim() !== ""))
+                    .map(r => r.join("\t"))
+                    .join("\n");
+                state.pasteData = tsvText;
+                document.getElementById('inp-paste-data').value = tsvText;
+                syncMultiFieldsFromData();
+                renderPages();
+                saveStateToLocal();
+            };
+            reader.readAsArrayBuffer(file);
+        });
+
+        ['inp-x', 'inp-y', 'inp-size', 'inp-color', 'inp-rotate', 'inp-stroke-w', 'inp-stroke-color'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                const f = getEditingFields()[activeFieldIndex];
+                if (!f) return;
+                f.x = parseFloat(document.getElementById('inp-x').value);
+                f.y = parseFloat(document.getElementById('inp-y').value);
+                f.size = parseFloat(document.getElementById('inp-size').value);
+                f.color = document.getElementById('inp-color').value;
+                f.rotate = parseFloat(document.getElementById('inp-rotate').value) || 0;
+                f.strokeW = parseFloat(document.getElementById('inp-stroke-w').value) || 0;
+                f.strokeColor = document.getElementById('inp-stroke-color').value;
+
+                loadFieldToControls(activeFieldIndex);
+                applyFieldStylesToDOM(activeFieldIndex);
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('inp-preset-file').addEventListener('change', e => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                try {
+                    const imported = JSON.parse(evt.target.result);
+                    state = Object.assign({}, state, imported);
+                    syncUIFromState();
+                    saveStateToLocal();
+                } catch (err) {
+                    alert('File JSON không hợp lệ!');
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('inp-zoom').addEventListener('input', e => {
+            const z = parseFloat(e.target.value);
+            rootStyle.setProperty('--preview-zoom', z);
+            document.getElementById('val-zoom').innerText = Math.round(z * 100) + '%';
+        });
+
+        // Khởi chạy ứng dụng
+        rootStyle.setProperty('--preview-zoom', 0.85);
+        loadStateFromLocal();
+        buildFontDropdown();
+        syncUIFromState();
+    </script>
+</body>
+</html>
