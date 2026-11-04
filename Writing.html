@@ -1,0 +1,3083 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hán Văn Studio — Sổ Tay Viết Tiếng Trung Thông Minh</title>
+  <!-- Load pinyin-pro for full 20,000+ Hanzi & Context-Aware Polyphone (Từ ghép nhiều âm đọc) -->
+  <script src="https://cdn.jsdelivr.net/npm/pinyin-pro@3.26.0/dist/index.js" defer></script>
+  <style>
+    :root {
+      /* Default Theme: Vintage Cream Notebook */
+      --bg-app: #ece6d9;
+      --bg-sidebar: #f6f2e9;
+      --bg-toolbar: rgba(246, 242, 233, 0.94);
+      --bg-paper: #fdfaf2;
+      --bg-card: #ffffff;
+      --bg-hover: #efe9dc;
+      --text-main: #2c2621;
+      --text-muted: #7a7065;
+      --border-color: #dcd3c2;
+      --accent: #b84a39;
+      --accent-soft: rgba(184, 74, 57, 0.12);
+      --line-color: rgba(168, 150, 125, 0.32);
+      --margin-line: rgba(209, 98, 84, 0.42);
+      --spiral-color: #7c746b;
+      --spiral-hole: #d8d0c1;
+      --shadow-paper: 0 12px 36px rgba(60, 45, 25, 0.12), 0 2px 6px rgba(60, 45, 25, 0.06);
+
+      /* Editor Typography */
+      --editor-font: "KaiTi", "STKaiti", "BiauKai", "DFKai-SB", "Noto Serif SC", serif;
+      --editor-size: 32px;
+      --lh: calc(var(--editor-size) * 2.35);
+
+      /* Tone Colors */
+      --tone-1: #2563eb;
+      --tone-2: #16a34a;
+      --tone-3: #d97706;
+      --tone-4: #dc2626;
+      --tone-5: #64748b;
+    }
+
+    [data-theme="white"] {
+      --bg-app: #f3f4f6;
+      --bg-sidebar: #ffffff;
+      --bg-toolbar: rgba(255, 255, 255, 0.94);
+      --bg-paper: #ffffff;
+      --bg-card: #f9fafb;
+      --bg-hover: #f1f5f9;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --border-color: #e2e8f0;
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --line-color: rgba(148, 163, 184, 0.3);
+      --margin-line: rgba(239, 68, 68, 0.35);
+      --spiral-color: #94a3b8;
+      --spiral-hole: #e2e8f0;
+      --shadow-paper: 0 10px 30px rgba(15, 23, 42, 0.07);
+    }
+
+    [data-theme="matcha"] {
+      --bg-app: #dce6d9;
+      --bg-sidebar: #eef4ec;
+      --bg-toolbar: rgba(238, 244, 236, 0.94);
+      --bg-paper: #f5f9f3;
+      --bg-card: #ffffff;
+      --bg-hover: #e3ede0;
+      --text-main: #233326;
+      --text-muted: #5e7461;
+      --border-color: #c8d8c4;
+      --accent: #3b7a57;
+      --accent-soft: rgba(59, 122, 87, 0.14);
+      --line-color: rgba(110, 145, 115, 0.28);
+      --margin-line: rgba(196, 98, 78, 0.35);
+      --spiral-color: #6b826e;
+      --spiral-hole: #cad8c6;
+      --shadow-paper: 0 12px 34px rgba(30, 55, 35, 0.1);
+    }
+
+    [data-theme="sakura"] {
+      --bg-app: #f3e4e6;
+      --bg-sidebar: #faf0f2;
+      --bg-toolbar: rgba(250, 240, 242, 0.94);
+      --bg-paper: #fff9fa;
+      --bg-card: #ffffff;
+      --bg-hover: #f5e2e6;
+      --text-main: #362226;
+      --text-muted: #846269;
+      --border-color: #e6cfd4;
+      --accent: #c94a6a;
+      --accent-soft: rgba(201, 74, 106, 0.12);
+      --line-color: rgba(196, 145, 157, 0.3);
+      --margin-line: rgba(201, 74, 106, 0.4);
+      --spiral-color: #9e7b82;
+      --spiral-hole: #e5ced3;
+      --shadow-paper: 0 12px 34px rgba(80, 30, 45, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-app: #181615;
+      --bg-sidebar: #221f1d;
+      --bg-toolbar: rgba(34, 31, 29, 0.94);
+      --bg-paper: #282421;
+      --bg-card: #2f2a27;
+      --bg-hover: #38322e;
+      --text-main: #ece4da;
+      --text-muted: #9e9285;
+      --border-color: #3d3631;
+      --accent: #e07a5f;
+      --accent-soft: rgba(224, 122, 95, 0.16);
+      --line-color: rgba(255, 245, 230, 0.12);
+      --margin-line: rgba(224, 122, 95, 0.35);
+      --spiral-color: #6e655d;
+      --spiral-hole: #191715;
+      --shadow-paper: 0 14px 40px rgba(0, 0, 0, 0.45);
+      --tone-1: #60a5fa;
+      --tone-2: #4ade80;
+      --tone-3: #fbbf24;
+      --tone-4: #f87171;
+      --tone-5: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      transition: background-color 0.25s ease, color 0.25s ease;
+    }
+
+    /* ================= LEFT SIDEBAR ================= */
+    .sidebar {
+      width: 300px;
+      min-width: 300px;
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      transition: margin-left 0.25s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.25s;
+      z-index: 20;
+      user-select: none;
+    }
+
+    .sidebar.collapsed {
+      margin-left: -300px;
+    }
+
+    .sidebar-header {
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 14.5px;
+      color: var(--text-main);
+    }
+
+    .brand-seal {
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+      background: var(--accent);
+      color: #fff;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "KaiTi", "STKaiti", serif;
+      font-size: 15px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px 7px;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: all 0.15s;
+    }
+
+    .icon-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text-main);
+    }
+
+    .sidebar-tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      padding: 6px 8px 0;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: 8px 4px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    .tab-panel {
+      display: none;
+      flex-direction: column;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* Search Box & Online Translate Controls */
+    .search-box {
+      padding: 10px 10px 8px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .search-input-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .search-input {
+      flex: 1;
+      padding: 8px 26px 8px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--accent);
+    }
+
+    .search-clear {
+      position: absolute;
+      right: 68px;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+      display: none;
+      padding: 2px 4px;
+    }
+
+    .search-go-btn {
+      padding: 7px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .search-go-btn:hover {
+      opacity: 0.92;
+    }
+
+    .ext-links {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .ext-link-btn {
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-size: 11px;
+      text-decoration: underline;
+      padding: 0;
+    }
+
+    .sidebar-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    /* Online Google Translate Result Box */
+    .online-trans-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--accent);
+      border-radius: 9px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.05);
+    }
+
+    .online-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .dict-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      transition: all 0.14s;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .dict-item:hover {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+      transform: translateY(-1px);
+    }
+
+    .dict-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+    }
+
+    .dict-hz {
+      font-size: 18px;
+      font-weight: 600;
+      font-family: var(--editor-font);
+      color: var(--text-main);
+      line-height: 1.35;
+    }
+
+    .dict-py {
+      font-size: 12px;
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .dict-vi {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    .dict-tag {
+      font-size: 10px;
+      padding: 1px 6px;
+      border-radius: 4px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .cat-filter {
+      display: flex;
+      gap: 5px;
+      padding: 8px 10px;
+      overflow-x: auto;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .cat-chip {
+      padding: 4px 8px;
+      border-radius: 99px;
+      font-size: 11.5px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-muted);
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .cat-chip.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* ================= NOTES / MULTI-DOCUMENT MANAGER ================= */
+    .notes-toolbar {
+      padding: 10px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .btn-primary-full {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--accent);
+      background: var(--accent);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: opacity 0.15s;
+    }
+
+    .btn-primary-full:hover {
+      opacity: 0.92;
+    }
+
+    .backup-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5px;
+    }
+
+    .backup-btn {
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 11.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .backup-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .note-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 9px 10px;
+      cursor: pointer;
+      transition: all 0.14s;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      position: relative;
+    }
+
+    .note-card:hover {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+    }
+
+    .note-card.active {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .note-card-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      padding-right: 46px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .note-card-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .note-card-preview {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-family: var(--editor-font);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      opacity: 0.85;
+    }
+
+    .note-card-actions {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      display: flex;
+      gap: 2px;
+    }
+
+    .note-act-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 2px 5px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+
+    .note-act-btn:hover {
+      background: rgba(220, 38, 38, 0.12);
+      color: #dc2626;
+    }
+
+    /* ================= MAIN WORKSPACE ================= */
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .toolbar {
+      min-height: 50px;
+      background: var(--bg-toolbar);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 14px;
+      gap: 8px;
+      flex-wrap: wrap;
+      z-index: 15;
+    }
+
+    .toolbar-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .tb-divider {
+      width: 1px;
+      height: 20px;
+      background: var(--border-color);
+      margin: 0 2px;
+    }
+
+    .tb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 12.5px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .tb-btn:hover {
+      border-color: var(--accent);
+      background: var(--bg-hover);
+    }
+
+    .tb-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .tb-select {
+      padding: 5px 8px;
+      border-radius: 7px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+      color: var(--text-main);
+      font-size: 12.5px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .size-stepper {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      background: var(--bg-card);
+      overflow: hidden;
+    }
+
+    .size-stepper button {
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      padding: 4px 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .size-stepper button:hover {
+      background: var(--bg-hover);
+    }
+
+    .size-stepper select {
+      border: none;
+      border-left: 1px solid var(--border-color);
+      border-right: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-main);
+      font-size: 12px;
+      padding: 4px 4px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    .theme-dots {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 6px;
+      border-radius: 99px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-card);
+    }
+
+    .theme-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid rgba(0,0,0,0.15);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .theme-dot:hover {
+      transform: scale(1.15);
+    }
+
+    .theme-dot.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+      transform: scale(1.12);
+    }
+
+    /* ================= NOTEBOOK SCROLL VIEWPORT ================= */
+    .editor-scroll-container {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 28px 28px 90px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      scroll-behavior: auto;
+    }
+
+    .notebook-shell {
+      width: 100%;
+      max-width: 96%;
+      background: var(--bg-paper);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: var(--shadow-paper);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transition: max-width 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .notebook-shell.width-medium {
+      max-width: 1080px;
+    }
+
+    .notebook-shell.width-book {
+      max-width: 820px;
+    }
+
+    .notebook-shell::after {
+      content: "";
+      position: absolute;
+      top: 6px;
+      bottom: -5px;
+      left: 8px;
+      right: -5px;
+      background: var(--bg-paper);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      z-index: -1;
+      box-shadow: 3px 4px 0 var(--bg-paper), 4px 5px 0 var(--border-color);
+      pointer-events: none;
+    }
+
+    .notebook-ribbon {
+      position: absolute;
+      top: -2px;
+      right: 38px;
+      width: 24px;
+      height: 54px;
+      background: var(--accent);
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+      z-index: 6;
+      pointer-events: none;
+    }
+
+    .notebook-shell.hide-deco .notebook-ribbon,
+    .notebook-shell.hide-deco .spiral-binding,
+    .notebook-shell.hide-deco .notebook-stamp {
+      display: none;
+    }
+
+    .spiral-binding {
+      position: absolute;
+      top: 24px;
+      bottom: 24px;
+      left: -13px;
+      width: 26px;
+      background-image:
+        radial-gradient(circle at 20px 18px, var(--spiral-hole) 4.5px, transparent 5px),
+        linear-gradient(to bottom, transparent 13px, var(--spiral-color) 13px, var(--spiral-color) 19px, transparent 19px);
+      background-size: 26px 38px;
+      background-repeat: repeat-y;
+      z-index: 7;
+      pointer-events: none;
+    }
+
+    .notebook-header {
+      padding: 22px 44px 14px 56px;
+      border-bottom: 2px double var(--border-color);
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    .notebook-title-input {
+      border: none;
+      background: transparent;
+      font-family: var(--editor-font);
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--text-main);
+      outline: none;
+      flex: 1;
+      min-width: 220px;
+    }
+
+    .notebook-title-input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .notebook-meta {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+      font-family: var(--editor-font);
+    }
+
+    .notebook-date-input {
+      border: none;
+      border-bottom: 1px dashed var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      font-family: var(--editor-font);
+      padding: 2px 4px;
+      width: 145px;
+      text-align: center;
+      outline: none;
+    }
+
+    .weather-picker {
+      display: inline-flex;
+      gap: 4px;
+    }
+
+    .weather-btn {
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      opacity: 0.4;
+      transition: opacity 0.15s, transform 0.15s;
+      padding: 2px;
+    }
+
+    .weather-btn.active,
+    .weather-btn:hover {
+      opacity: 1;
+      transform: scale(1.15);
+    }
+
+    .notebook-stamp {
+      border: 2px solid #c0392b;
+      color: #c0392b;
+      font-family: "KaiTi", "STKaiti", serif;
+      font-size: 12px;
+      line-height: 1.1;
+      padding: 3px 5px;
+      border-radius: 3px;
+      transform: rotate(-6deg);
+      opacity: 0.82;
+      user-select: none;
+      letter-spacing: 1px;
+      font-weight: 700;
+      box-shadow: inset 0 0 0 1px rgba(192, 57, 43, 0.25);
+    }
+
+    /* ================= DUAL-LAYER INLINE PINYIN EDITOR + CARET MIRROR ================= */
+    .notebook-body {
+      position: relative;
+      padding: 26px 44px 48px 56px;
+      min-height: 620px;
+    }
+
+    .notebook-body::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 42px;
+      width: 1.5px;
+      background: var(--margin-line);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .notebook-shell.hide-deco .notebook-body::before {
+      display: none;
+    }
+
+    .editor-stack {
+      position: relative;
+      width: 100%;
+      min-height: 540px;
+    }
+
+    .editor-stack.paper-ruled {
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent calc(var(--lh) - 1.5px),
+        var(--line-color) calc(var(--lh) - 1.5px),
+        var(--line-color) var(--lh)
+      );
+      background-size: 100% var(--lh);
+      background-position: 0 0;
+    }
+
+    .editor-stack.paper-dots {
+      background-image: radial-gradient(var(--line-color) 1.6px, transparent 1.6px);
+      background-size: 28px var(--lh);
+      background-position: 0 calc(var(--lh) * 0.72);
+    }
+
+    .editor-stack.paper-grid {
+      background-image:
+        linear-gradient(to right, var(--line-color) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--line-color) 1px, transparent 1px);
+      background-size: calc(var(--editor-size) * 1.28) var(--lh);
+      background-position: 0 0;
+    }
+
+    .editor-stack.paper-blank {
+      background-image: none;
+    }
+
+    /* Shared typography rules for 100% pixel alignment between Backdrop, CaretMirror & Textarea */
+    .editor-backdrop,
+    .editor-caret-mirror,
+    .editor-textarea {
+      width: 100%;
+      min-height: 540px;
+      padding: 0;
+      margin: 0;
+      border: none;
+      font-family: var(--editor-font);
+      font-size: var(--editor-size);
+      line-height: var(--lh);
+      letter-spacing: 0.28em;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      word-break: break-all;
+      tab-size: 4;
+      font-variant-ligatures: none;
+    }
+
+    .editor-backdrop {
+      position: relative;
+      z-index: 2;
+      color: var(--text-main);
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Hidden mirror layer used exclusively to compute exact (x, y) pixel coordinates of the caret */
+    .editor-caret-mirror {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 0;
+      visibility: hidden;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .editor-textarea {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 100%;
+      z-index: 3;
+      background: transparent;
+      color: transparent;
+      caret-color: var(--accent);
+      resize: none;
+      outline: none;
+      overflow: hidden;
+    }
+
+    .editor-textarea::selection {
+      background: rgba(184, 74, 57, 0.22);
+      color: transparent;
+    }
+
+    .hz-char {
+      position: relative;
+      display: inline;
+    }
+
+    .py-above {
+      position: absolute;
+      bottom: 92%;
+      left: 38%;
+      transform: translateX(-50%);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: calc(var(--editor-size) * 0.36);
+      line-height: 1;
+      letter-spacing: 0;
+      white-space: nowrap;
+      font-weight: 600;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    .hide-pinyin .py-above {
+      display: none;
+    }
+
+    .tone-1 { color: var(--tone-1); }
+    .tone-2 { color: var(--tone-2); }
+    .tone-3 { color: var(--tone-3); }
+    .tone-4 { color: var(--tone-4); }
+    .tone-5 { color: var(--tone-5); }
+
+    .editor-placeholder {
+      position: absolute;
+      top: 0;
+      left: 0;
+      color: var(--text-muted);
+      opacity: 0.48;
+      pointer-events: none;
+      font-family: var(--editor-font);
+      font-size: var(--editor-size);
+      line-height: var(--lh);
+      z-index: 1;
+    }
+
+    .notebook-footer {
+      padding: 10px 36px 14px 56px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .punct-bar {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+
+    .punct-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 5px;
+      padding: 2px 7px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.12s;
+    }
+
+    .punct-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ================= FLOATING PINYIN IME POPUP (AT CARET) ================= */
+    .ime-popup {
+      position: fixed;
+      z-index: 1000;
+      background: var(--bg-card);
+      border: 2px solid var(--accent);
+      border-radius: 10px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+      padding: 7px 11px;
+      min-width: 310px;
+      max-width: 92vw;
+      display: none;
+      user-select: none;
+      transition: top 0.05s linear, left 0.05s linear;
+    }
+
+    /* Little pointer arrow on top of the IME box pointing to the caret */
+    .ime-popup::before {
+      content: "";
+      position: absolute;
+      top: -7px;
+      left: 18px;
+      width: 10px;
+      height: 10px;
+      background: var(--bg-card);
+      border-left: 2px solid var(--accent);
+      border-top: 2px solid var(--accent);
+      transform: rotate(45deg);
+    }
+
+    .ime-popup.flipped::before {
+      top: auto;
+      bottom: -7px;
+      transform: rotate(225deg);
+    }
+
+    .ime-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 5px;
+      margin-bottom: 5px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .ime-buffer {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.5px;
+    }
+
+    .ime-page-ctrl {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .ime-page-btn {
+      background: var(--bg-hover);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 4px;
+      padding: 1px 6px;
+      cursor: pointer;
+      font-size: 11px;
+    }
+
+    .ime-page-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+    }
+
+    .ime-candidates {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .ime-cand {
+      padding: 3px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 18px;
+      font-family: var(--editor-font);
+      display: inline-flex;
+      align-items: baseline;
+      gap: 3px;
+      transition: background 0.12s;
+    }
+
+    .ime-cand.active,
+    .ime-cand:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .ime-cand-num {
+      font-size: 11px;
+      opacity: 0.75;
+      font-family: sans-serif;
+    }
+
+    .ime-hint {
+      margin-top: 4px;
+      font-size: 10.5px;
+      color: var(--text-muted);
+    }
+
+    /* ================= HANDWRITING PAD (ĐIỀN TỰ CÁCH) ================= */
+    .hw-modal {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      width: 320px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: 0 16px 42px rgba(0,0,0,0.24);
+      z-index: 900;
+      display: none;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .hw-modal.open {
+      display: flex;
+    }
+
+    .hw-header {
+      padding: 9px 12px;
+      background: var(--bg-sidebar);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .hw-body {
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .hw-canvas-wrap {
+      width: 230px;
+      height: 230px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      position: relative;
+      background: var(--bg-paper);
+      background-image:
+        linear-gradient(to right, transparent calc(50% - 0.5px), var(--margin-line) calc(50% - 0.5px), var(--margin-line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        linear-gradient(to bottom, transparent calc(50% - 0.5px), var(--margin-line) calc(50% - 0.5px), var(--margin-line) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+        linear-gradient(45deg, transparent calc(50% - 0.5px), rgba(184,74,57,0.15) 50%, transparent calc(50% + 0.5px)),
+        linear-gradient(-45deg, transparent calc(50% - 0.5px), rgba(184,74,57,0.15) 50%, transparent calc(50% + 0.5px));
+    }
+
+    #hwCanvas {
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+      touch-action: none;
+    }
+
+    .hw-candidates {
+      width: 100%;
+      min-height: 40px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hw-cand-btn {
+      padding: 4px 10px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: var(--bg-sidebar);
+      color: var(--text-main);
+      font-family: var(--editor-font);
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    .hw-cand-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text-main);
+      color: var(--bg-paper);
+      padding: 8px 16px;
+      border-radius: 99px;
+      font-size: 13px;
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.2s ease;
+      z-index: 1200;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body data-theme="cream">
+
+  <!-- ================= LEFT SIDEBAR ================= -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="brand">
+        <span class="brand-seal">文</span>
+        <span>Hán Văn Sổ Tay</span>
+      </div>
+      <button class="icon-btn" id="collapseSidebarBtn" title="Thu gọn thanh bên">«</button>
+    </div>
+
+    <div class="sidebar-tabs">
+      <button class="tab-btn active" data-tab="dict">📖 Tra từ / Dịch</button>
+      <button class="tab-btn" data-tab="patterns">✨ Mẫu câu</button>
+      <button class="tab-btn" data-tab="notes">📚 Sổ bài (<span id="noteCountBadge">1</span>)</button>
+    </div>
+
+    <!-- TAB 1: DICTIONARY + GOOGLE TRANSLATE -->
+    <div class="tab-panel active" id="tab-dict">
+      <div class="search-box">
+        <div class="search-input-wrap">
+          <input type="text" id="dictSearchInput" class="search-input" placeholder="Gõ tiếng Việt, Trung, Pinyin..." />
+          <button class="search-clear" id="dictClearBtn" title="Xóa">×</button>
+          <button class="search-go-btn" id="dictOnlineBtn" title="Dịch trực tuyến qua Google Dịch">🌐 Dịch</button>
+        </div>
+        <div class="ext-links">
+          <span>Bấm vào thẻ từ để chèn vào bài</span>
+          <div>
+            <button type="button" class="ext-link-btn" id="openGTransWeb" title="Mở tab Google Dịch">Google Dịch ↗</button>
+            <span>·</span>
+            <button type="button" class="ext-link-btn" id="openHanziiWeb" title="Mở từ điển Hanzii">Hanzii ↗</button>
+          </div>
+        </div>
+      </div>
+      <div class="sidebar-list" id="dictResultList"></div>
+    </div>
+
+    <!-- TAB 2: SENTENCE PATTERNS -->
+    <div class="tab-panel" id="tab-patterns">
+      <div class="cat-filter" id="patternCatBar">
+        <button class="cat-chip active" data-cat="all">Tất cả</button>
+        <button class="cat-chip" data-cat="open">Mở bài</button>
+        <button class="cat-chip" data-cat="connect">Nối câu</button>
+        <button class="cat-chip" data-cat="opinion">Quan điểm</button>
+        <button class="cat-chip" data-cat="end">Kết bài</button>
+        <button class="cat-chip" data-cat="idiom">Thành ngữ</button>
+      </div>
+      <div class="sidebar-list" id="patternList"></div>
+    </div>
+
+    <!-- TAB 3: MULTI-NOTEBOOK MANAGER & JSON BACKUP -->
+    <div class="tab-panel" id="tab-notes">
+      <div class="notes-toolbar">
+        <button type="button" class="btn-primary-full" id="newNoteBtn">＋ Tạo trang sổ mới</button>
+        <div class="backup-row">
+          <button type="button" class="backup-btn" id="exportJsonBtn" title="Sao lưu toàn bộ các bài viết ra file .json">💾 Lưu JSON</button>
+          <button type="button" class="backup-btn" id="importJsonBtn" title="Khôi phục bài viết từ file .json">📂 Nhập JSON</button>
+        </div>
+        <div class="backup-row">
+          <button type="button" class="backup-btn" id="exportTxtBtn" title="Tải bài đang viết về dưới dạng file .txt">📄 Xuất .TXT</button>
+          <button type="button" class="backup-btn" id="duplicateNoteBtn" title="Nhân bản bài viết hiện tại">📑 Nhân bản</button>
+        </div>
+        <input type="file" id="importJsonFileInput" accept=".json,application/json" style="display:none;" />
+      </div>
+      <div class="sidebar-list" id="notesList"></div>
+    </div>
+  </aside>
+
+  <!-- ================= MAIN WORKSPACE ================= -->
+  <main class="main-area">
+    <header class="toolbar">
+      <div class="toolbar-group">
+        <button class="tb-btn" id="expandSidebarBtn" style="display:none;">☰ Công cụ</button>
+        <button class="tb-btn active" id="imeToggleBtn" title="Nhấn Shift để bật/tắt nhanh bộ gõ Pinyin">
+          🇨🇳 Gõ Pinyin: <span id="imeStatusText">BẬT</span>
+        </button>
+        <button class="tb-btn" id="hwToggleBtn" title="Bảng viết tay nhận diện chữ Hán">✍️ Viết tay</button>
+        <button class="tb-btn active" id="pinyinToggleBtn" title="Hiển thị Pinyin tự động phân biệt từ ghép nhiều âm đọc (多音字)">
+          🔤 Pinyin từ ghép: <span id="pyStatusText">BẬT</span>
+        </button>
+      </div>
+
+      <!-- Font & Size Controls -->
+      <div class="toolbar-group">
+        <select class="tb-select" id="fontFamilySelect" title="Chọn phông chữ">
+          <option value='"KaiTi", "STKaiti", "BiauKai", "DFKai-SB", serif'>Phông Khải Thư (Sách giáo khoa)</option>
+          <option value='"PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif'>Phông Hiện Đại (Không chân)</option>
+          <option value='"Songti SC", "SimSun", "Noto Serif SC", serif'>Phông Tống Thể (Sách in cổ điển)</option>
+          <option value='"FangSong", "STFangsong", "KaiTi", serif'>Phông Phỏng Tống (Thư pháp)</option>
+        </select>
+
+        <div class="size-stepper" title="Cỡ chữ (20px - 72px)">
+          <button type="button" id="fontDecBtn">−</button>
+          <select id="fontSizeSelect">
+            <option value="20">20px</option>
+            <option value="24">24px</option>
+            <option value="28">28px</option>
+            <option value="32" selected>32px</option>
+            <option value="36">36px</option>
+            <option value="42">42px</option>
+            <option value="48">48px</option>
+            <option value="56">56px</option>
+            <option value="64">64px</option>
+            <option value="72">72px</option>
+          </select>
+          <button type="button" id="fontIncBtn">+</button>
+        </div>
+      </div>
+
+      <!-- Notebook Style & Backup Controls -->
+      <div class="toolbar-group">
+        <div class="theme-dots" title="Đổi màu giấy">
+          <span class="theme-dot active" data-theme="cream" style="background:#f5ecd7;" title="Giấy Kem Cổ Điển"></span>
+          <span class="theme-dot" data-theme="white" style="background:#ffffff;" title="Giấy Trắng Tinh Khôi"></span>
+          <span class="theme-dot" data-theme="matcha" style="background:#dce8d8;" title="Xanh Trà Đạo"></span>
+          <span class="theme-dot" data-theme="sakura" style="background:#f9e4e8;" title="Hồng Hoa Đào"></span>
+          <span class="theme-dot" data-theme="dark" style="background:#282421;" title="Gỗ Đêm"></span>
+        </div>
+
+        <select class="tb-select" id="paperLineSelect" title="Kiểu dòng kẻ">
+          <option value="paper-ruled" selected>📓 Sổ kẻ ngang</option>
+          <option value="paper-grid">🟧 Giấy ô vuông</option>
+          <option value="paper-dots">∷ Sổ chấm lưới</option>
+          <option value="paper-blank">📄 Giấy trơn</option>
+        </select>
+
+        <button class="tb-btn active" id="decoToggleBtn" title="Ẩn/hiện gáy sổ lò xo & ruy-băng">🔖 Gáy sổ</button>
+
+        <select class="tb-select" id="widthSelect" title="Độ rộng trang sổ">
+          <option value="width-full" selected>Rộng tối đa</option>
+          <option value="width-medium">Sổ vừa</option>
+          <option value="width-book">Khổ A4</option>
+        </select>
+
+        <div class="tb-divider"></div>
+
+        <button class="tb-btn" id="quickBackupBtn" title="Lưu nhanh toàn bộ sổ tay ra file .JSON">💾 Backup JSON</button>
+        <button class="tb-btn" id="speakBtn" title="Đọc phát âm bài viết">🔊 Đọc</button>
+        <button class="tb-btn" id="copyBtn" title="Sao chép văn bản">📋 Copy</button>
+      </div>
+    </header>
+
+    <!-- Scrollable Notebook Viewport -->
+    <div class="editor-scroll-container" id="editorScrollContainer">
+      <div class="notebook-shell" id="notebookShell">
+        <div class="notebook-ribbon"></div>
+        <div class="spiral-binding"></div>
+
+        <div class="notebook-header">
+          <input type="text" id="notebookTitle" class="notebook-title-input" placeholder="Nhập tiêu đề trang sổ..." />
+          <div class="notebook-meta">
+            <span>📅</span>
+            <input type="text" id="notebookDate" class="notebook-date-input" />
+            <div class="weather-picker" id="weatherPicker">
+              <button class="weather-btn active" type="button" data-weather="☀️">☀️</button>
+              <button class="weather-btn" type="button" data-weather="⛅">⛅</button>
+              <button class="weather-btn" type="button" data-weather="🌧️">🌧️</button>
+              <button class="weather-btn" type="button" data-weather="🍵">🍵</button>
+            </div>
+            <div class="notebook-stamp">汉文<br>手帐</div>
+          </div>
+        </div>
+
+        <div class="notebook-body">
+          <div class="editor-stack paper-ruled" id="editorStack">
+            <div class="editor-placeholder" id="editorPlaceholder">Gõ Pinyin trực tiếp (bảng chọn từ sẽ đi theo ngay dưới con trỏ)...</div>
+            <!-- Layer 1: Caret Coordinate Mirror (Hidden, calculates exact x,y of typing cursor) -->
+            <div class="editor-caret-mirror" id="editorCaretMirror" aria-hidden="true"></div>
+            <!-- Layer 2: Inline Context-Aware Pinyin + Hanzi Backdrop -->
+            <div class="editor-backdrop" id="editorBackdrop" aria-hidden="true"></div>
+            <!-- Layer 3: Transparent Interactive Textarea -->
+            <textarea class="editor-textarea" id="editorTextarea" spellcheck="false" autocomplete="off" autocorrect="off" autocapitalize="off"></textarea>
+          </div>
+        </div>
+
+        <div class="notebook-footer">
+          <div class="punct-bar">
+            <button type="button" class="punct-btn" data-insert="　　">⇥ Thụt 2 ô</button>
+            <button type="button" class="punct-btn" data-insert="，">，</button>
+            <button type="button" class="punct-btn" data-insert="。">。</button>
+            <button type="button" class="punct-btn" data-insert="、">、</button>
+            <button type="button" class="punct-btn" data-insert="？">？</button>
+            <button type="button" class="punct-btn" data-insert="！">！</button>
+            <button type="button" class="punct-btn" data-insert="“”" data-offset="-1">“ ”</button>
+            <button type="button" class="punct-btn" data-insert="《》" data-offset="-1">《 》</button>
+          </div>
+          <div style="display:flex; align-items:center; gap:12px;">
+            <span id="pinyinEngineStatus" style="font-size:11.5px; color:var(--accent);">⚡ Pinyin ngữ cảnh: Sẵn sàng</span>
+            <span id="charStats">0 chữ Hán · 0 ký tự</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ================= FLOATING PINYIN IME POPUP (FOLLOWS CARET) ================= -->
+  <div class="ime-popup" id="imePopup">
+    <div class="ime-header">
+      <span class="ime-buffer" id="imeBufferText"></span>
+      <div class="ime-page-ctrl">
+        <span id="imePageInfo">Trang 1/1</span>
+        <button type="button" class="ime-page-btn" id="imePrevBtn" title="Trang trước (↑ / - / ,)">◀</button>
+        <button type="button" class="ime-page-btn" id="imeNextBtn" title="Trang sau (↓ / = / . / Tab)">▶</button>
+      </div>
+    </div>
+    <div class="ime-candidates" id="imeCandidates"></div>
+    <div class="ime-hint">Phím <b>1-7</b> / <b>Space</b> chọn · <b>↓ / = / Tab</b> trang sau · <b>↑ / -</b> trang trước</div>
+  </div>
+
+  <!-- ================= HANDWRITING PAD ================= -->
+  <div class="hw-modal" id="hwModal">
+    <div class="hw-header">
+      <span>✍️ Viết tay Hán tự (Điền Tự Cách)</span>
+      <div style="display:flex; gap:4px;">
+        <button type="button" class="icon-btn" id="hwUndoBtn">↶</button>
+        <button type="button" class="icon-btn" id="hwClearBtn">🗑️</button>
+        <button type="button" class="icon-btn" id="hwCloseBtn">✕</button>
+      </div>
+    </div>
+    <div class="hw-body">
+      <div class="hw-canvas-wrap">
+        <canvas id="hwCanvas" width="230" height="230"></canvas>
+      </div>
+      <div class="hw-candidates" id="hwCandidates">
+        <span style="font-size:12px; color:var(--text-muted);">Dùng chuột vẽ từng nét chữ vào ô trên...</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    /* =========================================================================
+       1. CONTEXT-AWARE POLYPHONE ENGINE (TỪ GHÉP NHIỀU ÂM ĐỌC - 多音字)
+          Combines:
+          (A) pinyin-pro library (20,902 Hanzi + phrase segmentation)
+          (B) Built-in Polyphone Compound Dictionary (longest-match first)
+          (C) Google Translate Romanization API fallback for unknown chars
+       ========================================================================= */
+    const POLYPHONE_COMPOUNDS = {
+      // 行 (háng / xíng)
+      '银行': [['yín',2], ['háng',2]],
+      '行业': [['háng',2], ['yè',4]],
+      '同行': [['tóng',2], ['háng',2]],
+      '内行': [['nèi',4], ['háng',2]],
+      '外行': [['wài',4], ['háng',2]],
+      '行列': [['háng',2], ['liè',4]],
+      '一行': [['yì',4], ['háng',2]],
+      '两行': [['liǎng',3], ['háng',2]],
+      '行为': [['xíng',2], ['wéi',2]],
+      '行动': [['xíng',2], ['dòng',4]],
+      '行李': [['xíng',2], ['lǐ',3]],
+      '旅行': [['lǚ',3], ['xíng',2]],
+      '举行': [['jǔ',3], ['xíng',2]],
+      '进行': [['jìn',4], ['xíng',2]],
+      '流行': [['liú',2], ['xíng',2]],
+      '自行车': [['zì',4], ['xíng',2], ['chē',1]],
+      '人行道': [['rén',2], ['xíng',2], ['dào',4]],
+      '不行': [['bù',4], ['xíng',2]],
+
+      // 长 (zhǎng / cháng)
+      '长大': [['zhǎng',3], ['dà',4]],
+      '成长': [['chéng',2], ['zhǎng',3]],
+      '家长': [['jiā',1], ['zhǎng',3]],
+      '校长': [['xiào',4], ['zhǎng',3]],
+      '班长': [['bān',1], ['zhǎng',3]],
+      '市长': [['shì',4], ['zhǎng',3]],
+      '院长': [['yuàn',4], ['zhǎng',3]],
+      '部长': [['bù',4], ['zhǎng',3]],
+      '董事长': [['dǒng',3], ['shì',4], ['zhǎng',3]],
+      '长辈': [['zhǎng',3], ['bèi',4]],
+      '长相': [['zhǎng',3], ['xiàng',4]],
+      '生长': [['shēng',1], ['zhǎng',3]],
+      '增长': [['zēng',1], ['zhǎng',3]],
+      '长短': [['cháng',2], ['duǎn',3]],
+      '长城': [['cháng',2], ['chéng',2]],
+      '长江': [['cháng',2], ['jiāng',1]],
+      '长期': [['cháng',2], ['qī',1]],
+      '长途': [['cháng',2], ['tú',2]],
+      '长寿': [['cháng',2], ['shòu',4]],
+      '长处': [['cháng',2], ['chù',4]],
+      '很长': [['hěn',3], ['cháng',2]],
+      '多长': [['duō',1], ['cháng',2]],
+
+      // 乐 (yuè / lè)
+      '音乐': [['yīn',1], ['yuè',4]],
+      '乐器': [['yuè',4], ['qì',4]],
+      '乐队': [['yuè',4], ['duì',4]],
+      '乐曲': [['yuè',4], ['qǔ',3]],
+      '交响乐': [['jiāo',1], ['xiǎng',3], ['yuè',4]],
+      '快乐': [['kuài',4], ['lè',4]],
+      '欢乐': [['huān',1], ['lè',4]],
+      '乐观': [['lè',4], ['guān',1]],
+      '乐趣': [['lè',4], ['qù',4]],
+      '娱乐': [['yú',2], ['lè',4]],
+      '可乐': [['kě',3], ['lè',4]],
+
+      // 觉 (jiào / jué)
+      '睡觉': [['shuì',4], ['jiào',4]],
+      '午觉': [['wǔ',3], ['jiào',4]],
+      '睡一觉': [['shuì',4], ['yí',2], ['jiào',4]],
+      '觉得': [['jué',2], ['de',5]],
+      '感觉': [['gǎn',3], ['jué',2]],
+      '自觉': [['zì',4], ['jué',2]],
+      '发觉': [['fā',1], ['jué',2]],
+      '知觉': [['zhī',1], ['jué',2]],
+      '错觉': [['cuò',4], ['jué',2]],
+
+      // 重 (zhòng / chóng)
+      '重要': [['zhòng',4], ['yào',4]],
+      '重视': [['zhòng',4], ['shì',4]],
+      '严重': [['yán',2], ['zhòng',4]],
+      '体重': [['tǐ',3], ['zhòng',4]],
+      '尊重': [['zūn',1], ['zhòng',4]],
+      '重点': [['zhòng',4], ['diǎn',3]],
+      '保重': [['bǎo',3], ['zhòng',4]],
+      '重新': [['chóng',2], ['xīn',1]],
+      '重复': [['chóng',2], ['fù',4]],
+      '重逢': [['chóng',2], ['féng',2]],
+      '重阳': [['chóng',2], ['yáng',2]],
+      '重叠': [['chóng',2], ['dié',2]],
+
+      // 着 (zháo / zhuó / zhe)
+      '着急': [['zháo',2], ['jí',2]],
+      '着火': [['zháo',2], ['huǒ',3]],
+      '睡着': [['shuì',4], ['zháo',2]],
+      '着凉': [['zháo',2], ['liáng',2]],
+      '猜着': [['cāi',1], ['zháo',2]],
+      '穿着': [['chuān',1], ['zhuó',2]],
+      '着想': [['zhuó',2], ['xiǎng',3]],
+      '着落': [['zhuó',2], ['luò',4]],
+      '执着': [['zhí',2], ['zhuó',2]],
+      '看着': [['kàn',4], ['zhe',5]],
+      '听着': [['tīng',1], ['zhe',5]],
+      '走着': [['zǒu',3], ['zhe',5]],
+      '随着': [['suí',2], ['zhe',5]],
+
+      // 了 (liǎo / le)
+      '了解': [['liǎo',3], ['jiě',3]],
+      '了不起': [['liǎo',3], ['bu',5], ['qǐ',3]],
+      '受不了': [['shòu',4], ['bu',5], ['liǎo',3]],
+      '忘不了': [['wàng',4], ['bu',5], ['liǎo',3]],
+      '吃不了': [['chī',1], ['bu',5], ['liǎo',3]],
+      '一目了然': [['yí',2], ['mù',4], ['liǎo',3], ['rán',2]],
+
+      // 还 (huán / hái)
+      '还给': [['huán',2], ['gěi',3]],
+      '归还': [['guī',1], ['huán',2]],
+      '还书': [['huán',2], ['shū',1]],
+      '还钱': [['huán',2], ['qián',2]],
+      '讨价还价': [['tǎo',3], ['jià',4], ['huán',2], ['jià',4]],
+      '还有': [['hái',2], ['yǒu',3]],
+      '还是': [['hái',2], ['shì',4]],
+      '还可以': [['hái',2], ['kě',3], ['yǐ',3]],
+
+      // 便 (pián / biàn)
+      '便宜': [['pián',2], ['yi',5]],
+      '占便宜': [['zhàn',4], ['pián',2], ['yi',5]],
+      '方便': [['fāng',1], ['biàn',4]],
+      '随便': [['suí',2], ['biàn',4]],
+      '便利': [['biàn',4], ['lì',4]],
+      '顺便': [['shùn',4], ['biàn',4]],
+
+      // 得 (dé / děi / de)
+      '得到': [['dé',2], ['dào',4]],
+      '得意': [['dé',2], ['yì',4]],
+      '取得': [['qǔ',3], ['dé',2]],
+      '赢得': [['yíng',2], ['dé',2]],
+      '值得': [['zhí',2], ['dé',2]],
+      '不得不': [['bù',4], ['dé',2], ['bù',4]],
+      '还得': [['hái',2], ['děi',3]],
+      '总得': [['zǒng',3], ['děi',3]],
+      '非得': [['fēi',1], ['děi',3]],
+
+      // 发 (fā / fà)
+      '头发': [['tóu',2], ['fa',5]],
+      '理发': [['lǐ',3], ['fà',4]],
+      '白发': [['bái',2], ['fà',4]],
+      '发展': [['fā',1], ['zhǎn',3]],
+      '发现': [['fā',1], ['xiàn',4]],
+      '发生': [['fā',1], ['shēng',1]],
+
+      // 都 (dū / dōu)
+      '首都': [['shǒu',3], ['dū',1]],
+      '都市': [['dū',1], ['shì',4]],
+      '成都': [['chéng',2], ['dū',1]],
+      '都是': [['dōu',1], ['shì',4]],
+      '全都': [['quán',2], ['dōu',1]],
+      '大家伙都': [['dà',4], ['jiā',1], ['huǒ',3], ['dōu',1]],
+
+      // 好 (hào / hǎo)
+      '爱好': [['ài',4], ['hào',4]],
+      '好奇': [['hào',4], ['qí',2]],
+      '好客': [['hào',4], ['kè',4]],
+      '好学': [['hào',4], ['xué',2]],
+
+      // 少 (shào / shǎo)
+      '少年': [['shào',4], ['nián',2]],
+      '少女': [['shào',4], ['nǚ',3]],
+      '少儿': [['shào',4], ['ér',2]],
+      '多少': [['duō',1], ['shao',5]],
+      '减少': [['jiǎn',3], ['shǎo',3]],
+
+      // 假 (jià / jiǎ)
+      '放假': [['fàng',4], ['jià',4]],
+      '假期': [['jià',4], ['qī',1]],
+      '暑假': [['shǔ',3], ['jià',4]],
+      '寒假': [['hán',2], ['jià',4]],
+      '请假': [['qǐng',3], ['jià',4]],
+      '真假': [['zhēn',1], ['jiǎ',3]],
+      '假如': [['jiǎ',3], ['rú',2]],
+      '假装': [['jiǎ',3], ['zhuāng',1]],
+
+      // 教 (jiāo / jiào)
+      '教书': [['jiāo',1], ['shū',1]],
+      '教课': [['jiāo',1], ['kè',4]],
+      '教室': [['jiào',4], ['shì',4]],
+      '教师': [['jiào',4], ['shī',1]],
+      '教育': [['jiào',4], ['yù',4]],
+      '教学': [['jiào',4], ['xué',2]],
+
+      // 只 (zhī / zhǐ)
+      '一只': [['yì',4], ['zhī',1]],
+      '两只': [['liǎng',3], ['zhī',1]],
+      '船只': [['chuán',2], ['zhī',1]],
+      '只有': [['zhǐ',3], ['yǒu',3]],
+      '只要': [['zhǐ',3], ['yào',4]],
+      '只是': [['zhǐ',3], ['shì',4]],
+
+      // 为 (wéi / wèi)
+      '认为': [['rèn',4], ['wéi',2]],
+      '以为': [['yǐ',3], ['wéi',2]],
+      '成为': [['chéng',2], ['wéi',2]],
+      '作为': [['zuò',4], ['wéi',2]],
+      '因为': [['yīn',1], ['wèi',4]],
+      '为了': [['wèi',4], ['le',5]],
+      '为什么': [['wèi',4], ['shén',2], ['me',5]]
+    };
+
+    const CHAR_PINYIN = {
+      '我':['wǒ',3],'你':['nǐ',3],'他':['tā',1],'她':['tā',1],'它':['tā',1],'们':['men',5],
+      '的':['de',5],'地':['de',5],'得':['de',5],'是':['shì',4],'在':['zài',4],'有':['yǒu',3],
+      '不':['bù',4],'了':['le',5],'和':['hé',2],'人':['rén',2],'这':['zhè',4],'中':['zhōng',1],
+      '大':['dà',4],'为':['wèi',4],'上':['shàng',4],'个':['gè',4],'国':['guó',2],'到':['dào',4],
+      '说':['shuō',1],'时':['shí',2],'要':['yào',4],'就':['jiù',4],'出':['chū',1],'会':['huì',4],
+      '可':['kě',3],'也':['yě',3],'生':['shēng',1],'家':['jiā',1],'以':['yǐ',3],'学':['xué',2],
+      '习':['xí',2],'汉':['hàn',4],'语':['yǔ',3],'文':['wén',2],'字':['zì',4],'写':['xiě',3],
+      '读':['dú',2],'听':['tīng',1],'看':['kàn',4],'好':['hǎo',3],'很':['hěn',3],'都':['dōu',1],
+      '来':['lái',2],'去':['qù',4],'年':['nián',2],'月':['yuè',4],'日':['rì',4],'天':['tiān',1],
+      '今':['jīn',1],'明':['míng',2],'昨':['zuó',2],'喜':['xǐ',3],'欢':['huan',5],'爱':['ài',4],
+      '想':['xiǎng',3],'觉':['jué',2],'认':['rèn',4],'因':['yīn',1],'所':['suǒ',3],
+      '虽':['suī',1],'然':['rán',2],'但':['dàn',4],'而':['ér',2],'且':['qiě',3],
+      '仅':['jǐn',3],'还':['hái',2],'首':['shǒu',3],'先':['xiān',1],'其':['qí',2],'次':['cì',4],
+      '最':['zuì',4],'后':['hòu',4],'总':['zǒng',3],'之':['zhī',1],'随':['suí',2],'着':['zhe',5],
+      '社':['shè',4],'发':['fā',1],'展':['zhǎn',3],'科':['kē',1],'技':['jì',4],'进':['jìn',4],
+      '步':['bù',4],'活':['huó',2],'越':['yuè',4],'工':['gōng',1],'作':['zuò',4],
+      '朋':['péng',2],'友':['yǒu',3],'老':['lǎo',3],'师':['shī',1],'同':['tóng',2],'校':['xiào',4],
+      '高':['gāo',1],'兴':['xìng',4],'快':['kuài',4],'乐':['lè',4],'努':['nǔ',3],'力':['lì',4],
+      '坚':['jiān',1],'持':['chí',2],'成':['chéng',2],'功':['gōng',1],'未':['wèi',4],'梦':['mèng',4],
+      '环':['huán',2],'境':['jìng',4],'保':['bǎo',3],'护':['hù',4],'健':['jiàn',4],'康':['kāng',1],
+      '重':['zhòng',4],'问':['wèn',4],'题':['tí',2],'方':['fāng',1],'法':['fǎ',3],
+      '世':['shì',4],'界':['jiè',4],'化':['huà',4],'历':['lì',4],'史':['shǐ',3],
+      '南':['nán',2],'北':['běi',3],'京':['jīng',1],'河':['hé',2],'内':['nèi',4],
+      '旅':['lǚ',3],'游':['yóu',2],'美':['měi',3],'食':['shí',2],'茶':['chá',2],'咖':['kā',1],
+      '啡':['fēi',1],'书':['shū',1],'本':['běn',3],'笔':['bǐ',3],'记':['jì',4],'心':['xīn',1],
+      '情':['qíng',2],'感':['gǎn',3],'谢':['xiè',4],'希':['xī',1],'望':['wàng',4],'知':['zhī',1],
+      '道':['dào',4],'白':['bái',2],'容':['róng',2],'易':['yì',4],'难':['nán',2],
+      '多':['duō',1],'少':['shǎo',3],'小':['xiǎo',3],'长':['cháng',2],'短':['duǎn',3],'新':['xīn',1],
+      '旧':['jiù',4],'慢':['màn',4],'早':['zǎo',3],'晚':['wǎn',3],'春':['chūn',1],'夏':['xià',4],
+      '秋':['qiū',1],'冬':['dōng',1],'风':['fēng',1],'雨':['yǔ',3],'花':['huā',1],'草':['cǎo',3],
+      '山':['shān',1],'水':['shuǐ',3],'静':['jìng',4],'安':['ān',1],'平':['píng',2],
+      '银':['yín',2],'行':['xíng',2],'音':['yīn',1],'睡':['shuì',4]
+    };
+
+    function detectToneFromSymbol(py) {
+      if (/[āēīōūǖ]/.test(py)) return 1;
+      if (/[áéíóúǘ]/.test(py)) return 2;
+      if (/[ǎěǐǒǔǚ]/.test(py)) return 3;
+      if (/[àèìòùǜ]/.test(py)) return 4;
+      return 5;
+    }
+
+    /**
+     * Given a contiguous Chinese string `hanziSegment` (e.g. "今天我去银行存钱，听着音乐觉得很快乐"),
+     * returns an array of `[pinyinSymbol, toneNum]` of exact length `hanziSegment.length`
+     * with full word-compound polyphone disambiguation.
+     */
+    function getSegmentContextPinyin(hanziSegment) {
+      const len = hanziSegment.length;
+      const result = new Array(len);
+
+      // 1. If pinyin-pro is loaded from CDN, use its phrase-segmentation engine first
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
+        try {
+          const pyArr = window.pinyinPro.pinyin(hanziSegment, { type: 'array', toneType: 'symbol' });
+          if (Array.isArray(pyArr) && pyArr.length === len) {
+            for (let i = 0; i < len; i++) {
+              result[i] = [pyArr[i], detectToneFromSymbol(pyArr[i])];
+            }
+          }
+        } catch (e) {}
+      }
+
+      // 2. Apply our curated POLYPHONE_COMPOUNDS (longest match 4 -> 2 chars) to guarantee 100% accuracy on tricky HSK compounds
+      let i = 0;
+      while (i < len) {
+        let matchedLen = 0;
+        for (let l = Math.min(4, len - i); l >= 2; l--) {
+          const sub = hanziSegment.slice(i, i + l);
+          if (POLYPHONE_COMPOUNDS[sub]) {
+            const compoundPy = POLYPHONE_COMPOUNDS[sub];
+            for (let k = 0; k < l; k++) {
+              result[i + k] = compoundPy[k];
+            }
+            matchedLen = l;
+            break;
+          }
+        }
+        if (matchedLen > 0) {
+          i += matchedLen;
+        } else {
+          if (!result[i]) {
+            const ch = hanziSegment[i];
+            result[i] = CHAR_PINYIN[ch] || ['', 5];
+          }
+          i++;
+        }
+      }
+
+      return result;
+    }
+
+    // Cloud API fallback for rare characters if pinyin-pro CDN is offline
+    let pendingRareChars = new Set();
+    let rareFetchTimer = null;
+
+    function fetchMissingPinyinFromGoogleAPI(missingCharsStr) {
+      if (!missingCharsStr) return;
+      fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=zh-CN&tl=vi&dt=rm&dj=1&q=${encodeURIComponent(missingCharsStr)}`)
+        .then(r => r.json())
+        .then(data => {
+          if (data && data.sentences) {
+            const translit = data.sentences.map(s => s.src_translit || '').join(' ').trim();
+            if (translit) {
+              const syllables = translit.split(/\s+/);
+              if (syllables.length === missingCharsStr.length) {
+                for (let i = 0; i < missingCharsStr.length; i++) {
+                  const py = syllables[i].toLowerCase();
+                  CHAR_PINYIN[missingCharsStr[i]] = [py, detectToneFromSymbol(py)];
+                }
+                renderBackdropAndSyncHeight();
+              }
+            }
+          }
+        })
+        .catch(() => {});
+    }
+
+    /* =========================================================================
+       2. EXPANDED BUILT-IN DICTIONARY + SENTENCE PATTERNS
+       ========================================================================= */
+    const DICTIONARY = [
+      { hz: '银行', py: 'yínháng', vi: 'Ngân hàng (chữ 行 đọc là háng)', tag: 'Đa âm', keys: 'yinhang ngan hang' },
+      { hz: '行业', py: 'hángyè', vi: 'Ngành nghề (chữ 行 đọc là háng)', tag: 'Đa âm', keys: 'hangye nganh nghe' },
+      { hz: '旅行', py: 'lǚxíng', vi: 'Du lịch (chữ 行 đọc là xíng)', tag: 'Đa âm', keys: 'luxing du lich' },
+      { hz: '音乐', py: 'yīnyuè', vi: 'Âm nhạc (chữ 乐 đọc là yuè)', tag: 'Đa âm', keys: 'yinyue am nhac' },
+      { hz: '快乐', py: 'kuàilè', vi: 'Vui vẻ, hạnh phúc (chữ 乐 đọc là lè)', tag: 'Đa âm', keys: 'kuaile vui ve hanh phuc' },
+      { hz: '长大', py: 'zhǎngdà', vi: 'Lớn lên, trưởng thành (chữ 长 đọc là zhǎng)', tag: 'Đa âm', keys: 'zhangda lon len truong thanh' },
+      { hz: '长城', py: 'Chángchéng', vi: 'Vạn Lý Trường Thành (chữ 长 đọc là cháng)', tag: 'Đa âm', keys: 'changcheng truong thanh' },
+      { hz: '睡觉', py: 'shuìjiào', vi: 'Đi ngủ (chữ 觉 đọc là jiào)', tag: 'Đa âm', keys: 'shuijiao di ngu' },
+      { hz: '觉得', py: 'juéde', vi: 'Cảm thấy (chữ 觉 đọc là jué)', tag: 'Đa âm', keys: 'juede cam thay' },
+      { hz: '重要', py: 'zhòngyào', vi: 'Quan trọng (chữ 重 đọc là zhòng)', tag: 'Đa âm', keys: 'zhongyao quan trong' },
+      { hz: '重新', py: 'chóngxīn', vi: 'Làm lại từ đầu (chữ 重 đọc là chóng)', tag: 'Đa âm', keys: 'chongxin lam lai tu dau' },
+      { hz: '虽然……但是……', py: 'suīrán... dànshì...', vi: 'Mặc dù... nhưng...', tag: 'HSK 2', keys: 'suiran danshi mac du nhung' },
+      { hz: '不仅……而且……', py: 'bùjǐn... érqiě...', vi: 'Không những... mà còn...', tag: 'HSK 3', keys: 'bujin erqie khong nhung ma con' },
+      { hz: '随着社会的发展', py: 'suízhe shèhuì de fāzhǎn', vi: 'Cùng với sự phát triển của xã hội', tag: 'HSK 4', keys: 'suizhe shehui fazhan xa hoi phat trien' },
+      { hz: '至关重要', py: 'zhìguān zhòngyào', vi: 'Vô cùng quan trọng / Thiết yếu', tag: 'HSK 5', keys: 'zhiguan zhongyao vo cung quan trong' },
+      { hz: '坚持不懈', py: 'jiānchí bùxiè', vi: 'Kiên trì bền bỉ không ngừng nghỉ', tag: 'Thành ngữ', keys: 'jianchi buxie kien tri ben bi' },
+      { hz: '半途而废', py: 'bàntú ér fèi', vi: 'Bỏ cuộc giữa chừng', tag: 'Thành ngữ', keys: 'bantu er fei bo cuoc giua chung' },
+      { hz: '熟能生巧', py: 'shú néng shēng qiǎo', vi: 'Trăm hay không bằng tay quen', tag: 'Thành ngữ', keys: 'shu neng sheng qiao quen tay luyen tap' },
+      { hz: '环境保护', py: 'huánjìng bǎohù', vi: 'Bảo vệ môi trường', tag: 'HSK 4', keys: 'huanjing baohu bao ve moi truong' },
+      { hz: '人工智能', py: 'réngōng zhìnéng', vi: 'Trí tuệ nhân tạo (AI)', tag: 'HSK 5', keys: 'rengong zhineng tri tue nhan tao ai' },
+      { hz: '文化交流', py: 'wénhuà jiāoliú', vi: 'Giao lưu văn hóa', tag: 'HSK 4', keys: 'wenhua jiaoliu giao luu van hoa' },
+      { hz: '脚踏实地', py: 'jiǎotà shídì', vi: 'Làm việc thực tế, vững chắc', tag: 'Thành ngữ', keys: 'jiaota shidi thuc te vung chac' },
+      { hz: '总而言之', py: 'zǒng ér yán zhī', vi: 'Tóm lại là / Nói tóm lại', tag: 'HSK 5', keys: 'zong er yan zhi tom lai ket luan' }
+    ];
+
+    const SENTENCE_PATTERNS = [
+      { cat: 'open', hz: '随着经济的快速发展，人们的生活发生了巨大的变化。', py: 'Suízhe jīngjì de kuàisù fāzhǎn...', vi: 'Mở bài: Cùng với sự phát triển nhanh của kinh tế, cuộc sống con người đã thay đổi to lớn.' },
+      { cat: 'open', hz: '俗话说：“活到老，学到老。”学习是一辈子的事情。', py: 'Súhuà shuō: “Huó dào lǎo, xué dào lǎo.”', vi: 'Mở bài trích dẫn: Tục ngữ có câu "Học, học nữa, học mãi", việc học là chuyện cả đời.' },
+      { cat: 'connect', hz: '首先，我们应该明确目标；其次，要制定合理的计划；最后，必须坚持到底。', py: 'Shǒuxiān... qícì... zuìhòu...', vi: 'Liệt kê luận điểm: Trước tiên..., tiếp theo..., cuối cùng...' },
+      { cat: 'connect', hz: '一方面，它给我们带来了很多方便；另一方面，也引发了一些问题。', py: 'Yì fāngmiàn... lìng yì fāngmiàn...', vi: 'Hai mặt vấn đề: Một mặt nó mang lại tiện lợi; mặt khác cũng nảy sinh một số vấn đề.' },
+      { cat: 'opinion', hz: '在我看来，成功的关键在于每天的积累和努力。', py: 'Zài wǒ kànlái, chénggōng de guānjiàn...', vi: 'Nêu quan điểm: Theo tôi thấy, chìa khóa của thành công nằm ở sự tích lũy mỗi ngày.' },
+      { cat: 'opinion', hz: '毫无疑问，良好的沟通能力在现代社会中至关重要。', py: 'Háowú yíwèn, liánghǎo de gōutōng...', vi: 'Khẳng định: Không nghi ngờ gì nữa, kỹ năng giao tiếp tốt là vô cùng quan trọng.' },
+      { cat: 'end', hz: '总而言之，只要我们脚踏实地、坚持不懈，就一定能实现自己的梦想。', py: 'Zǒng ér yán zhī, zhǐyào wǒmen...', vi: 'Kết bài: Tóm lại, chỉ cần chúng ta vững vàng và kiên trì thì nhất định sẽ đạt được ước mơ.' },
+      { cat: 'idiom', hz: '世上无难事，只怕有心人。', py: 'Shìshàng wú nánshì, zhǐ pà yǒuxīnrén.', vi: 'Thành ngữ: Trên đời không có việc gì khó, chỉ sợ lòng không bền.' }
+    ];
+
+    const PINYIN_IME_MAP = {
+      'wo': ['我','握','卧','窝'], 'ni': ['你','您','泥','逆','拟'], 'ta': ['他','她','它','塔','踏'],
+      'men': ['们','门','闷'], 'women': ['我们'], 'nimen': ['你们'], 'tamen': ['他们','她们','它们'],
+      'nihao': ['你好'], 'xihuan': ['喜欢'], 'zhongwen': ['中文'], 'zhongguo': ['中国'], 'hanyu': ['汉语'],
+      'xuexi': ['学习'], 'woxihuanzhongwen': ['我喜欢中文'], 'jintian': ['今天'], 'mingtian': ['明天'],
+      'zuotian': ['昨天'], 'xianzai': ['现在'], 'weilai': ['未来'], 'pengyou': ['朋友'], 'laoshi': ['老师'],
+      'xuesheng': ['学生'], 'gongzuo': ['工作'], 'shenghuo': ['生活'], 'kuaile': ['快乐'], 'gaoxing': ['高兴'],
+      'nuli': ['努力'], 'jianchi': ['坚持'], 'chenggong': ['成功'], 'suiran': ['虽然'], 'danshi': ['但是'],
+      'yinwei': ['因为'], 'suoyi': ['所以'], 'bujin': ['不仅'], 'erqie': ['而且'], 'shouxian': ['首先'],
+      'qici': ['其次'], 'zuihou': ['最后'], 'zongzhi': ['总之'], 'yuenan': ['越南'], 'henei': ['河内'],
+      'beijing': ['北京'], 'yinhang': ['银行'], 'yinyue': ['音乐'], 'zhangda': ['长大'], 'shuijiao': ['睡觉'],
+      'zhongyao': ['重要'], 'chongxin': ['重新'], 'pianyi': ['便宜'], 'fangbian': ['方便'],
+      'shi': ['是','时','事','十','市','师','试','室','世','食','石','史','始','式','识'],
+      'yi': ['一','以','已','意','义','议','易','医','衣','移','疑','亿','忆','依'],
+      'zhi': ['之','只','知','直','指','制','治','志','值','质','职','止','纸','支','织'],
+      'de': ['的','地','得','德'], 'bu': ['不','步','部','补','布'], 'zai': ['在','再','载','灾'],
+      'you': ['有','又','友','由','游','优','油','右','幼'], 'he': ['和','河','喝','合','何','盒'],
+      'ren': ['人','认','任','忍','仁'], 'zhe': ['这','着','者','折','哲'], 'da': ['大','打','达','答'],
+      'shang': ['上','商','伤','尚'], 'xia': ['下','夏','吓','狭'], 'hao': ['好','号','毫','豪'],
+      'hen': ['很','恨','狠'], 'dou': ['都','斗','豆','逗'], 'lai': ['来','赖','莱'], 'qu': ['去','区','取','趣','曲']
+    };
+
+    /* =========================================================================
+       3. DOM REFERENCES & MULTI-NOTEBOOK STATE
+       ========================================================================= */
+    const editorScrollContainer = document.getElementById('editorScrollContainer');
+    const notebookShell = document.getElementById('notebookShell');
+    const editorStack = document.getElementById('editorStack');
+    const editorCaretMirror = document.getElementById('editorCaretMirror');
+    const editorBackdrop = document.getElementById('editorBackdrop');
+    const editorTextarea = document.getElementById('editorTextarea');
+    const editorPlaceholder = document.getElementById('editorPlaceholder');
+    const notebookTitleInput = document.getElementById('notebookTitle');
+    const notebookDateInput = document.getElementById('notebookDate');
+    const charStats = document.getElementById('charStats');
+
+    let imeEnabled = true;
+    let showPinyin = true;
+    let imeBuffer = '';
+    let imeCandidates = [];
+    let imePage = 0;
+    let imeActiveIdx = 0;
+    const IME_PAGE_SIZE = 7;
+
+    let savedSelectionStart = 0;
+    let savedSelectionEnd = 0;
+
+    // Multi-Document Notebook Storage
+    const STORAGE_KEY = 'hanvan_studio_notebooks_v2';
+    let notebooks = [];
+    let currentNoteId = null;
+
+    function getTodayChineseDate() {
+      const now = new Date();
+      return `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日`;
+    }
+
+    function loadNotebooksFromStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed.notebooks) && parsed.notebooks.length > 0) {
+            notebooks = parsed.notebooks;
+            currentNoteId = parsed.currentNoteId || notebooks[0].id;
+            return;
+          }
+        }
+      } catch (e) {}
+
+      // Migrate from v1 if available or create default welcome pages
+      const legacyText = localStorage.getItem('hanvan_notebook_text');
+      const defaultSample1 = legacyText || `　　今天我去银行存钱，路上听着音乐，觉得心情很快乐。\n　　虽然学习汉字不容易，特别是像“银行、音乐、长大、重要”这样的多音字词组，但是每天坚持写一点，我的中文水平一定会越来越好！`;
+      const defaultSample2 = `　　随着社会的发展，掌握一门外语变得至关重要。首先，我们应该养成每天阅读和写作的好习惯；其次，遇到不懂的生词可以随时查词典。总而言之，世上无难事，只怕有心人。`;
+
+      notebooks = [
+        {
+          id: 'note_' + Date.now(),
+          title: '我的中文日记 — Nhật ký học tiếng Trung',
+          date: getTodayChineseDate(),
+          weather: '☀️',
+          content: defaultSample1,
+          updatedAt: Date.now()
+        },
+        {
+          id: 'note_' + (Date.now() - 86400000),
+          title: '议论文练习 — Luyện viết đoạn văn ngắn',
+          date: getTodayChineseDate(),
+          weather: '🍵',
+          content: defaultSample2,
+          updatedAt: Date.now() - 86400000
+        }
+      ];
+      currentNoteId = notebooks[0].id;
+      saveNotebooksToStorage();
+    }
+
+    function saveNotebooksToStorage() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+          currentNoteId,
+          notebooks
+        }));
+      } catch (e) {}
+      document.getElementById('noteCountBadge').textContent = String(notebooks.length);
+    }
+
+    function getCurrentNote() {
+      return notebooks.find(n => n.id === currentNoteId) || notebooks[0];
+    }
+
+    function syncCurrentNoteFromInputs() {
+      const note = getCurrentNote();
+      if (!note) return;
+      note.title = notebookTitleInput.value;
+      note.date = notebookDateInput.value;
+      note.content = editorTextarea.value;
+      note.updatedAt = Date.now();
+      saveNotebooksToStorage();
+      renderNotesList();
+    }
+
+    function loadNoteIntoEditor(noteId) {
+      const note = notebooks.find(n => n.id === noteId);
+      if (!note) return;
+      currentNoteId = note.id;
+      notebookTitleInput.value = note.title || '';
+      notebookDateInput.value = note.date || getTodayChineseDate();
+      editorTextarea.value = note.content || '';
+      savedSelectionStart = editorTextarea.value.length;
+      savedSelectionEnd = editorTextarea.value.length;
+
+      // Weather button active state
+      document.querySelectorAll('#weatherPicker .weather-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.weather === (note.weather || '☀️'));
+      });
+
+      saveNotebooksToStorage();
+      renderNotesList();
+      renderBackdropAndSyncHeight();
+    }
+
+    function renderNotesList() {
+      const listEl = document.getElementById('notesList');
+      listEl.innerHTML = notebooks
+        .map(n => {
+          const hzCount = (n.content.match(/[\u4e00-\u9fa5]/g) || []).length;
+          const preview = n.content.replace(/\s+/g, ' ').trim().slice(0, 42) || '(Trang trống)';
+          return `
+            <div class="note-card ${n.id === currentNoteId ? 'active' : ''}" data-id="${n.id}">
+              <div class="note-card-title">${escapeHtml(n.title || ' Trang sổ không tiêu đề')}</div>
+              <div class="note-card-meta">
+                <span>${n.weather || '☀️'} ${escapeHtml(n.date || '')}</span>
+                <span>·</span>
+                <span>${hzCount} chữ Hán</span>
+              </div>
+              <div class="note-card-preview">${escapeHtml(preview)}</div>
+              <div class="note-card-actions">
+                <button type="button" class="note-act-btn" data-del="${n.id}" title="Xóa bài viết này">🗑️</button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
+
+      listEl.querySelectorAll('.note-card').forEach(card => {
+        card.addEventListener('click', e => {
+          if (e.target.closest('[data-del]')) return;
+          loadNoteIntoEditor(card.dataset.id);
+        });
+      });
+
+      listEl.querySelectorAll('[data-del]').forEach(delBtn => {
+        delBtn.addEventListener('click', e => {
+          e.stopPropagation();
+          const delId = delBtn.dataset.del;
+          if (notebooks.length <= 1) {
+            showToast('Cần giữ lại ít nhất 1 trang sổ!');
+            return;
+          }
+          if (!confirm('Bạn có chắc muốn xóa trang sổ này?')) return;
+          notebooks = notebooks.filter(n => n.id !== delId);
+          if (currentNoteId === delId) {
+            currentNoteId = notebooks[0].id;
+            loadNoteIntoEditor(currentNoteId);
+          } else {
+            saveNotebooksToStorage();
+            renderNotesList();
+          }
+          showToast('Đã xóa trang sổ');
+        });
+      });
+    }
+
+    /* =========================================================================
+       4. EXACT CARET PIXEL COORDINATE ENGINE & DUAL-LAYER RENDERING
+       ========================================================================= */
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    function updateSavedSelection() {
+      savedSelectionStart = editorTextarea.selectionStart;
+      savedSelectionEnd = editorTextarea.selectionEnd;
+    }
+
+    editorTextarea.addEventListener('keyup', updateSavedSelection);
+    editorTextarea.addEventListener('mouseup', updateSavedSelection);
+    editorTextarea.addEventListener('select', updateSavedSelection);
+    editorTextarea.addEventListener('blur', updateSavedSelection);
+
+    /**
+     * Computes exact viewport (left, bottom, top) coordinates of the typing cursor inside editorTextarea
+     * using the synchronized hidden #editorCaretMirror layer.
+     */
+    function getCaretViewportRect() {
+      const text = editorTextarea.value;
+      const caretIdx = typeof editorTextarea.selectionStart === 'number' ? editorTextarea.selectionStart : savedSelectionStart;
+      const beforeText = escapeHtml(text.slice(0, caretIdx));
+      const afterText = escapeHtml(text.slice(caretIdx));
+
+      editorCaretMirror.innerHTML = `${beforeText}<span id="caretPixelAnchor">\u200b</span>${afterText}`;
+      const anchor = document.getElementById('caretPixelAnchor');
+      if (!anchor) {
+        return editorTextarea.getBoundingClientRect();
+      }
+      return anchor.getBoundingClientRect();
+    }
+
+    function renderBackdropAndSyncHeight() {
+      const prevContainerScrollTop = editorScrollContainer.scrollTop;
+      const prevContainerScrollLeft = editorScrollContainer.scrollLeft;
+      const prevWindowScrollY = window.scrollY;
+
+      const text = editorTextarea.value;
+      editorPlaceholder.style.display = text.length === 0 ? 'block' : 'none';
+
+      // Tokenize text into contiguous Chinese segments vs non-Chinese segments
+      // so polyphone compounds (银行, 音乐, 长大, 睡觉, 重要...) are analyzed in word context!
+      const tokenRegex = /([\u4e00-\u9fa5]+)|([^\u4e00-\u9fa5]+)/g;
+      let html = '';
+      let match;
+      let missingChars = '';
+
+      while ((match = tokenRegex.exec(text)) !== null) {
+        const hzSeq = match[1];
+        const otherSeq = match[2];
+
+        if (hzSeq) {
+          const pyList = getSegmentContextPinyin(hzSeq);
+          for (let i = 0; i < hzSeq.length; i++) {
+            const ch = hzSeq[i];
+            const info = pyList[i];
+            if (info && info[0]) {
+              html += `<span class="hz-char"><span class="py-above tone-${info[1]}">${info[0]}</span>${ch}</span>`;
+            } else {
+              html += `<span class="hz-char">${ch}</span>`;
+              if (!pendingRareChars.has(ch)) {
+                pendingRareChars.add(ch);
+                missingChars += ch;
+              }
+            }
+          }
+        } else if (otherSeq) {
+          html += escapeHtml(otherSeq);
+        }
+      }
+
+      if (text.endsWith('\n')) {
+        html += ' ';
+      }
+
+      editorBackdrop.innerHTML = html;
+
+      // Sync height without collapsing to 'auto' (prevents scroll jump)
+      const backdropHeight = Math.max(540, editorBackdrop.offsetHeight + 40);
+      editorStack.style.minHeight = backdropHeight + 'px';
+      editorTextarea.style.height = backdropHeight + 'px';
+      editorCaretMirror.style.height = backdropHeight + 'px';
+
+      editorScrollContainer.scrollTop = prevContainerScrollTop;
+      editorScrollContainer.scrollLeft = prevContainerScrollLeft;
+      window.scrollTo(window.scrollX, prevWindowScrollY);
+
+      const hanziMatches = text.match(/[\u4e00-\u9fa5]/g);
+      const hanziCount = hanziMatches ? hanziMatches.length : 0;
+      charStats.textContent = `${hanziCount} chữ Hán · ${text.length} ký tự`;
+
+      // If there are any rare chars not in local table and pinyin-pro hasn't loaded yet, fetch via Google API
+      if (missingChars.length > 0) {
+        clearTimeout(rareFetchTimer);
+        rareFetchTimer = setTimeout(() => {
+          const toFetch = Array.from(pendingRareChars).join('');
+          pendingRareChars.clear();
+          fetchMissingPinyinFromGoogleAPI(toFetch);
+        }, 250);
+      }
+    }
+
+    function insertAtCursorScrollSafe(insertStr, cursorOffset = 0) {
+      const prevScrollTop = editorScrollContainer.scrollTop;
+      const prevScrollLeft = editorScrollContainer.scrollLeft;
+
+      const text = editorTextarea.value;
+      const start = typeof editorTextarea.selectionStart === 'number' ? editorTextarea.selectionStart : savedSelectionStart;
+      const end = typeof editorTextarea.selectionEnd === 'number' ? editorTextarea.selectionEnd : savedSelectionEnd;
+
+      const newText = text.slice(0, start) + insertStr + text.slice(end);
+      editorTextarea.value = newText;
+
+      const newCaretPos = Math.max(0, start + insertStr.length + cursorOffset);
+      savedSelectionStart = newCaretPos;
+      savedSelectionEnd = newCaretPos;
+
+      renderBackdropAndSyncHeight();
+      syncCurrentNoteFromInputs();
+
+      try {
+        editorTextarea.focus({ preventScroll: true });
+      } catch (e) {
+        editorTextarea.focus();
+      }
+      editorTextarea.setSelectionRange(newCaretPos, newCaretPos);
+
+      editorScrollContainer.scrollTop = prevScrollTop;
+      editorScrollContainer.scrollLeft = prevScrollLeft;
+      requestAnimationFrame(() => {
+        editorScrollContainer.scrollTop = prevScrollTop;
+        editorScrollContainer.scrollLeft = prevScrollLeft;
+      });
+    }
+
+    /* =========================================================================
+       5. PINYIN IME POPUP POSITIONED DIRECTLY UNDER THE CARET
+       ========================================================================= */
+    const imePopup = document.getElementById('imePopup');
+    const imeBufferText = document.getElementById('imeBufferText');
+    const imeCandidatesEl = document.getElementById('imeCandidates');
+    const imePageInfo = document.getElementById('imePageInfo');
+    const imePrevBtn = document.getElementById('imePrevBtn');
+    const imeNextBtn = document.getElementById('imeNextBtn');
+    let cloudFetchController = null;
+
+    function positionImePopupAtCaret() {
+      if (!imeBuffer) return;
+      const caretRect = getCaretViewportRect();
+      const popupWidth = Math.max(320, imePopup.offsetWidth || 340);
+      const popupHeight = Math.max(92, imePopup.offsetHeight || 96);
+
+      let left = caretRect.left;
+      if (left + popupWidth > window.innerWidth - 16) {
+        left = window.innerWidth - popupWidth - 16;
+      }
+      if (left < 16) left = 16;
+
+      // Place directly below the current character line; flip above if near bottom of screen
+      let top = caretRect.bottom + 4;
+      if (top + popupHeight > window.innerHeight - 12) {
+        top = Math.max(12, caretRect.top - popupHeight - 10);
+        imePopup.classList.add('flipped');
+      } else {
+        imePopup.classList.remove('flipped');
+      }
+
+      imePopup.style.left = Math.round(left) + 'px';
+      imePopup.style.top = Math.round(top) + 'px';
+    }
+
+    function lookupPinyinCandidates(rawPy) {
+      const py = rawPy.toLowerCase();
+      const localList = PINYIN_IME_MAP[py] ? [...PINYIN_IME_MAP[py]] : [];
+
+      DICTIONARY.forEach(item => {
+        const cleanPy = item.py.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+        if (cleanPy.startsWith(py) && !localList.includes(item.hz)) {
+          localList.push(item.hz);
+        }
+      });
+
+      Object.entries(CHAR_PINYIN).forEach(([hz, [markedPy]]) => {
+        const base = markedPy.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        if (base === py && !localList.includes(hz)) {
+          localList.push(hz);
+        }
+      });
+
+      imeCandidates = localList.length > 0 ? localList : [rawPy];
+      imePage = 0;
+      imeActiveIdx = 0;
+      renderImePopup();
+
+      if (cloudFetchController) cloudFetchController.abort();
+      cloudFetchController = new AbortController();
+      fetch(`https://inputtools.google.com/request?text=${encodeURIComponent(py)}&itc=zh-t-i0-pinyin&num=21&cp=0&cs=1&ie=utf-8&oe=utf-8`, {
+        signal: cloudFetchController.signal
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (imeBuffer.toLowerCase() !== py) return;
+          if (data && data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1]) {
+            const cloudWords = data[1][0][1];
+            const merged = [...cloudWords];
+            localList.forEach(w => { if (!merged.includes(w)) merged.push(w); });
+            imeCandidates = merged;
+            renderImePopup();
+          }
+        })
+        .catch(() => {});
+    }
+
+    function renderImePopup() {
+      if (!imeBuffer) {
+        imePopup.style.display = 'none';
+        return;
+      }
+
+      imeBufferText.textContent = imeBuffer;
+      const totalPages = Math.max(1, Math.ceil(imeCandidates.length / IME_PAGE_SIZE));
+      if (imePage >= totalPages) imePage = totalPages - 1;
+      if (imePage < 0) imePage = 0;
+
+      const startIdx = imePage * IME_PAGE_SIZE;
+      const pageItems = imeCandidates.slice(startIdx, startIdx + IME_PAGE_SIZE);
+      if (imeActiveIdx >= pageItems.length) imeActiveIdx = 0;
+
+      imePageInfo.textContent = `Trang ${imePage + 1}/${totalPages}`;
+      imePrevBtn.disabled = imePage === 0;
+      imeNextBtn.disabled = imePage >= totalPages - 1;
+
+      imeCandidatesEl.innerHTML = pageItems
+        .map((word, idx) => `
+          <div class="ime-cand ${idx === imeActiveIdx ? 'active' : ''}" data-idx="${idx}" onmousedown="event.preventDefault()">
+            <span class="ime-cand-num">${idx + 1}.</span>
+            <span>${word}</span>
+          </div>
+        `)
+        .join('');
+
+      imeCandidatesEl.querySelectorAll('.ime-cand').forEach(el => {
+        el.addEventListener('click', () => commitImeCandidate(parseInt(el.dataset.idx, 10)));
+      });
+
+      imePopup.style.display = 'block';
+      positionImePopupAtCaret();
+    }
+
+    // Keep IME popup attached to caret on scroll or resize
+    editorScrollContainer.addEventListener('scroll', () => {
+      if (imeBuffer) positionImePopupAtCaret();
+    });
+    window.addEventListener('resize', () => {
+      if (imeBuffer) positionImePopupAtCaret();
+    });
+
+    function commitImeCandidate(indexInPage) {
+      const actualIdx = imePage * IME_PAGE_SIZE + indexInPage;
+      const chosen = imeCandidates[actualIdx];
+      if (!chosen) return;
+      imeBuffer = '';
+      imePopup.style.display = 'none';
+      insertAtCursorScrollSafe(chosen);
+    }
+
+    imePrevBtn.addEventListener('mousedown', e => e.preventDefault());
+    imeNextBtn.addEventListener('mousedown', e => e.preventDefault());
+    imePrevBtn.addEventListener('click', () => {
+      if (imePage > 0) { imePage--; imeActiveIdx = 0; renderImePopup(); }
+    });
+    imeNextBtn.addEventListener('click', () => {
+      const totalPages = Math.ceil(imeCandidates.length / IME_PAGE_SIZE);
+      if (imePage < totalPages - 1) { imePage++; imeActiveIdx = 0; renderImePopup(); }
+    });
+
+    editorTextarea.addEventListener('keydown', e => {
+      if (e.key === 'Shift' && !e.ctrlKey && !e.altKey && !e.metaKey) {
+        editorTextarea.dataset.shiftOnly = 'true';
+        return;
+      } else {
+        editorTextarea.dataset.shiftOnly = 'false';
+      }
+
+      if (!imeEnabled) return;
+
+      if (imeBuffer.length > 0) {
+        const totalPages = Math.max(1, Math.ceil(imeCandidates.length / IME_PAGE_SIZE));
+        const pageLen = Math.min(IME_PAGE_SIZE, imeCandidates.length - imePage * IME_PAGE_SIZE);
+
+        if (e.key === 'ArrowDown' || e.key === '=' || e.key === '.' || e.key === 'Tab' || e.key === 'PageDown') {
+          e.preventDefault();
+          if (imePage < totalPages - 1) { imePage++; imeActiveIdx = 0; renderImePopup(); }
+          return;
+        }
+        if (e.key === 'ArrowUp' || e.key === '-' || e.key === ',' || e.key === 'PageUp') {
+          e.preventDefault();
+          if (imePage > 0) { imePage--; imeActiveIdx = 0; renderImePopup(); }
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          imeActiveIdx = (imeActiveIdx + 1) % pageLen;
+          renderImePopup();
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          imeActiveIdx = (imeActiveIdx - 1 + pageLen) % pageLen;
+          renderImePopup();
+          return;
+        }
+        if (e.key === ' ') {
+          e.preventDefault();
+          commitImeCandidate(imeActiveIdx);
+          return;
+        }
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const raw = imeBuffer;
+          imeBuffer = '';
+          imePopup.style.display = 'none';
+          insertAtCursorScrollSafe(raw);
+          return;
+        }
+        if (/^[1-7]$/.test(e.key)) {
+          e.preventDefault();
+          commitImeCandidate(parseInt(e.key, 10) - 1);
+          return;
+        }
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          imeBuffer = imeBuffer.slice(0, -1);
+          if (!imeBuffer) imePopup.style.display = 'none';
+          else lookupPinyinCandidates(imeBuffer);
+          return;
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          imeBuffer = '';
+          imePopup.style.display = 'none';
+          return;
+        }
+      }
+
+      if (/^[a-zA-Z]$/.test(e.key) && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        updateSavedSelection();
+        imeBuffer += e.key.toLowerCase();
+        lookupPinyinCandidates(imeBuffer);
+        return;
+      }
+
+      if (imeBuffer.length === 0 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        const punctMap = { ',': '，', '.': '。', '?': '？', '!': '！', ';': '；', ':': '：', '\\': '、' };
+        if (punctMap[e.key]) {
+          e.preventDefault();
+          insertAtCursorScrollSafe(punctMap[e.key]);
+        }
+      }
+    });
+
+    editorTextarea.addEventListener('keyup', e => {
+      if (e.key === 'Shift' && editorTextarea.dataset.shiftOnly === 'true') toggleImeMode();
+    });
+
+    editorTextarea.addEventListener('input', () => {
+      updateSavedSelection();
+      renderBackdropAndSyncHeight();
+      syncCurrentNoteFromInputs();
+    });
+
+    notebookTitleInput.addEventListener('input', syncCurrentNoteFromInputs);
+    notebookDateInput.addEventListener('input', syncCurrentNoteFromInputs);
+
+    /* =========================================================================
+       6. DICTIONARY + LIVE GOOGLE TRANSLATE API LOOKUP
+       ========================================================================= */
+    const dictSearchInput = document.getElementById('dictSearchInput');
+    const dictClearBtn = document.getElementById('dictClearBtn');
+    const dictOnlineBtn = document.getElementById('dictOnlineBtn');
+    const dictResultList = document.getElementById('dictResultList');
+
+    let onlineTransTimer = null;
+    let onlineTransController = null;
+
+    function getPhrasePinyinString(hzStr) {
+      if (!hzStr) return '';
+      if (window.pinyinPro && typeof window.pinyinPro.pinyin === 'function') {
+        try {
+          return window.pinyinPro.pinyin(hzStr, { toneType: 'symbol' });
+        } catch (e) {}
+      }
+      const seg = getSegmentContextPinyin(hzStr.replace(/[^\u4e00-\u9fa5]/g, ''));
+      return seg.map(x => x[0]).join(' ');
+    }
+
+    function renderDictionaryAndOnlineSearch(query = '', forceOnline = false) {
+      const q = query.trim();
+      const qLower = q.toLowerCase();
+      dictClearBtn.style.display = q ? 'block' : 'none';
+
+      const filtered = DICTIONARY.filter(item => {
+        if (!qLower) return true;
+        return (
+          item.hz.includes(qLower) ||
+          item.py.toLowerCase().includes(qLower) ||
+          item.vi.toLowerCase().includes(qLower) ||
+          item.keys.includes(qLower)
+        );
+      });
+
+      let html = '';
+      if (q) {
+        html += `<div id="onlineTranslateBox" class="online-trans-card">
+          <div class="online-badge">
+            <span>🌐 Google Dịch & Từ Điển Mạng</span>
+            <span style="font-weight:400;">Đang tra "${escapeHtml(q)}"...</span>
+          </div>
+        </div>`;
+      }
+
+      html += filtered
+        .map(item => `
+          <div class="dict-item" data-insert="${escapeHtml(item.hz.replace(/……/g, ''))}" onmousedown="event.preventDefault()">
+            <div class="dict-top">
+              <span class="dict-hz">${escapeHtml(item.hz)}</span>
+              <span class="dict-tag">${escapeHtml(item.tag)}</span>
+            </div>
+            <div class="dict-py">${escapeHtml(item.py)}</div>
+            <div class="dict-vi">${escapeHtml(item.vi)}</div>
+          </div>
+        `)
+        .join('');
+
+      dictResultList.innerHTML = html;
+      bindDictItemClicks(dictResultList);
+
+      if (q) {
+        clearTimeout(onlineTransTimer);
+        onlineTransTimer = setTimeout(() => {
+          fetchGoogleTranslateForQuery(q);
+        }, forceOnline ? 10 : 320);
+      }
+    }
+
+    function bindDictItemClicks(container) {
+      container.querySelectorAll('[data-insert]').forEach(el => {
+        el.addEventListener('click', () => {
+          const word = el.dataset.insert;
+          insertAtCursorScrollSafe(word);
+          showToast(`Đã chèn "${word}" vào vị trí con trỏ`);
+        });
+      });
+    }
+
+    function fetchGoogleTranslateForQuery(q) {
+      const box = document.getElementById('onlineTranslateBox');
+      if (!box) return;
+
+      if (onlineTransController) onlineTransController.abort();
+      onlineTransController = new AbortController();
+
+      const hasChinese = /[\u4e00-\u9fa5]/.test(q);
+      const sl = hasChinese ? 'zh-CN' : 'auto';
+      const tl = hasChinese ? 'vi' : 'zh-CN';
+
+      const url = `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&dt=bd&dt=rm&dj=1&q=${encodeURIComponent(q)}`;
+
+      fetch(url, { signal: onlineTransController.signal })
+        .then(r => r.json())
+        .then(data => {
+          if (!data) throw new Error('Empty response');
+
+          const transText = (data.sentences || [])
+            .map(s => s.trans || '')
+            .join('')
+            .trim();
+
+          const origText = (data.sentences || [])
+            .map(s => s.orig || '')
+            .join('')
+            .trim();
+
+          const hzResult = hasChinese ? origText : transText;
+          const viResult = hasChinese ? transText : origText;
+          const pyResult = getPhrasePinyinString(hzResult) ||
+            (data.sentences || []).map(s => s.translit || s.src_translit || '').join(' ').trim();
+
+          // Also extract alternative dictionary terms if Google returned `dict`
+          let extraTermsHtml = '';
+          if (Array.isArray(data.dict)) {
+            const extraItems = [];
+            data.dict.forEach(group => {
+              const pos = group.pos || 'Từ vựng';
+              (group.entry || []).slice(0, 5).forEach(ent => {
+                const word = ent.word;
+                const reverse = (ent.reverse_translation || []).slice(0, 3).join(', ');
+                const hzWord = hasChinese ? q : word;
+                const viWord = hasChinese ? `${word} (${reverse})` : reverse;
+                if (hzWord && hzWord !== hzResult) {
+                  extraItems.push({
+                    hz: hzWord,
+                    py: getPhrasePinyinString(hzWord),
+                    vi: viWord,
+                    pos
+                  });
+                }
+              });
+            });
+
+            if (extraItems.length > 0) {
+              extraTermsHtml = `
+                <div style="margin-top:4px; padding-top:6px; border-top:1px dashed var(--border-color); display:flex; flex-direction:column; gap:5px;">
+                  <div style="font-size:11px; color:var(--text-muted); font-weight:600;">Từ đồng nghĩa / Gợi ý mở rộng (Bấm để chèn):</div>
+                  ${extraItems.slice(0, 6).map(ex => `
+                    <div class="dict-item" data-insert="${escapeHtml(ex.hz)}" onmousedown="event.preventDefault()" style="padding:6px 8px;">
+                      <div class="dict-top">
+                        <span class="dict-hz" style="font-size:16px;">${escapeHtml(ex.hz)}</span>
+                        <span class="dict-tag">${escapeHtml(ex.pos)}</span>
+                      </div>
+                      <div class="dict-py">${escapeHtml(ex.py)}</div>
+                      <div class="dict-vi">${escapeHtml(ex.vi)}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              `;
+            }
+          }
+
+          box.innerHTML = `
+            <div class="online-badge">
+              <span>🌐 Kết quả Google Dịch</span>
+              <span style="font-weight:500; font-size:10px;">Bấm để chèn ngay</span>
+            </div>
+            <div class="dict-item" data-insert="${escapeHtml(hzResult)}" onmousedown="event.preventDefault()" style="border-color:var(--accent); background:var(--accent-soft);">
+              <div class="dict-top">
+                <span class="dict-hz" style="font-size:20px;">${escapeHtml(hzResult)}</span>
+                <span class="dict-tag">＋ Chèn</span>
+              </div>
+              <div class="dict-py">${escapeHtml(pyResult)}</div>
+              <div class="dict-vi">${escapeHtml(viResult)}</div>
+            </div>
+            ${extraTermsHtml}
+          `;
+
+          bindDictItemClicks(box);
+        })
+        .catch(err => {
+          if (err && err.name === 'AbortError') return;
+          box.innerHTML = `
+            <div class="online-badge">🌐 Tra cứu trực tuyến</div>
+            <div style="font-size:12px; color:var(--text-muted);">
+              Không kết nối được API tự động. Bạn có thể bấm nút <b>Google Dịch ↗</b> hoặc <b>Hanzii ↗</b> phía trên để mở tab tra từ.
+            </div>
+          `;
+        });
+    }
+
+    dictSearchInput.addEventListener('input', e => renderDictionaryAndOnlineSearch(e.target.value, false));
+    dictSearchInput.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        renderDictionaryAndOnlineSearch(dictSearchInput.value, true);
+      }
+    });
+    dictOnlineBtn.addEventListener('click', () => {
+      renderDictionaryAndOnlineSearch(dictSearchInput.value, true);
+    });
+    dictClearBtn.addEventListener('click', () => {
+      dictSearchInput.value = '';
+      renderDictionaryAndOnlineSearch('');
+    });
+
+    // External dictionary popup buttons
+    document.getElementById('openGTransWeb').addEventListener('click', () => {
+      const q = dictSearchInput.value.trim() || editorTextarea.value.slice(savedSelectionStart, savedSelectionEnd).trim();
+      window.open(`https://translate.google.com/?sl=auto&tl=zh-CN&text=${encodeURIComponent(q)}&op=translate`, '_blank');
+    });
+    document.getElementById('openHanziiWeb').addEventListener('click', () => {
+      const q = dictSearchInput.value.trim() || editorTextarea.value.slice(savedSelectionStart, savedSelectionEnd).trim() || '中文';
+      window.open(`https://hanzii.net/search/word/${encodeURIComponent(q)}?hl=vi`, '_blank');
+    });
+
+    /* =========================================================================
+       7. SENTENCE PATTERNS & MULTI-NOTEBOOK BACKUP (SAVE/LOAD JSON)
+       ========================================================================= */
+    const patternList = document.getElementById('patternList');
+    const patternCatBar = document.getElementById('patternCatBar');
+
+    function renderPatternList(cat = 'all') {
+      const list = cat === 'all' ? SENTENCE_PATTERNS : SENTENCE_PATTERNS.filter(p => p.cat === cat);
+      patternList.innerHTML = list
+        .map(item => `
+          <div class="dict-item" data-insert="${escapeHtml(item.hz)}" onmousedown="event.preventDefault()">
+            <div class="dict-hz" style="font-size:15.5px; line-height:1.45;">${escapeHtml(item.hz)}</div>
+            <div class="dict-py">${escapeHtml(item.py)}</div>
+            <div class="dict-vi">${escapeHtml(item.vi)}</div>
+          </div>
+        `)
+        .join('');
+      bindDictItemClicks(patternList);
+    }
+
+    patternCatBar.querySelectorAll('.cat-chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        patternCatBar.querySelectorAll('.cat-chip').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPatternList(btn.dataset.cat);
+      });
+    });
+
+    // Create New Notebook Page
+    document.getElementById('newNoteBtn').addEventListener('click', () => {
+      const newNote = {
+        id: 'note_' + Date.now(),
+        title: `Trang sổ mới #${notebooks.length + 1}`,
+        date: getTodayChineseDate(),
+        weather: '☀️',
+        content: '　　',
+        updatedAt: Date.now()
+      };
+      notebooks.unshift(newNote);
+      loadNoteIntoEditor(newNote.id);
+      showToast('✨ Đã tạo trang sổ mới');
+    });
+
+    // Duplicate Current Page
+    document.getElementById('duplicateNoteBtn').addEventListener('click', () => {
+      const cur = getCurrentNote();
+      if (!cur) return;
+      const copy = {
+        id: 'note_' + Date.now(),
+        title: cur.title + ' (Bản sao)',
+        date: cur.date,
+        weather: cur.weather,
+        content: cur.content,
+        updatedAt: Date.now()
+      };
+      notebooks.unshift(copy);
+      loadNoteIntoEditor(copy.id);
+      showToast('📑 Đã nhân bản trang sổ');
+    });
+
+    // Export / Backup all notebooks to JSON file
+    function exportNotebooksToJson() {
+      syncCurrentNoteFromInputs();
+      const backupData = {
+        app: 'HanVanStudioNotebook',
+        version: '2.0',
+        exportedAt: new Date().toISOString(),
+        currentNoteId,
+        theme: document.body.getAttribute('data-theme') || 'cream',
+        notebooks
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const d = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `han_van_so_tay_backup_${d}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('💾 Đã tải xuống file Backup .JSON');
+    }
+
+    document.getElementById('exportJsonBtn').addEventListener('click', exportNotebooksToJson);
+    document.getElementById('quickBackupBtn').addEventListener('click', exportNotebooksToJson);
+
+    // Import / Restore from JSON file
+    const importJsonFileInput = document.getElementById('importJsonFileInput');
+    document.getElementById('importJsonBtn').addEventListener('click', () => {
+      importJsonFileInput.value = '';
+      importJsonFileInput.click();
+    });
+
+    importJsonFileInput.addEventListener('change', e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = ev => {
+        try {
+          const data = JSON.parse(ev.target.result);
+          const importedList = Array.isArray(data) ? data : (Array.isArray(data.notebooks) ? data.notebooks : null);
+          if (!importedList || importedList.length === 0) {
+            alert('File JSON không hợp lệ hoặc không có bài viết nào.');
+            return;
+          }
+          // Merge imported notes without overwriting existing notes with different IDs
+          const existingIds = new Set(notebooks.map(n => n.id));
+          let added = 0;
+          importedList.forEach(item => {
+            if (item && typeof item.content === 'string') {
+              const id = item.id && !existingIds.has(item.id) ? item.id : 'note_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+              notebooks.unshift({
+                id,
+                title: item.title || 'Bài viết đã nhập',
+                date: item.date || getTodayChineseDate(),
+                weather: item.weather || '☀️',
+                content: item.content,
+                updatedAt: item.updatedAt || Date.now()
+              });
+              added++;
+            }
+          });
+          if (added > 0) {
+            loadNoteIntoEditor(notebooks[0].id);
+            showToast(`📂 Đã khôi phục thành công ${added} trang sổ từ JSON!`);
+          }
+        } catch (err) {
+          alert('Không thể đọc file JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    });
+
+    // Export current article as .TXT (with Pinyin)
+    document.getElementById('exportTxtBtn').addEventListener('click', () => {
+      syncCurrentNoteFromInputs();
+      const cur = getCurrentNote();
+      const pyFull = getPhrasePinyinString(cur.content);
+      const txtContent = `${cur.title}\nNgày: ${cur.date} ${cur.weather || ''}\n\n--- CHỮ HÁN ---\n${cur.content}\n\n--- PHIÊN ÂM PINYIN ---\n${pyFull}\n`;
+      const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${(cur.title || 'bai_viet_tieng_trung').replace(/[\\/:*?"<>|]/g, '_')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('📄 Đã xuất bài viết ra file .TXT');
+    });
+
+    /* =========================================================================
+       8. SIDEBAR TABS, TOOLBAR CONTROLS & HANDWRITING PAD
+       ========================================================================= */
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    const sidebar = document.getElementById('sidebar');
+    const collapseSidebarBtn = document.getElementById('collapseSidebarBtn');
+    const expandSidebarBtn = document.getElementById('expandSidebarBtn');
+
+    collapseSidebarBtn.addEventListener('click', () => {
+      sidebar.classList.add('collapsed');
+      expandSidebarBtn.style.display = 'inline-flex';
+    });
+
+    expandSidebarBtn.addEventListener('click', () => {
+      sidebar.classList.remove('collapsed');
+      expandSidebarBtn.style.display = 'none';
+    });
+
+    function toggleImeMode() {
+      imeEnabled = !imeEnabled;
+      imeBuffer = '';
+      imePopup.style.display = 'none';
+      document.getElementById('imeToggleBtn').classList.toggle('active', imeEnabled);
+      document.getElementById('imeStatusText').textContent = imeEnabled ? 'BẬT' : 'TẮT';
+    }
+
+    document.getElementById('imeToggleBtn').addEventListener('mousedown', e => e.preventDefault());
+    document.getElementById('imeToggleBtn').addEventListener('click', toggleImeMode);
+
+    document.getElementById('pinyinToggleBtn').addEventListener('mousedown', e => e.preventDefault());
+    document.getElementById('pinyinToggleBtn').addEventListener('click', () => {
+      showPinyin = !showPinyin;
+      editorBackdrop.classList.toggle('hide-pinyin', !showPinyin);
+      document.getElementById('pinyinToggleBtn').classList.toggle('active', showPinyin);
+      document.getElementById('pyStatusText').textContent = showPinyin ? 'BẬT' : 'TẮT';
+    });
+
+    const fontFamilySelect = document.getElementById('fontFamilySelect');
+    const fontSizeSelect = document.getElementById('fontSizeSelect');
+
+    fontFamilySelect.addEventListener('change', e => {
+      document.documentElement.style.setProperty('--editor-font', e.target.value);
+      renderBackdropAndSyncHeight();
+    });
+
+    function applyFontSize(sizePx) {
+      const clamped = Math.min(72, Math.max(18, sizePx));
+      document.documentElement.style.setProperty('--editor-size', clamped + 'px');
+      fontSizeSelect.value = String(clamped);
+      renderBackdropAndSyncHeight();
+    }
+
+    fontSizeSelect.addEventListener('change', e => applyFontSize(parseInt(e.target.value, 10)));
+    document.getElementById('fontDecBtn').addEventListener('click', () => {
+      const opts = Array.from(fontSizeSelect.options).map(o => parseInt(o.value, 10));
+      const cur = parseInt(fontSizeSelect.value, 10);
+      applyFontSize(opts.reverse().find(v => v < cur) || 20);
+    });
+    document.getElementById('fontIncBtn').addEventListener('click', () => {
+      const opts = Array.from(fontSizeSelect.options).map(o => parseInt(o.value, 10));
+      const cur = parseInt(fontSizeSelect.value, 10);
+      applyFontSize(opts.find(v => v > cur) || 72);
+    });
+
+    document.querySelectorAll('.theme-dot').forEach(dot => {
+      dot.addEventListener('click', () => {
+        document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+        dot.classList.add('active');
+        document.body.setAttribute('data-theme', dot.dataset.theme);
+      });
+    });
+
+    document.getElementById('paperLineSelect').addEventListener('change', e => {
+      editorStack.classList.remove('paper-ruled', 'paper-grid', 'paper-dots', 'paper-blank');
+      editorStack.classList.add(e.target.value);
+    });
+
+    const decoToggleBtn = document.getElementById('decoToggleBtn');
+    decoToggleBtn.addEventListener('click', () => {
+      const hidden = notebookShell.classList.toggle('hide-deco');
+      decoToggleBtn.classList.toggle('active', !hidden);
+    });
+
+    document.getElementById('widthSelect').addEventListener('change', e => {
+      notebookShell.classList.remove('width-full', 'width-medium', 'width-book');
+      if (e.target.value !== 'width-full') notebookShell.classList.add(e.target.value);
+      renderBackdropAndSyncHeight();
+    });
+
+    document.querySelectorAll('#weatherPicker .weather-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#weatherPicker .weather-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const cur = getCurrentNote();
+        if (cur) {
+          cur.weather = btn.dataset.weather;
+          saveNotebooksToStorage();
+          renderNotesList();
+        }
+      });
+    });
+
+    document.querySelectorAll('.punct-btn').forEach(btn => {
+      btn.addEventListener('mousedown', e => e.preventDefault());
+      btn.addEventListener('click', () => {
+        insertAtCursorScrollSafe(btn.dataset.insert, parseInt(btn.dataset.offset || '0', 10));
+      });
+    });
+
+    document.getElementById('speakBtn').addEventListener('click', () => {
+      const text = editorTextarea.value.trim();
+      if (!text) return showToast('Chưa có nội dung để đọc');
+      window.speechSynthesis.cancel();
+      const utter = new SpeechSynthesisUtterance(text);
+      utter.lang = 'zh-CN';
+      utter.rate = 0.85;
+      window.speechSynthesis.speak(utter);
+      showToast('🔊 Đang đọc bài viết...');
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', () => {
+      navigator.clipboard.writeText(editorTextarea.value);
+      showToast('📋 Đã sao chép bài viết vào bộ nhớ tạm');
+    });
+
+    // Handwriting recognition pad
+    const hwModal = document.getElementById('hwModal');
+    const hwCanvas = document.getElementById('hwCanvas');
+    const hwCtx = hwCanvas.getContext('2d');
+    const hwCandidates = document.getElementById('hwCandidates');
+    let hwStrokes = [];
+    let currentStroke = null;
+    let isDrawing = false;
+
+    document.getElementById('hwToggleBtn').addEventListener('click', () => hwModal.classList.toggle('open'));
+    document.getElementById('hwCloseBtn').addEventListener('click', () => hwModal.classList.remove('open'));
+
+    function redrawHwCanvas() {
+      hwCtx.clearRect(0, 0, hwCanvas.width, hwCanvas.height);
+      hwCtx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--text-main').trim() || '#2c2621';
+      hwCtx.lineWidth = 4.5;
+      hwCtx.lineCap = 'round';
+      hwCtx.lineJoin = 'round';
+
+      const all = currentStroke ? [...hwStrokes, currentStroke] : hwStrokes;
+      all.forEach(stroke => {
+        if (stroke.length < 1) return;
+        hwCtx.beginPath();
+        hwCtx.moveTo(stroke[0].x, stroke[0].y);
+        for (let i = 1; i < stroke.length; i++) hwCtx.lineTo(stroke[i].x, stroke[i].y);
+        hwCtx.stroke();
+      });
+    }
+
+    function getCanvasPoint(e) {
+      const r = hwCanvas.getBoundingClientRect();
+      return { x: e.clientX - r.left, y: e.clientY - r.top };
+    }
+
+    hwCanvas.addEventListener('pointerdown', e => {
+      isDrawing = true;
+      currentStroke = [getCanvasPoint(e)];
+      redrawHwCanvas();
+    });
+    hwCanvas.addEventListener('pointermove', e => {
+      if (!isDrawing || !currentStroke) return;
+      currentStroke.push(getCanvasPoint(e));
+      redrawHwCanvas();
+    });
+    window.addEventListener('pointerup', () => {
+      if (!isDrawing) return;
+      isDrawing = false;
+      if (currentStroke && currentStroke.length > 0) {
+        hwStrokes.push(currentStroke);
+        currentStroke = null;
+        recognizeHandwriting();
+      }
+    });
+
+    document.getElementById('hwUndoBtn').addEventListener('click', () => {
+      hwStrokes.pop();
+      redrawHwCanvas();
+      if (hwStrokes.length > 0) recognizeHandwriting();
+    });
+    document.getElementById('hwClearBtn').addEventListener('click', () => {
+      hwStrokes = [];
+      redrawHwCanvas();
+    });
+
+    function recognizeHandwriting() {
+      const ink = hwStrokes.map(s => [s.map(p => Math.round(p.x)), s.map(p => Math.round(p.y)), []]);
+      fetch('https://inputtools.google.com/request?itc=zh-t-i0-handwrit&app=translate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          app_version: 0.4,
+          api_level: '537.36',
+          device: '5.0',
+          input_type: 0,
+          options: 'enable_pre_space',
+          requests: [{ writing_guide: { writing_area_width: 230, writing_area_height: 230 }, ink, language: 'zh_CN' }]
+        })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data && data[0] === 'SUCCESS' && data[1] && data[1][0] && data[1][0][1]) {
+            renderHwCandidates(data[1][0][1].slice(0, 8));
+          }
+        })
+        .catch(() => {});
+    }
+
+    function renderHwCandidates(chars) {
+      hwCandidates.innerHTML = chars
+        .map(c => `<button type="button" class="hw-cand-btn" data-char="${c}" onmousedown="event.preventDefault()">${c}</button>`)
+        .join('');
+      hwCandidates.querySelectorAll('.hw-cand-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          insertAtCursorScrollSafe(btn.dataset.char);
+          hwStrokes = [];
+          redrawHwCanvas();
+        });
+      });
+    }
+
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.classList.add('show');
+      clearTimeout(t._timer);
+      t._timer = setTimeout(() => t.classList.remove('show'), 2200);
+    }
+
+    /* =========================================================================
+       9. INITIALIZATION & PINYIN-PRO READY HOOK
+       ========================================================================= */
+    loadNotebooksFromStorage();
+    renderDictionaryAndOnlineSearch('');
+    renderPatternList('all');
+    loadNoteIntoEditor(currentNoteId);
+
+    // Re-render once pinyin-pro script finishes loading so all 20,902 Hanzi & polyphones are active
+    window.addEventListener('load', () => {
+      if (window.pinyinPro) {
+        document.getElementById('pinyinEngineStatus').textContent = '⚡ Pinyin từ ghép (Đa âm): Đã kích hoạt toàn bộ Hán tự';
+        renderBackdropAndSyncHeight();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,1685 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ID Photo Studio Pro - Chỉnh Kích Thước, DPI & Màu Sắc Ảnh Thẻ</title>
+    <!-- Thư viện Cropper.js -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <style>
+        :root {
+            --bg-main: #121519;
+            --bg-panel: #1c2127;
+            --bg-card: #252b33;
+            --bg-hover: #303842;
+            --border-color: #343d48;
+            --text-main: #f0f4f8;
+            --text-muted: #9aa5b1;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+            --success-hover: #059669;
+            --warning: #f59e0b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* HEADER */
+        .app-header {
+            height: 54px;
+            background-color: var(--bg-panel);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .brand-badge {
+            background: rgba(59, 130, 246, 0.16);
+            color: #60a5fa;
+            border: 1px solid rgba(59, 130, 246, 0.35);
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* MAIN LAYOUT */
+        .app-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* LEFT SIDEBAR */
+        .sidebar-left {
+            width: 375px;
+            background-color: var(--bg-panel);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border-color);
+            background: #171b20;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 6px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 12.5px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover { color: var(--text-main); }
+        .tab-btn.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+            background: var(--bg-panel);
+        }
+
+        .tab-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            display: none;
+        }
+        .tab-content.active { display: block; }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-panel); }
+        ::-webkit-scrollbar-thumb { background: #454f5b; border-radius: 3px; }
+
+        /* CENTER WORKSPACE */
+        .workspace {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            background-color: #0d0f12;
+            background-image: 
+                linear-gradient(45deg, #15191e 25%, transparent 25%), 
+                linear-gradient(-45deg, #15191e 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, #15191e 75%), 
+                linear-gradient(-45deg, transparent 75%, #15191e 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            overflow: hidden;
+        }
+
+        .canvas-wrapper {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .img-container {
+            width: 100%;
+            height: 100%;
+            display: none;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            display: block;
+        }
+
+        /* EMPTY DROPZONE */
+        .dropzone {
+            border: 2px dashed #3e4856;
+            background: rgba(28, 33, 39, 0.88);
+            border-radius: 12px;
+            padding: 45px 35px;
+            text-align: center;
+            max-width: 460px;
+            cursor: pointer;
+            transition: all 0.25s;
+        }
+        .dropzone:hover, .dropzone.dragover {
+            border-color: var(--accent);
+            background: rgba(59, 130, 246, 0.08);
+            transform: translateY(-2px);
+        }
+        .dropzone-icon { font-size: 42px; margin-bottom: 12px; display: block; }
+        .dropzone h3 { font-size: 17px; margin-bottom: 8px; }
+        .dropzone p { font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 16px; }
+
+        /* FLOATING TOOLBAR */
+        .floating-toolbar {
+            position: absolute;
+            bottom: 18px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(28, 33, 39, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 6px;
+            z-index: 20;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+        }
+
+        .tool-icon-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 5px;
+            font-size: 12.5px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .tool-icon-btn:hover { background: var(--bg-hover); border-color: #465262; }
+        .tool-icon-btn.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-color: rgba(59, 130, 246, 0.4);
+        }
+        .toolbar-divider { width: 1px; height: 20px; background: var(--border-color); margin: 0 2px; }
+
+        /* RIGHT SIDEBAR */
+        .sidebar-right {
+            width: 305px;
+            background-color: var(--bg-panel);
+            border-left: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 14px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        /* CARDS & CONTROLS */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 13px;
+        }
+        .card-title {
+            font-size: 11.5px;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            font-weight: 700;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .control-group { margin-bottom: 11px; }
+        .control-group:last-child { margin-bottom: 0; }
+        .control-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12.5px;
+            margin-bottom: 5px;
+        }
+        .control-val {
+            color: #60a5fa;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 5px;
+            background: #14181d;
+            border-radius: 4px;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: var(--accent);
+            border: 2px solid #fff;
+            cursor: pointer;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            background: #161a1f;
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 7px 9px;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            font-variant-numeric: tabular-nums;
+        }
+        select:focus, input[type="number"]:focus {
+            border-color: var(--accent);
+        }
+
+        .dim-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .dim-col {
+            flex: 1;
+        }
+        .dim-col span {
+            display: block;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 3px;
+        }
+        .dim-sep {
+            padding-top: 16px;
+            color: var(--text-muted);
+            font-weight: bold;
+        }
+
+        .dpi-pills {
+            display: flex;
+            gap: 5px;
+            margin-top: 6px;
+        }
+        .dpi-pill {
+            flex: 1;
+            background: #161a1f;
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 4px 0;
+            font-size: 11.5px;
+            font-weight: 600;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.15s;
+        }
+        .dpi-pill:hover { color: var(--text-main); border-color: #4b5563; }
+        .dpi-pill.active {
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+            border-color: var(--accent);
+        }
+
+        .mode-toggle {
+            display: flex;
+            background: #161a1f;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 2px;
+            margin-bottom: 10px;
+        }
+        .mode-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 11.5px;
+            font-weight: 600;
+            padding: 6px 4px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .mode-btn.active {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.15s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .btn:hover:not(:disabled) { background: var(--bg-hover); }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+        .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-hover); }
+        .btn-success {
+            background: var(--success);
+            border-color: var(--success);
+            color: #fff;
+            width: 100%;
+            padding: 11px;
+            font-size: 14px;
+        }
+        .btn-success:hover:not(:disabled) { background: var(--success-hover); }
+
+        .btn-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .btn-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+
+        /* PREVIEW BOX */
+        .preview-box {
+            background: #14181d;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .preview-canvas-wrap {
+            width: 170px;
+            height: 255px;
+            background: #222;
+            border: 2px solid #3e4856;
+            border-radius: 4px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        #live-preview-canvas { max-width: 100%; max-height: 100%; display: block; }
+
+        .spec-list {
+            width: 100%;
+            margin-top: 12px;
+            font-size: 12px;
+            border-top: 1px solid var(--border-color);
+            padding-top: 10px;
+        }
+        .spec-item { display: flex; justify-content: space-between; margin-bottom: 5px; color: var(--text-muted); }
+        .spec-item strong { color: var(--text-main); }
+
+        .curve-graph-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            background: #15191f;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #2d3540;
+        }
+        #curve-canvas { background: #0e1115; border: 1px solid #2d3540; border-radius: 4px; }
+
+        /* CHECKLIST */
+        .checklist {
+            list-style: none;
+            font-size: 12.5px;
+            line-height: 1.55;
+            color: var(--text-muted);
+        }
+        .checklist li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        .checklist li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        /* ICAO OVERLAY GUIDES */
+        .guide-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .guide-face {
+            position: absolute;
+            top: 12%; left: 18%; width: 64%; height: 64%;
+            border: 2px dashed rgba(16, 185, 129, 0.9);
+            border-radius: 50%;
+        }
+        .guide-crown {
+            position: absolute;
+            top: 10%; left: 30%; width: 40%;
+            border-top: 1.5px solid rgba(16, 185, 129, 0.85);
+        }
+        .guide-crown::after {
+            content: "Đỉnh tóc";
+            color: #10b981; font-size: 10px; font-weight: 700;
+            position: absolute; top: -16px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.65); padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+        }
+        .guide-chin {
+            position: absolute;
+            top: 76%; left: 30%; width: 40%;
+            border-top: 1.5px solid rgba(16, 185, 129, 0.85);
+        }
+        .guide-chin::after {
+            content: "Cằm (~75%)";
+            color: #10b981; font-size: 10px; font-weight: 700;
+            position: absolute; top: 3px; left: 50%; transform: translateX(-50%);
+            background: rgba(0,0,0,0.65); padding: 1px 5px; border-radius: 3px; white-space: nowrap;
+        }
+        .guide-eyes {
+            position: absolute;
+            top: 40%; left: 8%; width: 84%; height: 5%;
+            border-top: 2px solid rgba(239, 68, 68, 0.9);
+            background: rgba(239, 68, 68, 0.12);
+        }
+        .guide-eyes::after {
+            content: "Vị trí 2 mắt";
+            color: #fff; background: rgba(239, 68, 68, 0.85);
+            font-size: 10px; font-weight: bold;
+            position: absolute; top: -18px; right: 0; padding: 1px 5px; border-radius: 3px;
+        }
+        .guide-center-line {
+            position: absolute;
+            top: 0; bottom: 0; left: 50%;
+            border-left: 1.5px dashed rgba(59, 130, 246, 0.9);
+            transform: translateX(-50%);
+        }
+        .guide-shoulders {
+            position: absolute;
+            bottom: 0; left: 8%; width: 84%; height: 18%;
+            border: 1.5px dashed rgba(245, 158, 11, 0.75);
+            border-bottom: none;
+            border-top-left-radius: 40px; border-top-right-radius: 40px;
+        }
+
+        #file-input { display: none; }
+        .status-msg {
+            font-size: 12px; padding: 8px 10px; border-radius: 6px;
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399; display: none; text-align: center;
+        }
+        .hint-text { font-size: 11px; color: var(--text-muted); margin-top: 5px; line-height: 1.4; }
+    </style>
+</head>
+<body>
+
+<!-- Bộ lọc SVG thời gian thực áp dụng trực tiếp vào ảnh đang sửa (không làm biến đổi màu khung gióng ICAO) -->
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute; width:0; height:0; overflow:hidden;">
+    <filter id="live-studio-filter" color-interpolation-filters="sRGB">
+        <!-- 1. Ánh xạ Curve LUT & Tương phản -->
+        <feComponentTransfer id="curve-transfer">
+            <feFuncR type="table" tableValues="0 1" id="curveR"/>
+            <feFuncG type="table" tableValues="0 1" id="curveG"/>
+            <feFuncB type="table" tableValues="0 1" id="curveB"/>
+        </feComponentTransfer>
+        <!-- 2. Cân bằng trắng (Nhiệt độ màu) -->
+        <feColorMatrix type="matrix" id="temp-matrix"
+            values="1 0 0 0 0
+                    0 1 0 0 0
+                    0 0 1 0 0
+                    0 0 0 1 0" />
+    </filter>
+</svg>
+
+<header class="app-header">
+    <div class="brand">
+        <span>📷 ID Photo Studio Pro</span>
+        <span class="brand-badge">Chỉnh Kích Thước, DPI & Màu Sắc Trực Tiếp</span>
+    </div>
+    <div class="header-actions">
+        <label class="btn btn-primary" style="cursor: pointer;">
+            ⬆ Chọn ảnh từ máy
+            <input type="file" id="file-input" accept="image/jpeg, image/png, image/jpg, image/webp">
+        </label>
+        <button class="btn" id="reset-all-btn" disabled>↺ Đặt lại tất cả</button>
+    </div>
+</header>
+
+<div class="app-body">
+    <!-- BẢNG ĐIỀU KHIỂN BÊN TRÁI -->
+    <aside class="sidebar-left">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="tab-size">1. Cỡ Ảnh & DPI</button>
+            <button class="tab-btn" data-tab="tab-color">2. Sáng & Màu</button>
+            <button class="tab-btn" data-tab="tab-rules">3. Quy Chuẩn</button>
+        </div>
+
+        <!-- TAB 1: CHỈNH KÍCH THƯỚC ẢNH, DPI & XOAY -->
+        <div class="tab-content active" id="tab-size">
+            <div class="card">
+                <div class="card-title">
+                    <span>📏 Kích thước ảnh & Độ phân giải</span>
+                </div>
+
+                <!-- Chọn mẫu nhanh -->
+                <div class="control-group">
+                    <label class="control-header"><span>Mẫu kích thước thông dụng:</span></label>
+                    <select id="preset-select">
+                        <option value="4x6_hd" data-cm-w="4" data-cm-h="6" data-px-w="1200" data-px-h="1800" data-dpi="300" data-mode="manual">Hộ chiếu / CCCD 4×6 cm (1200×1800 px - 300 DPI)</option>
+                        <option value="4x6_std" data-cm-w="4" data-cm-h="6" data-px-w="472" data-px-h="709" data-dpi="300" data-mode="auto">Hộ chiếu Online 4×6 cm (472×709 px - Đúng 300 DPI)</option>
+                        <option value="3x4_hd" data-cm-w="3" data-cm-h="4" data-px-w="900" data-px-h="1200" data-dpi="300" data-mode="manual">Ảnh thẻ 3×4 cm (900×1200 px - 300 DPI)</option>
+                        <option value="3x4_std" data-cm-w="3" data-cm-h="4" data-px-w="354" data-px-h="472" data-dpi="300" data-mode="auto">Ảnh thẻ 3×4 cm (354×472 px - Đúng 300 DPI)</option>
+                        <option value="35x45" data-cm-w="3.5" data-cm-h="4.5" data-px-w="413" data-px-h="531" data-dpi="300" data-mode="auto">Visa Quốc tế 3.5×4.5 cm (413×531 px - 300 DPI)</option>
+                        <option value="5x5" data-cm-w="5" data-cm-h="5" data-px-w="600" data-px-h="600" data-dpi="300" data-mode="manual">Visa Mỹ / Ấn Độ 5×5 cm (600×600 px - 300 DPI)</option>
+                        <option value="2x3" data-cm-w="2" data-cm-h="3" data-px-w="236" data-px-h="354" data-dpi="300" data-mode="auto">Ảnh thẻ 2×3 cm (236×354 px - 300 DPI)</option>
+                        <option value="custom">⚙️ Tùy chỉnh kích thước tự do...</option>
+                    </select>
+                </div>
+
+                <!-- Chế độ tính Pixel -->
+                <div class="mode-toggle" title="Chọn cách tính số Pixel của ảnh xuất ra">
+                    <button class="mode-btn" id="mode-auto-px" type="button">Tính Pixel theo CM × DPI</button>
+                    <button class="mode-btn active" id="mode-manual-px" type="button">Nhập Pixel thủ công</button>
+                </div>
+
+                <!-- Kích thước vật lý (CM) -->
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Kích thước in vật lý (cm):</span>
+                        <label style="font-size: 11px; color: #60a5fa; cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="free-ratio-chk"> Mở khóa tỉ lệ khung cắt
+                        </label>
+                    </div>
+                    <div class="dim-row">
+                        <div class="dim-col">
+                            <span>Rộng (cm)</span>
+                            <input type="number" id="cm-w-input" value="4" min="1" max="50" step="0.1">
+                        </div>
+                        <div class="dim-sep">×</div>
+                        <div class="dim-col">
+                            <span>Cao (cm)</span>
+                            <input type="number" id="cm-h-input" value="6" min="1" max="50" step="0.1">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mật độ điểm ảnh (DPI) -->
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Mật độ điểm ảnh (DPI):</span>
+                        <span class="control-val" id="dpi-badge-label">300 DPI</span>
+                    </div>
+                    <input type="number" id="dpi-input" value="300" min="72" max="1200" step="1">
+                    <div class="dpi-pills">
+                        <button type="button" class="dpi-pill" data-dpi="72">72</button>
+                        <button type="button" class="dpi-pill" data-dpi="96">96</button>
+                        <button type="button" class="dpi-pill" data-dpi="150">150</button>
+                        <button type="button" class="dpi-pill active" data-dpi="300">300 (Chuẩn)</button>
+                        <button type="button" class="dpi-pill" data-dpi="600">600</button>
+                    </div>
+                </div>
+
+                <!-- Kích thước điểm ảnh xuất ra (Pixel) -->
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Độ phân giải ảnh xuất (Pixel):</span>
+                        <label style="font-size: 11px; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 4px;">
+                            <input type="checkbox" id="lock-px-ratio-chk" checked> 🔗 Giữ tỉ lệ
+                        </label>
+                    </div>
+                    <div class="dim-row">
+                        <div class="dim-col">
+                            <span>Rộng (px)</span>
+                            <input type="number" id="px-w-input" value="1200" min="50" max="6000" step="1">
+                        </div>
+                        <div class="dim-sep">×</div>
+                        <div class="dim-col">
+                            <span>Cao (px)</span>
+                            <input type="number" id="px-h-input" value="1800" min="50" max="6000" step="1">
+                        </div>
+                    </div>
+                    <div class="hint-text" id="px-mode-hint">
+                        Đang ở chế độ <strong>Nhập Pixel thủ công</strong>: xuất đúng số px đã nhập và gắn thông số DPI vào file.
+                    </div>
+                </div>
+
+                <!-- Giới hạn dung lượng KB -->
+                <div class="control-group" style="border-top: 1px solid var(--border-color); padding-top: 10px;">
+                    <label class="control-header">
+                        <span>Giới hạn dung lượng tối đa (KB):</span>
+                    </label>
+                    <input type="number" id="max-kb-input" value="950" min="30" max="10000" step="50">
+                    <div class="hint-text">Tự động nén chất lượng JPEG để dung lượng không vượt quá mức này (Mặc định &lt; 950 KB).</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Xoay, Lật & Căn thẳng đầu</div>
+                <div class="control-group">
+                    <div class="btn-grid-4">
+                        <button class="btn" id="rotate-left-btn">↺ -90°</button>
+                        <button class="btn" id="rotate-right-btn">↻ +90°</button>
+                        <button class="btn" id="flip-h-btn">⇄ Ngang</button>
+                        <button class="btn" id="flip-v-btn">⇅ Dọc</button>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Căn thẳng đầu (Nghiêng):</span>
+                        <span class="control-val" id="angle-val">0.0°</span>
+                    </div>
+                    <input type="range" id="angle-slider" min="-15" max="15" value="0" step="0.1" data-default="0">
+                </div>
+
+                <div class="btn-grid-2">
+                    <button class="btn" id="zoom-out-btn">➖ Thu nhỏ</button>
+                    <button class="btn" id="zoom-in-btn">➕ Phóng to</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: ÁNH SÁNG, MÀU SẮC & CURVE (HIỂN THỊ TRỰC TIẾP TRÊN KHUNG ĐANG SỬA) -->
+        <div class="tab-content" id="tab-color">
+            <div class="card" style="border-color: rgba(59, 130, 246, 0.4);">
+                <div class="card-title">
+                    <span>💡 Làm trắng sáng phông nền</span>
+                    <button class="btn" id="auto-white-bg-btn" style="padding: 2px 8px; font-size: 11px;">Tự động</button>
+                </div>
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Khử xám nền trắng (Đẩy sáng vùng nền):</span>
+                        <span class="control-val" id="white-boost-val">0</span>
+                    </div>
+                    <input type="range" id="white-boost-slider" min="0" max="80" value="0" step="1" data-default="0">
+                    <div class="hint-text">Giúp làm trắng mịn phông nền chụp tường trắng bị hơi tối hoặc xám nhẹ mà không làm hỏng viền tóc.</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Ánh sáng & Màu sắc <span style="font-size:10px; font-weight:normal;">(Nhấp đúp để reset)</span></div>
+                
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Độ sáng (Brightness):</span>
+                        <span class="control-val" id="brightness-val">100%</span>
+                    </div>
+                    <input type="range" id="brightness-slider" min="50" max="150" value="100" step="1" data-default="100">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Độ tương phản (Contrast):</span>
+                        <span class="control-val" id="contrast-val">0</span>
+                    </div>
+                    <input type="range" id="contrast-slider" min="-50" max="50" value="0" step="1" data-default="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Cân bằng trắng (Lạnh ↔ Ấm):</span>
+                        <span class="control-val" id="temp-val">0</span>
+                    </div>
+                    <input type="range" id="temp-slider" min="-50" max="50" value="0" step="1" data-default="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Độ bão hòa màu (Saturation):</span>
+                        <span class="control-val" id="sat-val">0</span>
+                    </div>
+                    <input type="range" id="sat-slider" min="-50" max="50" value="0" step="1" data-default="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Tăng độ nét (Sharpen):</span>
+                        <span class="control-val" id="sharpen-val">0</span>
+                    </div>
+                    <input type="range" id="sharpen-slider" min="0" max="100" value="0" step="5" data-default="0">
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Đường cong Tone Curve</div>
+                <div class="curve-graph-wrap">
+                    <canvas id="curve-canvas" width="86" height="86"></canvas>
+                    <div style="flex: 1; padding-left: 10px; font-size: 11.5px; color: var(--text-muted); line-height: 1.45;">
+                        Mọi thay đổi đều <strong>hiển thị trực tiếp trên khung ảnh đang sửa</strong> và khung xem trước.
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Vùng tối (Shadows):</span>
+                        <span class="control-val" id="shadow-val">0</span>
+                    </div>
+                    <input type="range" id="shadow-slider" min="-100" max="100" value="0" step="1" data-default="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Trung tính (Midtones):</span>
+                        <span class="control-val" id="midtone-val">0</span>
+                    </div>
+                    <input type="range" id="midtone-slider" min="-100" max="100" value="0" step="1" data-default="0">
+                </div>
+
+                <div class="control-group">
+                    <div class="control-header">
+                        <span>Vùng sáng (Highlights):</span>
+                        <span class="control-val" id="highlight-val">0</span>
+                    </div>
+                    <input type="range" id="highlight-slider" min="-100" max="100" value="0" step="1" data-default="0">
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: QUY CHUẨN ICAO -->
+        <div class="tab-content" id="tab-rules">
+            <div class="card">
+                <div class="card-title">Tiêu chuẩn ảnh hộ chiếu & CCCD</div>
+                <ul class="checklist">
+                    <li><strong>Tỷ lệ khuôn mặt 75%:</strong> Từ đỉnh tóc đến cằm nằm vừa khít trong khung elip xanh.</li>
+                    <li><strong>Vị trí hai mắt:</strong> Nằm ngang trong dải màu đỏ.</li>
+                    <li><strong>Trục thẳng đứng:</strong> Đầu thẳng, sống mũi gióng trùng với đường kẻ dọc giữa ảnh.</li>
+                    <li><strong>Phông nền trắng:</strong> Nền trắng sáng, không có bóng đổ hay vật thể lạ phía sau.</li>
+                    <li><strong>Thông số kỹ thuật:</strong> Định dạng <code>.jpeg</code>, mật độ chuẩn 300 DPI, dung lượng dưới 1000 KB.</li>
+                </ul>
+            </div>
+        </div>
+    </aside>
+
+    <!-- KHÔNG GIAN CHỈNH SỬA CHÍNH GIỮA -->
+    <main class="workspace" id="workspace">
+        <div class="canvas-wrapper" id="canvas-wrapper">
+            <div class="dropzone" id="dropzone">
+                <span class="dropzone-icon">🖼️</span>
+                <h3>Kéo & Thả ảnh vào đây để bắt đầu</h3>
+                <p>Hỗ trợ tùy chỉnh kích thước (cm / pixel), mật độ DPI và xem trực tiếp hiệu ứng ánh sáng ngay trên khung cắt.</p>
+                <span class="btn btn-primary">Chọn ảnh từ máy</span>
+            </div>
+
+            <div class="img-container" id="img-container">
+                <img id="image" src="" alt="Source Image">
+            </div>
+        </div>
+
+        <div class="floating-toolbar" id="floating-toolbar">
+            <button class="tool-icon-btn" id="quick-rot-left">↺ Xoay trái</button>
+            <button class="tool-icon-btn" id="quick-rot-right">↻ Xoay phải</button>
+            <button class="tool-icon-btn" id="quick-flip-h">⇄ Lật ngang</button>
+            <div class="toolbar-divider"></div>
+            <button class="tool-icon-btn active" id="quick-guide-btn">📏 Khung gióng ICAO</button>
+            <button class="tool-icon-btn" id="compare-btn" title="Giữ chuột để so sánh với màu gốc">👁 Giữ xem gốc</button>
+        </div>
+    </main>
+
+    <!-- CỘT PHẢI: XEM TRƯỚC & TẢI XUỐNG -->
+    <aside class="sidebar-right">
+        <div class="preview-box">
+            <div class="card-title" style="width: 100%;">
+                <span>Kết quả xuất thực tế</span>
+                <span id="bg-check-badge" style="font-size: 10px; padding: 2px 6px; border-radius: 4px; background: #2d3540; color: #9aa5b1;">Chưa có ảnh</span>
+            </div>
+            <div class="preview-canvas-wrap" id="preview-canvas-wrap">
+                <canvas id="live-preview-canvas" width="240" height="360"></canvas>
+            </div>
+            <div class="spec-list">
+                <div class="spec-item"><span>Kích thước vật lý:</span><strong id="spec-cm">4 × 6 cm</strong></div>
+                <div class="spec-item"><span>Độ phân giải xuất:</span><strong id="spec-px">1200 × 1800 px</strong></div>
+                <div class="spec-item"><span>Mật độ điểm ảnh:</span><strong id="spec-dpi">300 DPI</strong></div>
+                <div class="spec-item"><span>Định dạng file:</span><strong>JPEG (.jpeg)</strong></div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 0;">
+            <div class="card-title">Xuất & Tải ảnh về máy</div>
+            <button class="btn btn-success" id="download-single-btn" disabled style="margin-bottom: 8px;">
+                ⬇ Tải ảnh đơn (.jpeg)
+            </button>
+            <button class="btn" id="download-sheet-btn" disabled style="width: 100%; margin-bottom: 8px;">
+                🖨️ Tải bản ghép in khổ 10×15 cm
+            </button>
+            <div class="status-msg" id="download-status"></div>
+        </div>
+    </aside>
+</div>
+
+<script>
+    let cropper = null;
+    let currentRotation = 0;
+    let flipX = 1;
+    let flipY = 1;
+    let showGuides = true;
+    let isComparingOriginal = false;
+    let previewRafId = null;
+    let isAutoPxMode = false; // false = Nhập Pixel thủ công, true = Tự tính Pixel từ CM & DPI
+
+    // DOM Elements
+    const fileInput = document.getElementById('file-input');
+    const dropzone = document.getElementById('dropzone');
+    const imgContainer = document.getElementById('img-container');
+    const imageElement = document.getElementById('image');
+    const floatingToolbar = document.getElementById('floating-toolbar');
+    const livePreviewCanvas = document.getElementById('live-preview-canvas');
+    const previewWrap = document.getElementById('preview-canvas-wrap');
+    const curveCanvas = document.getElementById('curve-canvas');
+
+    // Size & DPI Inputs
+    const presetSelect = document.getElementById('preset-select');
+    const modeAutoPxBtn = document.getElementById('mode-auto-px');
+    const modeManualPxBtn = document.getElementById('mode-manual-px');
+    const cmWInput = document.getElementById('cm-w-input');
+    const cmHInput = document.getElementById('cm-h-input');
+    const dpiInput = document.getElementById('dpi-input');
+    const pxWInput = document.getElementById('px-w-input');
+    const pxHInput = document.getElementById('px-h-input');
+    const freeRatioChk = document.getElementById('free-ratio-chk');
+    const lockPxRatioChk = document.getElementById('lock-px-ratio-chk');
+    const maxKbInput = document.getElementById('max-kb-input');
+    const pxModeHint = document.getElementById('px-mode-hint');
+
+    // Action Buttons
+    const resetAllBtn = document.getElementById('reset-all-btn');
+    const downloadSingleBtn = document.getElementById('download-single-btn');
+    const downloadSheetBtn = document.getElementById('download-sheet-btn');
+    const downloadStatus = document.getElementById('download-status');
+    const bgCheckBadge = document.getElementById('bg-check-badge');
+
+    // Adjustment Sliders
+    const angleSlider = document.getElementById('angle-slider');
+    const whiteBoostSlider = document.getElementById('white-boost-slider');
+    const brightnessSlider = document.getElementById('brightness-slider');
+    const contrastSlider = document.getElementById('contrast-slider');
+    const tempSlider = document.getElementById('temp-slider');
+    const satSlider = document.getElementById('sat-slider');
+    const sharpenSlider = document.getElementById('sharpen-slider');
+    const shadowSlider = document.getElementById('shadow-slider');
+    const midtoneSlider = document.getElementById('midtone-slider');
+    const highlightSlider = document.getElementById('highlight-slider');
+
+    let curveLUT = new Uint8Array(256);
+
+    // Chuyển đổi Tabs
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById(btn.dataset.tab).classList.add('active');
+            drawCurveGraph();
+        });
+    });
+
+    // 1. QUẢN LÝ KÍCH THƯỚC ẢNH (CM, PIXEL) & MẬT ĐỘ ĐIỂM ẢNH (DPI)
+    function getSpecs() {
+        const cmW = Math.max(0.5, parseFloat(cmWInput.value) || 4);
+        const cmH = Math.max(0.5, parseFloat(cmHInput.value) || 6);
+        const dpi = Math.max(72, Math.min(1200, Math.round(parseFloat(dpiInput.value) || 300)));
+        const pxW = Math.max(50, Math.min(6000, Math.round(parseFloat(pxWInput.value) || 1200)));
+        const pxH = Math.max(50, Math.min(6000, Math.round(parseFloat(pxHInput.value) || 1800)));
+        const ratio = pxW / pxH;
+        return { cmW, cmH, dpi, pxW, pxH, ratio };
+    }
+
+    function recalcPixelsFromCmAndDpi() {
+        const cmW = Math.max(0.5, parseFloat(cmWInput.value) || 4);
+        const cmH = Math.max(0.5, parseFloat(cmHInput.value) || 6);
+        const dpi = Math.max(72, Math.min(1200, Math.round(parseFloat(dpiInput.value) || 300)));
+        // 1 inch = 2.54 cm
+        pxWInput.value = Math.round((cmW / 2.54) * dpi);
+        pxHInput.value = Math.round((cmH / 2.54) * dpi);
+    }
+
+    function setPxCalculationMode(autoMode) {
+        isAutoPxMode = autoMode;
+        modeAutoPxBtn.classList.toggle('active', autoMode);
+        modeManualPxBtn.classList.toggle('active', !autoMode);
+        pxWInput.readOnly = autoMode;
+        pxHInput.readOnly = autoMode;
+        pxWInput.style.opacity = autoMode ? '0.65' : '1';
+        pxHInput.style.opacity = autoMode ? '0.65' : '1';
+
+        if (autoMode) {
+            recalcPixelsFromCmAndDpi();
+            pxModeHint.innerHTML = 'Đang tự động tính <strong>Pixel = (cm ÷ 2.54) × DPI</strong> chuẩn kích thước thật.';
+        } else {
+            pxModeHint.innerHTML = 'Đang ở chế độ <strong>Nhập Pixel thủ công</strong>: xuất đúng số px đã nhập và gắn thông số DPI vào file.';
+        }
+        syncCropperAspectRatioAndSpecs();
+    }
+
+    modeAutoPxBtn.addEventListener('click', () => setPxCalculationMode(true));
+    modeManualPxBtn.addEventListener('click', () => setPxCalculationMode(false));
+
+    // Khi chọn mẫu có sẵn trong danh sách
+    presetSelect.addEventListener('change', () => {
+        const opt = presetSelect.options[presetSelect.selectedIndex];
+        if (opt.value === 'custom') return;
+
+        cmWInput.value = opt.dataset.cmW;
+        cmHInput.value = opt.dataset.cmH;
+        dpiInput.value = opt.dataset.dpi;
+        pxWInput.value = opt.dataset.pxW;
+        pxHInput.value = opt.dataset.pxH;
+        freeRatioChk.checked = false;
+
+        highlightActiveDpiPill(parseInt(opt.dataset.dpi, 10));
+        setPxCalculationMode(opt.dataset.mode === 'auto');
+    });
+
+    // Khi người dùng chỉnh Rộng (cm) hoặc Cao (cm)
+    [cmWInput, cmHInput].forEach(input => {
+        input.addEventListener('input', () => {
+            presetSelect.value = 'custom';
+            const cmW = Math.max(0.5, parseFloat(cmWInput.value) || 4);
+            const cmH = Math.max(0.5, parseFloat(cmHInput.value) || 6);
+
+            if (isAutoPxMode) {
+                recalcPixelsFromCmAndDpi();
+            } else if (lockPxRatioChk.checked) {
+                // Giữ nguyên chiều rộng px và tính lại chiều cao px theo tỉ lệ cm mới
+                const currentPxW = Math.max(50, parseFloat(pxWInput.value) || 1200);
+                pxHInput.value = Math.round(currentPxW * (cmH / cmW));
+            }
+            syncCropperAspectRatioAndSpecs();
+        });
+    });
+
+    // Khi người dùng chỉnh DPI
+    dpiInput.addEventListener('input', () => {
+        const dpi = Math.max(72, Math.min(1200, Math.round(parseFloat(dpiInput.value) || 300)));
+        highlightActiveDpiPill(dpi);
+        if (isAutoPxMode) {
+            recalcPixelsFromCmAndDpi();
+        }
+        syncCropperAspectRatioAndSpecs();
+    });
+
+    document.querySelectorAll('.dpi-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            const dpi = parseInt(pill.dataset.dpi, 10);
+            dpiInput.value = dpi;
+            highlightActiveDpiPill(dpi);
+            if (isAutoPxMode) {
+                recalcPixelsFromCmAndDpi();
+            }
+            syncCropperAspectRatioAndSpecs();
+        });
+    });
+
+    function highlightActiveDpiPill(dpiVal) {
+        document.getElementById('dpi-badge-label').textContent = dpiVal + ' DPI';
+        document.querySelectorAll('.dpi-pill').forEach(p => {
+            p.classList.toggle('active', parseInt(p.dataset.dpi, 10) === dpiVal);
+        });
+    }
+
+    // Khi người dùng nhập trực tiếp Rộng (px) hoặc Cao (px)
+    pxWInput.addEventListener('input', () => {
+        if (isAutoPxMode) return;
+        presetSelect.value = 'custom';
+        if (lockPxRatioChk.checked) {
+            const cmW = Math.max(0.5, parseFloat(cmWInput.value) || 4);
+            const cmH = Math.max(0.5, parseFloat(cmHInput.value) || 6);
+            const pxW = Math.max(50, parseFloat(pxWInput.value) || 1200);
+            pxHInput.value = Math.round(pxW * (cmH / cmW));
+        }
+        syncCropperAspectRatioAndSpecs();
+    });
+
+    pxHInput.addEventListener('input', () => {
+        if (isAutoPxMode) return;
+        presetSelect.value = 'custom';
+        if (lockPxRatioChk.checked) {
+            const cmW = Math.max(0.5, parseFloat(cmWInput.value) || 4);
+            const cmH = Math.max(0.5, parseFloat(cmHInput.value) || 6);
+            const pxH = Math.max(50, parseFloat(pxHInput.value) || 1800);
+            pxWInput.value = Math.round(pxH * (cmW / cmH));
+        }
+        syncCropperAspectRatioAndSpecs();
+    });
+
+    // Mở khóa tỉ lệ khung cắt tự do
+    freeRatioChk.addEventListener('change', () => {
+        syncCropperAspectRatioAndSpecs();
+    });
+
+    function syncCropperAspectRatioAndSpecs() {
+        const specs = getSpecs();
+        document.getElementById('spec-cm').textContent = `${specs.cmW} × ${specs.cmH} cm`;
+        document.getElementById('spec-px').textContent = `${specs.pxW} × ${specs.pxH} px`;
+        document.getElementById('spec-dpi').textContent = `${specs.dpi} DPI`;
+
+        // Cập nhật tỉ lệ khung xem trước bên phải
+        const maxSide = 240;
+        if (specs.ratio >= 1) {
+            previewWrap.style.width = '210px';
+            previewWrap.style.height = Math.round(210 / specs.ratio) + 'px';
+        } else {
+            previewWrap.style.height = maxSide + 'px';
+            previewWrap.style.width = Math.round(maxSide * specs.ratio) + 'px';
+        }
+
+        if (cropper) {
+            cropper.setAspectRatio(freeRatioChk.checked ? NaN : specs.ratio);
+            setTimeout(injectOverlay, 40);
+            schedulePreviewUpdate();
+        }
+    }
+
+    // 2. TÍNH TOÁN CURVE LUT & HIỂN THỊ TRỰC TIẾP TRÊN KHUNG CẮT ĐANG SỬA
+    function updateCurveLUT() {
+        const shadows = parseFloat(shadowSlider.value);
+        const midtones = parseFloat(midtoneSlider.value);
+        const highlights = parseFloat(highlightSlider.value);
+        const contrast = parseFloat(contrastSlider.value);
+        const whiteBoost = parseFloat(whiteBoostSlider.value);
+        const whiteThreshold = 255 - whiteBoost * 1.4;
+        const contrastFactor = (259 * (contrast + 255)) / (255 * (259 - contrast));
+
+        for (let i = 0; i < 256; i++) {
+            let x = i / 255;
+            let shadowEffect = Math.pow(1 - x, 3) * (shadows / 100);
+            let midtoneEffect = Math.sin(x * Math.PI) * (midtones / 100);
+            let highlightEffect = Math.pow(x, 3) * (highlights / 100);
+
+            let y = (x + shadowEffect * 0.5 + midtoneEffect * 0.5 + highlightEffect * 0.5) * 255;
+            y = contrastFactor * (y - 128) + 128;
+
+            if (whiteBoost > 0 && y > whiteThreshold) {
+                const ratio = Math.min(1, (y - whiteThreshold) / (255 - whiteThreshold + 0.01));
+                const smoothRatio = ratio * ratio * (3 - 2 * ratio);
+                y = y + (255 - y) * smoothRatio;
+            }
+
+            curveLUT[i] = Math.min(255, Math.max(0, Math.round(y)));
+        }
+        drawCurveGraph();
+        applyFiltersToMainWorkspace();
+    }
+
+    // Gắn trực tiếp bộ lọc SVG & CSS lên ảnh trong khung Cropper để thấy ngay khi kéo
+    function applyFiltersToMainWorkspace() {
+        const targetImgs = document.querySelectorAll('.cropper-canvas img, .cropper-view-box img');
+        if (!targetImgs.length) return;
+
+        if (isComparingOriginal) {
+            targetImgs.forEach(img => { img.style.filter = 'none'; });
+            return;
+        }
+
+        const brightness = brightnessSlider.value;
+        const sat = 100 + parseFloat(satSlider.value);
+        const temp = parseFloat(tempSlider.value);
+
+        const rOffset = (temp / 255).toFixed(4);
+        const bOffset = (-temp / 255).toFixed(4);
+        document.getElementById('temp-matrix').setAttribute('values', `
+            1 0 0 0 ${rOffset}
+            0 1 0 0 0
+            0 0 1 0 ${bOffset}
+            0 0 0 1 0
+        `);
+
+        let tableStr = "";
+        for (let i = 0; i <= 32; i++) {
+            let idx = Math.min(255, Math.floor((i / 32) * 255));
+            tableStr += (curveLUT[idx] / 255).toFixed(4) + " ";
+        }
+        document.getElementById('curveR').setAttribute('tableValues', tableStr.trim());
+        document.getElementById('curveG').setAttribute('tableValues', tableStr.trim());
+        document.getElementById('curveB').setAttribute('tableValues', tableStr.trim());
+
+        const filterCss = `url(#live-studio-filter) brightness(${brightness}%) saturate(${sat}%)`;
+        targetImgs.forEach(img => {
+            img.style.filter = filterCss;
+        });
+    }
+
+    function drawCurveGraph() {
+        const ctx = curveCanvas.getContext('2d');
+        const w = curveCanvas.width;
+        const h = curveCanvas.height;
+        ctx.clearRect(0, 0, w, h);
+
+        ctx.strokeStyle = '#1f2630';
+        ctx.lineWidth = 1;
+        for (let i = 1; i < 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo((w / 4) * i, 0); ctx.lineTo((w / 4) * i, h);
+            ctx.moveTo(0, (h / 4) * i); ctx.lineTo(w, (h / 4) * i);
+            ctx.stroke();
+        }
+
+        ctx.strokeStyle = '#3b4452';
+        ctx.setLineDash([3, 3]);
+        ctx.beginPath();
+        ctx.moveTo(0, h); ctx.lineTo(w, 0);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        ctx.strokeStyle = '#3b82f6';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < 256; i++) {
+            const px = (i / 255) * w;
+            const py = h - (curveLUT[i] / 255) * h;
+            if (i === 0) ctx.moveTo(px, py);
+            else ctx.lineTo(px, py);
+        }
+        ctx.stroke();
+    }
+
+    // 3. TẢI ẢNH LÊN & KHỞI TẠO CROPPER
+    dropzone.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', e => {
+        if (e.target.files && e.target.files[0]) loadFile(e.target.files[0]);
+    });
+
+    const workspaceEl = document.getElementById('workspace');
+    workspaceEl.addEventListener('dragover', e => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    workspaceEl.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    workspaceEl.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files[0]) loadFile(e.dataTransfer.files[0]);
+    });
+
+    function loadFile(file) {
+        const url = URL.createObjectURL(file);
+        initCropper(url);
+    }
+
+    function initCropper(src) {
+        dropzone.style.display = 'none';
+        imgContainer.style.display = 'block';
+        floatingToolbar.style.display = 'flex';
+        imageElement.src = src;
+
+        resetAllControls(false);
+
+        if (cropper) cropper.destroy();
+
+        const specs = getSpecs();
+        syncCropperAspectRatioAndSpecs();
+
+        cropper = new Cropper(imageElement, {
+            aspectRatio: freeRatioChk.checked ? NaN : specs.ratio,
+            viewMode: 1,
+            dragMode: 'move',
+            autoCropArea: 0.82,
+            restore: false,
+            guides: false,
+            center: false,
+            highlight: false,
+            cropBoxMovable: true,
+            cropBoxResizable: true,
+            toggleDragModeOnDblclick: false,
+            ready: function () {
+                resetAllBtn.disabled = false;
+                downloadSingleBtn.disabled = false;
+                downloadSheetBtn.disabled = false;
+                injectOverlay();
+                applyFiltersToMainWorkspace();
+                schedulePreviewUpdate();
+            },
+            crop: function () {
+                // Nếu đang mở khóa tỉ lệ tự do, cập nhật lại Pixel theo khung kéo thực tế
+                if (freeRatioChk.checked && cropper) {
+                    const data = cropper.getData(true);
+                    if (data.width > 0 && data.height > 0) {
+                        pxWInput.value = data.width;
+                        pxHInput.value = data.height;
+                        document.getElementById('spec-px').textContent = `${data.width} × ${data.height} px`;
+                    }
+                }
+                schedulePreviewUpdate();
+            }
+        });
+    }
+
+    // 4. KHUNG GIÓNG ICAO & CẮT XOAY
+    function injectOverlay() {
+        const cropBox = document.querySelector('.cropper-crop-box');
+        if (!cropBox) return;
+        const old = cropBox.querySelector('.guide-overlay');
+        if (old) old.remove();
+
+        const overlay = document.createElement('div');
+        overlay.className = 'guide-overlay';
+        overlay.style.display = showGuides ? 'block' : 'none';
+        overlay.innerHTML = `
+            <div class="guide-crown"></div>
+            <div class="guide-face"></div>
+            <div class="guide-eyes"></div>
+            <div class="guide-chin"></div>
+            <div class="guide-center-line"></div>
+            <div class="guide-shoulders"></div>
+        `;
+        cropBox.appendChild(overlay);
+    }
+
+    document.getElementById('quick-guide-btn').addEventListener('click', function () {
+        showGuides = !showGuides;
+        const overlay = document.querySelector('.guide-overlay');
+        if (overlay) overlay.style.display = showGuides ? 'block' : 'none';
+        this.classList.toggle('active', showGuides);
+    });
+
+    function rotate90(delta) {
+        if (!cropper) return;
+        currentRotation += delta;
+        cropper.rotateTo(currentRotation + parseFloat(angleSlider.value));
+        schedulePreviewUpdate();
+    }
+
+    document.getElementById('rotate-left-btn').addEventListener('click', () => rotate90(-90));
+    document.getElementById('rotate-right-btn').addEventListener('click', () => rotate90(90));
+    document.getElementById('quick-rot-left').addEventListener('click', () => rotate90(-90));
+    document.getElementById('quick-rot-right').addEventListener('click', () => rotate90(90));
+
+    function toggleFlipH() {
+        if (!cropper) return;
+        flipX = -flipX;
+        cropper.scaleX(flipX);
+        schedulePreviewUpdate();
+    }
+
+    document.getElementById('flip-h-btn').addEventListener('click', toggleFlipH);
+    document.getElementById('quick-flip-h').addEventListener('click', toggleFlipH);
+    document.getElementById('flip-v-btn').addEventListener('click', () => {
+        if (!cropper) return;
+        flipY = -flipY;
+        cropper.scaleY(flipY);
+        schedulePreviewUpdate();
+    });
+
+    document.getElementById('zoom-in-btn').addEventListener('click', () => cropper && cropper.zoom(0.1));
+    document.getElementById('zoom-out-btn').addEventListener('click', () => cropper && cropper.zoom(-0.1));
+
+    angleSlider.addEventListener('input', function () {
+        const val = parseFloat(this.value);
+        document.getElementById('angle-val').textContent = val.toFixed(1) + '°';
+        if (cropper) cropper.rotateTo(currentRotation + val);
+        schedulePreviewUpdate();
+    });
+
+    // Tự động đo góc ảnh để gợi ý mức Khử xám nền trắng
+    document.getElementById('auto-white-bg-btn').addEventListener('click', () => {
+        if (!cropper) return;
+        const sampleCanvas = cropper.getCroppedCanvas({ width: 200, height: 300, fillColor: '#fff' });
+        const ctx = sampleCanvas.getContext('2d');
+        const data = ctx.getImageData(0, 0, 200, 40).data;
+        let sumMin = 0, count = 0;
+        for (let y = 5; y < 35; y++) {
+            for (let x = 5; x < 35; x++) {
+                const i1 = (y * 200 + x) * 4;
+                const i2 = (y * 200 + (199 - x)) * 4;
+                sumMin += Math.min(data[i1], data[i1+1], data[i1+2]);
+                sumMin += Math.min(data[i2], data[i2+1], data[i2+2]);
+                count += 2;
+            }
+        }
+        const avg = sumMin / count;
+        const boost = (avg > 160 && avg < 252) ? Math.min(75, Math.max(18, Math.round((255 - avg) * 1.2))) : 30;
+        whiteBoostSlider.value = boost;
+        document.getElementById('white-boost-val').textContent = boost;
+        updateCurveLUT();
+        schedulePreviewUpdate();
+    });
+
+    const allColorSliders = [
+        { el: whiteBoostSlider, label: 'white-boost-val', suffix: '' },
+        { el: brightnessSlider, label: 'brightness-val', suffix: '%' },
+        { el: contrastSlider, label: 'contrast-val', suffix: '' },
+        { el: tempSlider, label: 'temp-val', suffix: '' },
+        { el: satSlider, label: 'sat-val', suffix: '' },
+        { el: sharpenSlider, label: 'sharpen-val', suffix: '' },
+        { el: shadowSlider, label: 'shadow-val', suffix: '' },
+        { el: midtoneSlider, label: 'midtone-val', suffix: '' },
+        { el: highlightSlider, label: 'highlight-val', suffix: '' }
+    ];
+
+    allColorSliders.forEach(item => {
+        item.el.addEventListener('input', function () {
+            document.getElementById(item.label).textContent = this.value + item.suffix;
+            updateCurveLUT();
+            schedulePreviewUpdate();
+        });
+        item.el.addEventListener('dblclick', function () {
+            this.value = this.dataset.default;
+            document.getElementById(item.label).textContent = this.value + item.suffix;
+            updateCurveLUT();
+            schedulePreviewUpdate();
+        });
+    });
+
+    const compareBtn = document.getElementById('compare-btn');
+    compareBtn.addEventListener('mousedown', () => {
+        isComparingOriginal = true;
+        applyFiltersToMainWorkspace();
+        schedulePreviewUpdate();
+    });
+    window.addEventListener('mouseup', () => {
+        if (isComparingOriginal) {
+            isComparingOriginal = false;
+            applyFiltersToMainWorkspace();
+            schedulePreviewUpdate();
+        }
+    });
+
+    function resetAllControls(triggerCropper = true) {
+        currentRotation = 0;
+        flipX = 1;
+        flipY = 1;
+        angleSlider.value = 0;
+        document.getElementById('angle-val').textContent = '0.0°';
+
+        allColorSliders.forEach(item => {
+            item.el.value = item.el.dataset.default;
+            document.getElementById(item.label).textContent = item.el.value + item.suffix;
+        });
+
+        updateCurveLUT();
+        downloadStatus.style.display = 'none';
+
+        if (triggerCropper && cropper) {
+            cropper.reset();
+            cropper.rotateTo(0);
+            cropper.scaleX(1);
+            cropper.scaleY(1);
+            applyFiltersToMainWorkspace();
+            schedulePreviewUpdate();
+        }
+    }
+
+    resetAllBtn.addEventListener('click', () => resetAllControls(true));
+
+    // 5. XỬ LÝ PIXEL CHO LIVE PREVIEW & FILE XUẤT
+    function processCanvasPixels(canvas) {
+        if (isComparingOriginal) return;
+
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width;
+        const h = canvas.height;
+        const imgData = ctx.getImageData(0, 0, w, h);
+        const data = imgData.data;
+
+        const temp = parseFloat(tempSlider.value);
+        const bright = parseFloat(brightnessSlider.value) / 100;
+        const sat = 1 + (parseFloat(satSlider.value) / 100);
+
+        for (let i = 0; i < data.length; i += 4) {
+            let r = curveLUT[data[i]];
+            let g = curveLUT[data[i + 1]];
+            let b = curveLUT[data[i + 2]];
+
+            r += temp;
+            b -= temp;
+
+            r *= bright;
+            g *= bright;
+            b *= bright;
+
+            if (sat !== 1) {
+                const gray = 0.299 * r + 0.587 * g + 0.114 * b;
+                r = gray + (r - gray) * sat;
+                g = gray + (g - gray) * sat;
+                b = gray + (b - gray) * sat;
+            }
+
+            data[i] = Math.min(255, Math.max(0, r));
+            data[i + 1] = Math.min(255, Math.max(0, g));
+            data[i + 2] = Math.min(255, Math.max(0, b));
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+
+        const sharpenAmount = parseFloat(sharpenSlider.value) / 200;
+        if (sharpenAmount > 0) {
+            applySharpen(ctx, w, h, sharpenAmount);
+        }
+    }
+
+    function applySharpen(ctx, w, h, amount) {
+        const srcData = ctx.getImageData(0, 0, w, h);
+        const dstData = ctx.createImageData(w, h);
+        const src = srcData.data;
+        const dst = dstData.data;
+
+        for (let y = 1; y < h - 1; y++) {
+            for (let x = 1; x < w - 1; x++) {
+                const idx = (y * w + x) * 4;
+                for (let c = 0; c < 3; c++) {
+                    const center = src[idx + c];
+                    const neighbors = (
+                        src[((y - 1) * w + x) * 4 + c] +
+                        src[((y + 1) * w + x) * 4 + c] +
+                        src[(y * w + (x - 1)) * 4 + c] +
+                        src[(y * w + (x + 1)) * 4 + c]
+                    ) * 0.25;
+                    dst[idx + c] = Math.min(255, Math.max(0, center + (center - neighbors) * (amount * 2.5)));
+                }
+                dst[idx + 3] = 255;
+            }
+        }
+        ctx.putImageData(dstData, 0, 0);
+    }
+
+    function schedulePreviewUpdate() {
+        if (!cropper) return;
+        if (previewRafId) cancelAnimationFrame(previewRafId);
+        previewRafId = requestAnimationFrame(() => {
+            const specs = getSpecs();
+            const previewW = 240;
+            const previewH = Math.max(60, Math.round(240 / specs.ratio));
+
+            livePreviewCanvas.width = previewW;
+            livePreviewCanvas.height = previewH;
+
+            const cropped = cropper.getCroppedCanvas({
+                width: previewW,
+                height: previewH,
+                imageSmoothingEnabled: true,
+                imageSmoothingQuality: 'high',
+                fillColor: '#ffffff'
+            });
+
+            if (!cropped) return;
+            const ctx = livePreviewCanvas.getContext('2d');
+            ctx.drawImage(cropped, 0, 0);
+            processCanvasPixels(livePreviewCanvas);
+            checkBackgroundWhiteness(ctx, previewW);
+        });
+    }
+
+    function checkBackgroundWhiteness(ctx, w) {
+        const d1 = ctx.getImageData(8, 8, 12, 12).data;
+        const d2 = ctx.getImageData(w - 20, 8, 12, 12).data;
+        let sum = 0;
+        for (let i = 0; i < d1.length; i += 4) {
+            sum += (d1[i] + d1[i+1] + d1[i+2]) / 3;
+            sum += (d2[i] + d2[i+1] + d2[i+2]) / 3;
+        }
+        const avg = sum / ((d1.length / 4) * 2);
+        if (avg >= 242) {
+            bgCheckBadge.textContent = '✓ Nền trắng chuẩn';
+            bgCheckBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+            bgCheckBadge.style.color = '#34d399';
+        } else {
+            bgCheckBadge.textContent = '⚠ Nền hơi xám/tối';
+            bgCheckBadge.style.background = 'rgba(245, 158, 11, 0.2)';
+            bgCheckBadge.style.color = '#fbbf24';
+        }
+    }
+
+    // 6. GHI THÔNG SỐ DPI TÙY CHỈNH VÀO MÃ NHỊ PHÂN JPEG & TẢI VỀ
+    function setDPI(base64Image, dpi) {
+        const dataSplit = base64Image.split(',');
+        const decoded = atob(dataSplit[1]);
+        const length = decoded.length;
+        const buffer = new Uint8Array(length);
+
+        for (let i = 0; i < length; i++) buffer[i] = decoded.charCodeAt(i);
+
+        buffer[13] = 1; // Đơn vị: dots per inch (DPI)
+        buffer[14] = dpi >> 8;
+        buffer[15] = dpi & 0xff;
+        buffer[16] = dpi >> 8;
+        buffer[17] = dpi & 0xff;
+
+        let binary = '';
+        for (let i = 0; i < length; i++) binary += String.fromCharCode(buffer[i]);
+        return dataSplit[0] + ',' + btoa(binary);
+    }
+
+    function getBase64FileSize(base64Str) {
+        return atob(base64Str.split(',')[1]).length;
+    }
+
+    function renderFinalSingleCanvas() {
+        const specs = getSpecs();
+        const cropped = cropper.getCroppedCanvas({
+            width: specs.pxW,
+            height: specs.pxH,
+            imageSmoothingEnabled: true,
+            imageSmoothingQuality: 'high',
+            fillColor: '#ffffff'
+        });
+
+        const finalCanvas = document.createElement('canvas');
+        finalCanvas.width = specs.pxW;
+        finalCanvas.height = specs.pxH;
+        const ctx = finalCanvas.getContext('2d');
+        ctx.drawImage(cropped, 0, 0);
+        processCanvasPixels(finalCanvas);
+        return { canvas: finalCanvas, specs };
+    }
+
+    function exportAndDownloadJPEG(canvas, filename, dpi, maxKB) {
+        let quality = 0.98;
+        let dataUrl = canvas.toDataURL('image/jpeg', quality);
+        let dataUrlWithDpi = setDPI(dataUrl, dpi);
+
+        const maxBytes = maxKB * 1024;
+        let fileSizeBytes = getBase64FileSize(dataUrlWithDpi);
+
+        while (fileSizeBytes > maxBytes && quality > 0.12) {
+            quality -= 0.04;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+            dataUrlWithDpi = setDPI(dataUrl, dpi);
+            fileSizeBytes = getBase64FileSize(dataUrlWithDpi);
+        }
+
+        const finalSizeKB = (fileSizeBytes / 1024).toFixed(1);
+        downloadStatus.style.display = 'block';
+        downloadStatus.innerHTML = `✅ Đã xuất <strong>${filename}</strong><br>(${canvas.width}×${canvas.height} px | ${dpi} DPI | ${finalSizeKB} KB)`;
+
+        fetch(dataUrlWithDpi)
+            .then(res => res.blob())
+            .then(blob => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+    }
+
+    // Nút tải ảnh đơn theo đúng kích thước Pixel & DPI đã chọn
+    downloadSingleBtn.addEventListener('click', () => {
+        if (!cropper) return;
+        const { canvas, specs } = renderFinalSingleCanvas();
+        const maxKB = parseFloat(maxKbInput.value) || 950;
+        const filename = `anh-the-${specs.cmW}x${specs.cmH}cm-${specs.pxW}x${specs.pxH}px-${specs.dpi}dpi.jpeg`;
+        exportAndDownloadJPEG(canvas, filename, specs.dpi, maxKB);
+    });
+
+    // Nút tải bản ghép in trên khổ giấy 10x15 cm (tự động tính theo DPI đã chọn)
+    downloadSheetBtn.addEventListener('click', () => {
+        if (!cropper) return;
+        const { canvas: singlePhoto, specs } = renderFinalSingleCanvas();
+
+        // Tính kích thước khổ giấy 15×10 cm theo đúng DPI người dùng chọn
+        const sheetW = Math.round((15 / 2.54) * specs.dpi);
+        const sheetH = Math.round((10 / 2.54) * specs.dpi);
+        const sheetCanvas = document.createElement('canvas');
+        sheetCanvas.width = sheetW;
+        sheetCanvas.height = sheetH;
+        const ctx = sheetCanvas.getContext('2d');
+
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, sheetW, sheetH);
+
+        // Kích thước thực của mỗi ảnh thẻ trên giấy in theo cm & DPI
+        const photoW = Math.round((specs.cmW / 2.54) * specs.dpi);
+        const photoH = Math.round((specs.cmH / 2.54) * specs.dpi);
+        const gap = Math.round(0.22 * (specs.dpi / 2.54)); // Khoảng cách ~2.2mm giữa các ảnh
+        const margin = Math.round(0.5 * (specs.dpi / 2.54));
+
+        const cols = Math.max(1, Math.floor((sheetW - margin) / (photoW + gap)));
+        const rows = Math.max(1, Math.floor((sheetH - margin) / (photoH + gap)));
+
+        const startX = Math.round((sheetW - (cols * photoW + (cols - 1) * gap)) / 2);
+        const startY = Math.round((sheetH - (rows * photoH + (rows - 1) * gap)) / 2);
+
+        ctx.strokeStyle = '#cbd5e1';
+        ctx.lineWidth = Math.max(1, Math.round(specs.dpi / 300));
+
+        for (let r = 0; r < rows; r++) {
+            for (let c = 0; c < cols; c++) {
+                const x = startX + c * (photoW + gap);
+                const y = startY + r * (photoH + gap);
+                ctx.drawImage(singlePhoto, x, y, photoW, photoH);
+                ctx.strokeRect(x, y, photoW, photoH);
+            }
+        }
+
+        const filename = `in-anh-10x15cm-${specs.cmW}x${specs.cmH}cm-${specs.dpi}dpi.jpeg`;
+        exportAndDownloadJPEG(sheetCanvas, filename, specs.dpi, 3000);
+    });
+
+    updateCurveLUT();
+</script>
+
+</body>
+</html>
