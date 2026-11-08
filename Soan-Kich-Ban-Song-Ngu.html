@@ -1,0 +1,1710 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Công cụ soạn kịch bản song ngữ V2 — Excel → Bản in phân trang (Paged.js)</title>
+<!--
+  CÔNG CỤ SOẠN KỊCH BẢN SONG NGỮ V2 (Standalone HTML)
+  - 1 file HTML duy nhất, chạy client-side. Cần internet ở lần mở đầu để tải CDN:
+      SheetJS (đọc Excel) + Paged.js (phân trang / số trang / mục lục có số trang).
+    Nếu mất mạng, công cụ tự chuyển sang "xem liên tục" và vẫn in được bằng Ctrl+P.
+  - Cấu trúc Excel: A = STT | B = Ngôn ngữ 1 | C = Ngôn ngữ 2 | D = Phân loại (Type)
+      (trống)    : dòng song ngữ bình thường
+      [TITLE]    : tiêu đề chính toàn bộ kịch bản
+      [HEADING_1]: đề mục lớn  -> vào Mục lục cấp 1
+      [HEADING_2]: đề mục nhỏ  -> vào Mục lục cấp 2
+      [HEADING_3]: đề mục cấp 3 -> vào Mục lục cấp 3
+      [LANG_1] / [LANG_2] : dòng chỉ 1 ngôn ngữ
+      [NOTE]     : ghi chú kịch bản / đạo diễn
+-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"></script>
+<style>
+  :root{
+    --sb-width:340px; --ink:#1c2430; --muted:#66707e; --line:#dde2ea;
+    --brand:#14498f; --brand2:#0f3a74; --bg:#eef1f6; --card:#ffffff;
+    --accent:#c9a227;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:"Segoe UI",Arial,sans-serif;color:var(--ink);background:var(--bg);font-size:13px}
+  /* ---------- Layout ---------- */
+  #app{display:flex;min-height:100vh}
+  #sidebar{width:var(--sb-width);flex:0 0 var(--sb-width);background:#fbfcfe;border-right:1px solid var(--line);
+    height:100vh;position:sticky;top:0;overflow-y:auto;padding:14px 14px 90px}
+  #main{flex:1;min-width:0;display:flex;flex-direction:column}
+  #toolbar{position:sticky;top:0;z-index:5;background:rgba(251,252,254,.92);backdrop-filter:blur(4px);
+    border-bottom:1px solid var(--line);padding:10px 18px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  #toolbar .sp{flex:1}
+  #status{font-size:12px;color:var(--muted)}
+  #status b{color:var(--ink)}
+  #previewWrap{flex:1;overflow:auto;padding:26px 10px 60px}
+  /* Trên màn hình: khóa khung app đúng bằng chiều cao cửa sổ để VÙNG XEM TRƯỚC tự cuộn bên trong.
+     Nếu không, cả trang web cuộn theo chiều cao nội dung — khi bản xem trước bị xóa để dựng lại,
+     cuộn cửa sổ tụt về 0 và người dùng bị nhảy về trang đầu dù đã lưu vị trí cuộn của vùng xem trước. */
+  @media screen{
+    #app{height:100vh;overflow:hidden}
+    #main{min-height:0}
+    #previewWrap{min-height:0}
+  }
+  #preview{margin:0 auto;width:max-content;max-width:100%}
+  /* ---------- Sidebar UI ---------- */
+  h1.app{font-size:16px;margin:2px 0 2px;color:var(--brand2);line-height:1.3}
+  .sub{font-size:11.5px;color:var(--muted);margin:0 0 10px}
+  details.grp{background:var(--card);border:1px solid var(--line);border-radius:10px;margin:0 0 10px;overflow:hidden}
+  details.grp>summary{cursor:pointer;list-style:none;padding:10px 12px;font-weight:700;font-size:13px;color:var(--brand2);
+    display:flex;align-items:center;gap:8px;user-select:none}
+  details.grp>summary::-webkit-details-marker{display:none}
+  details.grp>summary .n{background:var(--brand);color:#fff;border-radius:50%;width:19px;height:19px;flex:0 0 19px;
+    display:inline-flex;align-items:center;justify-content:center;font-size:11px}
+  details.grp>summary::after{content:"▾";margin-left:auto;color:var(--muted)}
+  details.grp:not([open])>summary::after{content:"▸"}
+  .grpBody{padding:2px 12px 12px;border-top:1px solid var(--line)}
+  .fld{margin:9px 0}
+  .fld label.lab{display:block;font-size:11.5px;font-weight:600;color:#39424f;margin-bottom:4px}
+  .hint{font-size:11px;color:var(--muted);margin-top:3px;line-height:1.45}
+  input[type=text],input[type=number],select{width:100%;padding:6px 8px;border:1px solid #c6cdd8;border-radius:7px;
+    font:inherit;background:#fff;color:var(--ink)}
+  input[type=color]{width:44px;height:30px;padding:2px;border:1px solid #c6cdd8;border-radius:7px;background:#fff;cursor:pointer}
+  input[type=range]{width:100%}
+  .row2{display:flex;gap:8px}.row2>*{flex:1;min-width:0}
+  .row3{display:flex;gap:6px}.row3>*{flex:1;min-width:0}
+  .chk{display:flex;align-items:center;gap:7px;margin:6px 0;cursor:pointer;font-size:12.5px}
+  .chk input{accent-color:var(--brand);width:15px;height:15px;flex:0 0 15px}
+  .seg{display:flex;border:1px solid #c6cdd8;border-radius:8px;overflow:hidden}
+  .seg button{flex:1;border:0;background:#fff;padding:6px 4px;font:inherit;font-size:12px;cursor:pointer;color:var(--ink)}
+  .seg button.on{background:var(--brand);color:#fff;font-weight:600}
+  .seg button+button{border-left:1px solid #c6cdd8}
+  .btn{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--brand);background:var(--brand);color:#fff;
+    padding:8px 13px;border-radius:8px;font:inherit;font-weight:600;cursor:pointer}
+  .btn:hover{background:var(--brand2)}
+  .btn.ghost{background:#fff;color:var(--brand)}
+  .btn.ghost:hover{background:#eaf1fa}
+  .btn.warn{border-color:#b3261e;background:#b3261e}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .btn.block{width:100%;justify-content:center}
+  .drop{border:1.6px dashed #9db6d8;border-radius:10px;padding:12px;text-align:center;background:#f3f7fd;cursor:pointer}
+  .drop:hover,.drop.over{background:#e6eefb;border-color:var(--brand)}
+  .drop .big{font-weight:700;color:var(--brand2)}
+  #fileName{font-size:11.5px;color:var(--muted);margin-top:6px;word-break:break-all}
+  .tglRow{display:flex;gap:6px}
+  .tglRow .chk{flex:1;border:1px solid #c6cdd8;border-radius:8px;padding:5px 8px;margin:0;background:#fff;justify-content:center}
+  .fmtBtns{display:flex;gap:6px}
+  .fmtBtns button{flex:1;border:1px solid #c6cdd8;background:#fff;border-radius:8px;padding:6px 0;cursor:pointer;font:inherit;font-size:13px}
+  .fmtBtns button.on{background:var(--brand);border-color:var(--brand);color:#fff}
+  .colorRow{display:flex;align-items:center;gap:8px}
+  .colorRow span{font-size:12px;flex:1}
+  .kbd{background:#eef1f6;border:1px solid #c6cdd8;border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11px}
+  /* ---------- Paged preview ---------- */
+  .pagedjs_pages{display:flex;flex-direction:column;align-items:center;gap:26px}
+  .pagedjs_page{background:#fff;box-shadow:0 3px 18px rgba(20,40,80,.18);flex:0 0 auto}
+  /* Bảng soạn / sửa: ngăn kéo dock bên trái, bản xem trước đã phân trang nằm cạnh bên phải */
+  #editorPanel{position:fixed;top:0;left:0;bottom:0;width:min(600px,94vw);z-index:60}
+  #editorPanel.hidden{display:none}
+  .ed-card{background:#fff;box-shadow:6px 0 28px rgba(10,25,50,.25);width:100%;height:100%;display:flex;flex-direction:column;overflow:hidden}
+  .ed-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start;padding:14px 16px;border-bottom:1px solid #e3e8f0}
+  .ed-sub{display:block;font-weight:400;font-size:12px;color:#5b6b82;margin-top:2px;max-width:660px;line-height:1.5}
+  .ed-headBtns{display:flex;gap:8px;flex:0 0 auto}
+  .ed-body{overflow:auto;padding:12px 14px 16px;flex:1}
+  body.dock-open #sidebar{display:none}
+  body.dock-open #main{margin-left:min(600px,94vw)}
+  #main{transition:margin-left .18s ease}
+  @media (max-width:900px){ body.dock-open #main{margin-left:0} }
+  .ed-row{border:1px solid #dfe6f0;border-radius:10px;padding:8px 9px;margin-bottom:9px;background:#fbfcfe}
+  .ed-rowHead{display:flex;gap:6px;align-items:center}
+  .ed-row input[type="text"],.ed-row select,.ed-row textarea{padding:6px 7px;border:1px solid #ccd6e4;border-radius:7px;font:inherit;font-size:13px;background:#fff;box-sizing:border-box}
+  .ed-row .ed-stt{width:60px;flex:0 0 auto;text-align:center}
+  .ed-row .ed-type{flex:1;min-width:0}
+  .ed-row textarea{width:100%;min-height:38px;resize:vertical;line-height:1.4}
+  .ed-lab{display:block;font-size:11px;font-weight:600;color:#5b6b82;margin:7px 0 2px}
+  .ed-act{display:flex;gap:4px;flex:0 0 auto}
+  .ed-act button{border:1px solid #ccd6e4;background:#f4f7fb;border-radius:6px;min-width:27px;height:27px;cursor:pointer;font-size:13px;line-height:1}
+  .ed-act button:hover{background:#e3ecf8}
+  .ed-act .ed-del{color:#b3261e}
+  @media print{ #editorPanel{display:none !important} }
+  /* Sửa kiểu Word ngay trên bản phân trang + menu chuột phải */
+  #pageEditNote{display:none;max-width:820px;margin:0 auto 14px;background:#e8f1fd;border:1px solid #8db1e3;color:#123d75;
+    border-radius:9px;padding:9px 13px;font-size:12.5px;line-height:1.5}
+  #preview.page-editing td{cursor:text}
+  #preview.page-editing td:hover{outline:1.5px dashed #8db1e3;outline-offset:-1.5px}
+  #preview.page-editing td[contenteditable="true"]{outline:2px solid #14498f;outline-offset:-2px;background:#fffef5}
+  #ctxMenu{position:fixed;z-index:80;background:#fff;border:1px solid #ccd6e4;border-radius:10px;box-shadow:0 12px 34px rgba(10,25,50,.28);padding:5px;min-width:240px;font-size:13px;color:#16283f}
+  #ctxMenu.hidden{display:none}
+  #ctxMenu .mi{padding:6px 10px;border-radius:6px;cursor:pointer;white-space:nowrap}
+  #ctxMenu .mi:hover{background:#e8f1fd}
+  #ctxMenu .sep{height:1px;background:#e3e8f0;margin:4px 6px}
+  #ctxMenu .mhead{padding:5px 10px 2px;font-size:11px;font-weight:700;color:#5b6b82;text-transform:uppercase;letter-spacing:.04em}
+  #fallbackNote{display:none;max-width:820px;margin:0 auto 14px;background:#fff7e0;border:1px solid #e3c964;color:#5c4b00;
+    border-radius:9px;padding:9px 13px;font-size:12.5px;line-height:1.5}
+  #editNote{display:none;max-width:820px;margin:0 auto 14px;background:#e8f1fd;border:1px solid #8db1e3;color:#123d75;
+    border-radius:9px;padding:9px 13px;font-size:12.5px;line-height:1.5}
+  #editFlow{outline:2px dashed #8db1e3;outline-offset:6px;cursor:text}
+  #editFlow td{cursor:text}
+  #fallbackSheet{background:#fff;box-shadow:0 3px 18px rgba(20,40,80,.18);margin:0 auto}
+  .dragging #previewWrap{outline:3px dashed var(--brand);outline-offset:-8px}
+  @media print{
+    #sidebar,#toolbar,#fallbackNote,#editNote,#pageEditNote,#ctxMenu{display:none !important}
+    body{background:#fff}
+    #app{height:auto;overflow:visible}
+    #previewWrap{padding:0;overflow:visible}
+    /* Khi in phải bỏ display:flex của danh sách trang: Chrome in flex-column hay bị
+       tràn mỗi trang thành một trang trắng đi kèm (Edge lại không sao). Block thì trang nào ra trang đó. */
+    .pagedjs_pages{display:block;gap:0}
+    .pagedjs_page{box-shadow:none;margin:0 !important}
+  }
+</style>
+<style id="printPageStyle"></style>
+</head>
+<body>
+<div id="app">
+  <!-- ================= SIDEBAR ================= -->
+  <aside id="sidebar">
+    <details class="grp" open>
+      <summary><span class="n">1</span>Nguồn dữ liệu &amp; cấu trúc</summary>
+      <div class="grpBody">
+        <div class="fld">
+          <div class="drop" id="dropZone" title="Bấm để chọn file, hoặc kéo-thả file Excel vào đây">
+            <div class="big">⬆ Upload File Excel</div>
+            <div class="hint">.xlsx / .xls / .csv — hoặc kéo &amp; thả file vào cửa sổ này</div>
+          </div>
+          <input type="file" id="fileInput" accept=".xlsx,.xls,.csv,.json" hidden>
+          <div id="fileName">Chưa chọn file — đang hiển thị dữ liệu mẫu Nhật–Việt.</div>
+        </div>
+        <div class="fld">
+          <label class="lab" for="sheetSelect">Chọn Sheet</label>
+          <select id="sheetSelect" disabled><option>(chưa có file)</option></select>
+        </div>
+        <div class="fld">
+          <label class="lab">Cấu trúc cột (cố định theo quy ước)</label>
+          <div class="hint">A = STT &nbsp;•&nbsp; B = Ngôn ngữ 1 &nbsp;•&nbsp; C = Ngôn ngữ 2 &nbsp;•&nbsp; D = Phân loại:
+            <span class="kbd">[TITLE]</span> <span class="kbd">[HEADING_1]</span> <span class="kbd">[HEADING_2]</span> <span class="kbd">[HEADING_3]</span>
+            <span class="kbd">[LANG_1]</span> <span class="kbd">[LANG_2]</span> <span class="kbd">[NOTE]</span> (trống = dòng thường)</div>
+        </div>
+        <div class="fld">
+          <label class="lab" for="headerMode">Dòng tiêu đề đầu bảng</label>
+          <select id="headerMode">
+            <option value="auto" selected>Tự động nhận diện &amp; bỏ qua</option>
+            <option value="always">Luôn bỏ dòng đầu tiên</option>
+            <option value="never">Không bỏ — dòng đầu là dữ liệu</option>
+          </select>
+        </div>
+        <div class="fld">
+          <label class="lab">STT</label>
+          <div class="seg" id="sttModeSeg">
+            <button type="button" data-v="file" class="on">Từ file Excel</button>
+            <button type="button" data-v="auto">Đánh số tự động</button>
+          </div>
+          <div class="hint">Tự động: chỉ đếm dòng thường &amp; dòng [LANG_1]/[LANG_2] — bỏ qua [TITLE], [HEADING_*], [NOTE]. Số <b>tự nhảy theo</b> mỗi khi thêm/xóa/dời dòng (thấy ngay trong bảng soạn và bản xem trước) và được ghi cả vào file Excel/JSON khi xuất.</div>
+          <button class="btn ghost sm" id="bakeSttBtn" type="button" style="margin-top:6px;width:100%">⚡ Điền số thứ tự tự động vào dữ liệu</button>
+          <div class="hint">Bấm để điền số 1, 2, 3… theo đúng thứ tự dòng hiện tại vào tận dữ liệu — dùng khi dữ liệu đang thiếu số thứ tự mà bạn muốn số nằm cứng trong file.</div>
+        </div>
+        <label class="chk"><input type="checkbox" id="tocToggle" checked> Tạo Mục Lục Tự Động (Table of Contents)</label>
+        <div class="hint" style="margin:-2px 0 4px 22px">Trích [HEADING_1] / [HEADING_2] / [HEADING_3] lên đầu tài liệu, kèm số trang (tự cập nhật theo phân trang).</div>
+        <label class="chk"><input type="checkbox" id="scriptSeparateToggle" checked> Kịch bản ở trang riêng (ngắt trang sau Mục lục)</label>
+        <div class="fld" style="display:flex;gap:8px">
+          <button class="btn ghost sm" id="demoBtn" type="button" style="flex:1">↺ Dữ liệu mẫu</button>
+          <button class="btn ghost sm" id="sampleInfoBtn" type="button" style="flex:1">ⓘ Mẫu Excel kèm theo</button>
+        </div>
+        <div class="fld" style="display:flex;gap:8px">
+          <button class="btn ghost sm" id="expXlsxBtn" type="button" style="flex:1">⬇ Xuất Excel</button>
+          <button class="btn ghost sm" id="expJsonBtn" type="button" style="flex:1">⬇ Xuất JSON (backup)</button>
+        </div>
+        <div class="hint">Xuất Excel theo cấu trúc A–D để sửa ở nơi khác. <b>Xuất JSON là bản backup đầy đủ</b>: gồm nội dung và <b>toàn bộ cài đặt</b> (khổ giấy, lề, typography, layout…). Upload lại file JSON đó vào đây là khôi phục nguyên trạng cả nội dung lẫn cài đặt.</div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><span class="n">2</span>Layout &amp; cột</summary>
+      <div class="grpBody">
+        <div class="fld">
+          <label class="lab">Kiểu trình bày</label>
+          <div class="seg" id="layoutSeg">
+            <button type="button" data-v="cols" class="on">2 cột song song</button>
+            <button type="button" data-v="stack">Trên / dưới</button>
+          </div>
+        </div>
+        <div class="fld" id="ratioFld">
+          <label class="lab">Tỷ lệ cột Ngôn ngữ 1 : Ngôn ngữ 2 — <span id="ratioVal">50 : 50</span></label>
+          <input type="range" id="ratioRange" min="25" max="75" step="1" value="50">
+        </div>
+        <div class="fld">
+          <label class="lab">Tên hiển thị của 2 ngôn ngữ</label>
+          <div class="row2">
+            <input type="text" id="lang1Name" value="Tiếng Việt">
+            <input type="text" id="lang2Name" value="Tiếng Nhật (日本語)">
+          </div>
+        </div>
+        <label class="chk"><input type="checkbox" id="showLang1" checked> Hiện Ngôn ngữ 1</label>
+        <label class="chk"><input type="checkbox" id="showLang2" checked> Hiện Ngôn ngữ 2</label>
+        <label class="chk"><input type="checkbox" id="showStt" checked> Hiện cột STT</label>
+        <label class="chk"><input type="checkbox" id="showColHeader"> Hiện hàng tiêu đề cột (STT / tên ngôn ngữ)</label>
+        <label class="chk"><input type="checkbox" id="showBorders" checked> Kẻ đường phân cách giữa các dòng</label>
+        <label class="chk"><input type="checkbox" id="rowSplitToggle" checked> Câu quá dài: cho phép tràn sang trang kế tiếp</label>
+        <div class="hint" style="margin:-2px 0 4px 22px">Bật: câu dài quá trang sẽ tự tràn tiếp sang trang kế tiếp — các trang (nhất là khổ A5) đầy và đều nhau hơn. Tắt: không cho sang trang kế tiếp, mỗi câu MC luôn nằm trọn trong một trang (trang có thể thừa khoảng trắng).</div>
+        <div class="fld">
+          <label class="lab">Khoảng cách dòng (line-height) — <span id="lhVal">1.5</span></label>
+          <input type="range" id="lineHeight" min="1.1" max="2.2" step="0.05" value="1.5">
+        </div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><span class="n">3</span>Khổ giấy &amp; đánh số trang</summary>
+      <div class="grpBody">
+        <div class="fld">
+          <label class="lab" for="pageSize">Khổ giấy</label>
+          <select id="pageSize">
+            <option value="A3">A3 (297 × 420 mm)</option>
+            <option value="A4" selected>A4 (210 × 297 mm)</option>
+            <option value="A5">A5 (148 × 210 mm)</option>
+            <option value="Letter">Letter (216 × 279 mm)</option>
+            <option value="Legal">Legal (216 × 356 mm)</option>
+            <option value="custom">Tùy chỉnh (Custom)…</option>
+          </select>
+        </div>
+        <div class="fld" id="customSizeFld" style="display:none">
+          <label class="lab">Kích thước tùy chỉnh (mm)</label>
+          <div class="row2">
+            <input type="number" id="customW" value="210" min="50" max="1000" step="1" aria-label="Chiều rộng mm">
+            <input type="number" id="customH" value="297" min="50" max="1000" step="1" aria-label="Chiều cao mm">
+          </div>
+          <div class="hint">Ô trái = chiều rộng, ô phải = chiều cao.</div>
+        </div>
+        <div class="fld">
+          <label class="lab">Hướng giấy</label>
+          <div class="seg" id="orientSeg">
+            <button type="button" data-v="portrait" class="on">Dọc</button>
+            <button type="button" data-v="landscape">Ngang</button>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="lab">Căn lề (mm)</label>
+          <div class="row2">
+            <input type="number" id="mTop" value="18" min="0" max="60" step="1" aria-label="Lề trên">
+            <input type="number" id="mBottom" value="18" min="0" max="60" step="1" aria-label="Lề dưới">
+          </div>
+          <div class="row2" style="margin-top:6px">
+            <input type="number" id="mLeft" value="16" min="0" max="60" step="1" aria-label="Lề trái">
+            <input type="number" id="mRight" value="16" min="0" max="60" step="1" aria-label="Lề phải">
+          </div>
+          <div class="hint">Thứ tự: Trên • Dưới / Trái • Phải.</div>
+        </div>
+        <label class="chk"><input type="checkbox" id="pageNumToggle" checked> Bật đánh số trang</label>
+        <div id="pageNumOpts">
+          <div class="fld">
+            <label class="lab" for="pageNumPos">Vị trí số trang</label>
+            <select id="pageNumPos">
+              <option value="bottom-left">Góc dưới — trái</option>
+              <option value="bottom-center" selected>Giữa — dưới</option>
+              <option value="bottom-right">Góc dưới — phải</option>
+              <option value="top-left">Góc trên — trái</option>
+              <option value="top-center">Giữa — trên</option>
+              <option value="top-right">Góc trên — phải</option>
+            </select>
+          </div>
+          <div class="fld">
+            <label class="lab" for="pageNumFormat">Định dạng số trang</label>
+            <select id="pageNumFormat">
+              <option value="numof" selected>1 / N — số trang / tổng số</option>
+              <option value="plain">1</option>
+              <option value="dash">- 1 -</option>
+              <option value="pageof">Page 1 of N</option>
+              <option value="trangof">Trang 1 / N</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><span class="n">4</span>Typography nâng cao</summary>
+      <div class="grpBody">
+        <div class="fld">
+          <label class="lab" for="typoTarget">Đối tượng cần chỉnh</label>
+          <select id="typoTarget">
+            <option value="normal">Text bình thường</option>
+            <option value="title">[TITLE] — Tiêu đề chính</option>
+            <option value="h1">[HEADING_1] — Đề mục lớn</option>
+            <option value="h2">[HEADING_2] — Đề mục nhỏ</option>
+            <option value="h3">[HEADING_3] — Đề mục cấp 3</option>
+            <option value="note">[NOTE] — Ghi chú / đạo diễn</option>
+          </select>
+          <div class="hint">Mỗi đối tượng nhớ style riêng — chọn đối tượng rồi chỉnh, chuyển qua lại không mất.</div>
+        </div>
+        <div class="fld">
+          <label class="lab" for="tyFont">Font chữ</label>
+          <select id="tyFont">
+            <option value="'Times New Roman',serif">Times New Roman</option>
+            <option value="Arial,sans-serif">Arial</option>
+            <option value="'Segoe UI',sans-serif">Segoe UI</option>
+            <option value="Tahoma,sans-serif">Tahoma</option>
+            <option value="Verdana,sans-serif">Verdana</option>
+            <option value="Georgia,serif">Georgia</option>
+            <option value="'Noto Serif JP','Times New Roman',serif">Noto Serif JP (Nhật, có chân)</option>
+            <option value="'Noto Sans JP',Arial,sans-serif">Noto Sans JP (Nhật, không chân)</option>
+            <option value="'Yu Gothic','Noto Sans JP',sans-serif">Yu Gothic (Nhật)</option>
+            <option value="Meiryo,'Noto Sans JP',sans-serif">Meiryo (Nhật)</option>
+            <option value="'MS Mincho','Noto Serif JP',serif">MS Mincho (Nhật)</option>
+          </select>
+        </div>
+        <div class="fld row2">
+          <div><label class="lab" for="tySize">Cỡ chữ (pt)</label><input type="number" id="tySize" min="7" max="48" step="0.5"></div>
+          <div><label class="lab">Căn lề text</label>
+            <div class="seg" id="tyAlignSeg">
+              <button type="button" data-v="left" title="Trái">⬅</button>
+              <button type="button" data-v="center" title="Giữa">⬌</button>
+              <button type="button" data-v="right" title="Phải">➡</button>
+              <button type="button" data-v="justify" title="Đều 2 bên">☰</button>
+            </div>
+          </div>
+        </div>
+        <div class="fld">
+          <label class="lab">Định dạng</label>
+          <div class="fmtBtns">
+            <button type="button" id="tyBold" title="In đậm"><b>B</b></button>
+            <button type="button" id="tyItalic" title="In nghiêng"><i>I</i></button>
+            <button type="button" id="tyUnder" title="Gạch chân"><u>U</u></button>
+          </div>
+        </div>
+        <div class="fld colorRow"><span>Màu chữ</span><input type="color" id="tyColor"></div>
+        <div class="fld colorRow"><span>Màu nền</span><input type="color" id="tyBg">
+          <label class="chk" style="margin:0"><input type="checkbox" id="tyBgNone"> Trong suốt</label></div>
+        <div class="fld">
+          <label class="lab">Khoảng cách tách đề mục (mm)</label>
+          <div class="row2">
+            <input type="number" id="tyMt" min="0" max="30" step="0.5" aria-label="Margin trên mm">
+            <input type="number" id="tyMb" min="0" max="30" step="0.5" aria-label="Margin dưới mm">
+          </div>
+          <div class="hint">Ô trái = cách phía trên, ô phải = cách phía dưới.</div>
+        </div>
+        <div class="fld">
+          <label class="lab">Đệm trong (padding, mm)</label>
+          <div class="row2">
+            <input type="number" id="tyPt" min="0" max="20" step="0.5" aria-label="Padding trên mm">
+            <input type="number" id="tyPb" min="0" max="20" step="0.5" aria-label="Padding dưới mm">
+          </div>
+        </div>
+      </div>
+    </details>
+
+    <details class="grp" open>
+      <summary><span class="n">5</span>Hiệu ứng dòng (Row style)</summary>
+      <div class="grpBody">
+        <div class="fld">
+          <label class="lab" for="rowMode">Kiểu tô màu dòng thường</label>
+          <select id="rowMode">
+            <option value="none" selected>Không tô (trắng)</option>
+            <option value="zebra">Zebra — xen kẽ 2 màu</option>
+            <option value="palette">Bảng màu — xoay vòng nhiều màu pastel</option>
+          </select>
+          <div class="hint">Giúp MC / phiên dịch tra cứu nhanh đúng dòng khi đọc trực tiếp.</div>
+        </div>
+        <div id="zebraOpts">
+          <div class="fld colorRow"><span>Màu dòng lẻ</span><input type="color" id="zebraA" value="#ffffff"></div>
+          <div class="fld colorRow"><span>Màu dòng chẵn</span><input type="color" id="zebraB" value="#eef3fa"></div>
+        </div>
+        <div class="fld">
+          <label class="lab">Đệm dọc mỗi dòng (mm) — <span id="rowPadVal">1.6</span></label>
+          <input type="range" id="rowPad" min="0" max="5" step="0.2" value="1.6">
+        </div>
+      </div>
+    </details>
+
+    <div style="display:flex;gap:8px">
+      <button class="btn ghost sm" id="resetBtn" type="button" style="flex:1">↺ Đặt lại style</button>
+      <button class="btn ghost sm" id="rerenderBtn" type="button" style="flex:1">⟳ Dựng lại trang</button>
+    </div>
+    <p class="hint" style="margin-top:10px">Style tự lưu trong trình duyệt (localStorage). Khi in: chọn đúng khổ giấy đã cài, lề = <b>None/Mặc định của bản xem trước</b> và tắt “Headers and footers” của trình duyệt để không bị trùng số trang.</p>
+  </aside>
+
+  <!-- ================= MAIN / PREVIEW ================= -->
+  <main id="main">
+    <div id="toolbar">
+      <button class="btn" id="printBtn" type="button">🖨 In / Xuất PDF</button>
+      <button class="btn ghost" id="htmlBtn" type="button">⬇ Tải HTML</button>
+      <button class="btn ghost" id="editorBtn" type="button">📝 Soạn / sửa</button>
+      <button class="btn ghost" id="pageEditBtn" type="button">✎ Sửa trên trang</button>
+      <button class="btn ghost" id="undoBtn" type="button" title="Hoàn tác thay đổi nội dung gần nhất (Ctrl+Z)" disabled>↩ Hoàn tác</button>
+      <button class="btn ghost" id="redoBtn" type="button" title="Làm lại thay đổi vừa hoàn tác (Ctrl+Y)" disabled>↪ Làm lại</button>
+      <span style="display:inline-flex;align-items:center;gap:5px">
+        <button class="btn ghost sm" id="zoomOutBtn" type="button" title="Thu nhỏ">−</button>
+        <span id="zoomVal" style="min-width:42px;text-align:center;font-weight:600">100%</span>
+        <button class="btn ghost sm" id="zoomInBtn" type="button" title="Phóng to">+</button>
+      </span>
+      <span id="status">Đang khởi tạo…</span>
+      <span class="sp"></span>
+    </div>
+    <div id="previewWrap">
+      <div id="fallbackNote">⚠ Không tải được thư viện Paged.js (thường do mất mạng ở lần mở đầu). Đang hiển thị <b>bản xem liên tục</b> theo đúng khổ giấy &amp; style đã chọn — nối mạng rồi bấm “⟳ Dựng lại trang” ở cột trái để phân trang + đánh số trang tự động.</div>
+      <div id="preview"></div>
+    </div>
+  </main>
+</div>
+
+<!-- ================= BẢNG SOẠN / SỬA TOÀN BỘ ================= -->
+<div id="editorPanel" class="hidden" role="dialog" aria-label="Soạn và sửa kịch bản">
+  <div class="ed-card">
+    <div class="ed-head">
+      <div><strong>📝 Soạn / sửa kịch bản</strong>
+        <span class="ed-sub">Sửa mọi thứ ngay tại đây như sửa trong Excel: đổi loại dòng (kể cả các cấp Đề mục), thêm/xóa/sắp xếp dòng, sửa nội dung hai ngôn ngữ. <b>Mục lục là tự sinh</b> từ các dòng Đề mục nên không sửa tay — cứ sửa đề mục tại đây, mục lục + số trang tự cập nhật. Bản xem trước bên cạnh <b>vẫn phân trang y như bản in</b> và tự nhảy trang lại theo mỗi thay đổi. Mọi thay đổi tự lưu trên trình duyệt này.</span>
+      </div>
+      <div class="ed-headBtns">
+        <button class="btn" id="edAddTop" type="button">＋ Thêm dòng</button>
+        <button class="btn primary" id="edClose" type="button">✓ Xong</button>
+      </div>
+    </div>
+    <div class="ed-body">
+      <div id="edSttNote" class="hint" style="display:none;margin:0 0 8px">🔢 Đang ở chế độ <b>Đánh số tự động</b>: số thứ tự tự nhảy theo thứ tự dòng — thêm, xóa hay dời dòng là các số tự sắp lại, bạn không cần gõ số tay.</div>
+      <div id="edBody"></div>
+      <button class="btn ghost" id="edAddBottom" type="button" style="margin-top:2px">＋ Thêm dòng ở cuối</button>
+    </div>
+  </div>
+</div>
+
+<!-- Menu chuột phải khi sửa trên trang -->
+<div id="ctxMenu" class="hidden"></div>
+
+<script>
+"use strict";
+/* =====================================================================
+   V2 — Bilingual Script Composer
+   Dữ liệu: rows = [{stt, l1, l2, type}]  type ∈ "", TITLE, HEADING_1,
+   HEADING_2, LANG_1, LANG_2, NOTE
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const nl2br = s => esc(s).replace(/\r?\n/g, "<br>");
+
+/* ---------- Kích thước khổ giấy (mm) ---------- */
+const PAGE_SIZES = { A3:[297,420], A4:[210,297], A5:[148,210], Letter:[216,279], Legal:[216,356] };
+
+/* ---------- Style mặc định cho từng đối tượng ---------- */
+function defaultStyles(){
+  return {
+    normal:{ font:"'Times New Roman',serif", size:12, bold:false, italic:false, under:false,
+             align:"left",   color:"#111111", bg:"",        mt:0,   mb:0,   pt:0, pb:0 },
+    title: { font:"'Times New Roman',serif", size:20, bold:true,  italic:false, under:false,
+             align:"center", color:"#0f3a74", bg:"",        mt:0,   mb:4,   pt:2, pb:2 },
+    h1:    { font:"'Times New Roman',serif", size:15, bold:true,  italic:false, under:false,
+             align:"left",   color:"#ffffff", bg:"#14498f", mt:5,   mb:2.5, pt:1.8, pb:1.8 },
+    h2:    { font:"'Times New Roman',serif", size:13, bold:true,  italic:false, under:false,
+             align:"left",   color:"#0f3a74", bg:"#e3ecf8", mt:3.5, mb:2,   pt:1.4, pb:1.4 },
+    h3:    { font:"'Times New Roman',serif", size:12, bold:true,  italic:false, under:false,
+             align:"left",   color:"#9a3412", bg:"#fdeee2", mt:3,   mb:1.5, pt:1.2, pb:1.2 },
+    note:  { font:"'Times New Roman',serif", size:10.5, bold:false, italic:true, under:false,
+             align:"left",   color:"#7a4b00", bg:"#fff6dd", mt:1,   mb:1,   pt:1.4, pb:1.4 }
+  };
+}
+
+/* ---------- Trạng thái ---------- */
+let S = {
+  rows: [], fileName: "", sheetName: "",
+  sttMode: "file",            // file | auto
+  layout: "cols",             // cols | stack
+  ratio: 50,                  // % cho ngôn ngữ 1
+  orient: "portrait",
+  typoTarget: "normal",
+  zoom: 100,                  // % phóng to của phần hiển thị
+  editing: false,             // đang ở chế độ sửa trực tiếp?
+  styles: defaultStyles()
+};
+function settingsFromUI(){
+  return {
+    headerMode: $("headerMode").value, toc: $("tocToggle").checked, scriptSeparate: $("scriptSeparateToggle").checked,
+    lang1Name: $("lang1Name").value, lang2Name: $("lang2Name").value,
+    showLang1: $("showLang1").checked, showLang2: $("showLang2").checked,
+    showStt: $("showStt").checked, showColHeader: $("showColHeader").checked,
+    showBorders: $("showBorders").checked, allowRowSplit: $("rowSplitToggle").checked, lineHeight: parseFloat($("lineHeight").value),
+    pageSize: $("pageSize").value, customW: parseFloat($("customW").value)||210, customH: parseFloat($("customH").value)||297,
+    mTop: num("mTop",18), mBottom: num("mBottom",18), mLeft: num("mLeft",16), mRight: num("mRight",16),
+    pageNum: $("pageNumToggle").checked, pageNumPos: $("pageNumPos").value, pageNumFmt: $("pageNumFormat").value,
+    rowMode: $("rowMode").value, zebraA: $("zebraA").value, zebraB: $("zebraB").value,
+    rowPad: parseFloat($("rowPad").value)
+  };
+}
+function num(id, dft){ const v = parseFloat($(id).value); return isNaN(v) ? dft : v; }
+/* Bề rộng cột (% theo bề rộng nội dung trang): STT ~12mm, còn lại chia theo tỷ lệ 2 ngôn ngữ.
+   Dùng chung cho colgroup (CSS) và cho width gắn thẳng vào từng ô (xem buildFlow). */
+function colWidths(cfg){
+  const [w] = pageDims(cfg);
+  const contentW = Math.max(40, w - cfg.mLeft - cfg.mRight);
+  const stt = cfg.showStt ? Math.min(12 / contentW * 100, 22) : 0;
+  let l1 = 0, l2 = 0; const stack = 100 - stt;
+  if (S.layout === "cols"){
+    const rest = 100 - stt;
+    if (cfg.showLang1 && cfg.showLang2){ l1 = rest * S.ratio / 100; l2 = rest - l1; }
+    else if (cfg.showLang1) l1 = rest;
+    else if (cfg.showLang2) l2 = rest;
+  }
+  return { stt, l1, l2, stack };
+}
+function pageDims(cfg){
+  let [w,h] = cfg.pageSize === "custom" ? [cfg.customW, cfg.customH] : (PAGE_SIZES[cfg.pageSize] || PAGE_SIZES.A4);
+  if (S.orient === "landscape" && h > w) [w,h] = [h,w];
+  if (S.orient === "portrait"  && w > h) [w,h] = [h,w];
+  return [w,h];
+}
+
+/* ---------- Chuẩn hoá Type ở cột D ---------- */
+function normType(raw){
+  const t = String(raw ?? "").trim().toUpperCase().replace(/[\[\]\s]+/g,"");
+  if (!t) return "";
+  if (t === "TITLE") return "TITLE";
+  if (t === "HEADING1" || t === "HEADING_1" || t === "H1") return "HEADING_1";
+  if (t === "HEADING2" || t === "HEADING_2" || t === "H2") return "HEADING_2";
+  if (t === "HEADING3" || t === "HEADING_3" || t === "H3") return "HEADING_3";
+  if (t === "LANG1" || t === "LANG_1" || t === "L1") return "LANG_1";
+  if (t === "LANG2" || t === "LANG_2" || t === "L2") return "LANG_2";
+  if (t === "NOTE" || t === "GHICHU") return "NOTE";
+  return ""; // không nhận diện được -> coi như dòng thường
+}
+function rowToObj(r){
+  return { stt: String(r[0] ?? "").trim(), l1: String(r[1] ?? ""), l2: String(r[2] ?? ""), type: normType(r[3]) };
+}
+function isEmptyRow(o){ return !o.stt && !o.l1.trim() && !o.l2.trim() && !o.type; }
+function looksLikeHeader(o){
+  const a = o.stt.toLowerCase(), b = o.l1.toLowerCase(), c = o.l2.toLowerCase(), d = String(o.type).toLowerCase();
+  return /^(stt|số thứ tự|số thứ tự|no\.?|#)$/.test(a)
+      || /phân loại|phan loai/.test(d) || /ngôn ngữ|ngon ngu|lời dẫn|loi dan|nội dung|noi dung/.test(b + " " + c)
+      || (/thứ tự/.test(a) && !/\d/.test(a));
+}
+
+/* ---------- Dữ liệu mẫu (Nhật – Việt) để mở lên là thấy ngay ---------- */
+const DEMO = [
+  ["", "KỊCH BẢN MC SONG NGỮ NHẬT – VIỆT", "日本語・ベトナム語 二言語MC台本", "[TITLE]"],
+  ["", "LỄ KỶ NIỆM 20 NĂM THÀNH LẬP — DEMO", "創立20周年記念式典 — デモ", "[NOTE]"],
+  ["", "PHẦN I. ĐÓN KHÁCH & KHAI MẠC", "第一部　受付・開会", "[HEADING_1]"],
+  ["", "1.1 Đón khách, chụp ảnh backdrop", "1.1　来場受付、バックドロップ撮影", "[HEADING_2]"],
+  [1, "Kính chào quý vị đại biểu, quý vị khách quý đã đến tham dự buổi lễ hôm nay.", "ご来賓の皆様、本日はご出席いただき、誠にありがとうございます。", ""],
+  [2, "Xin quý vị vui lòng ổn định chỗ ngồi, chương trình sẽ bắt đầu trong ít phút nữa.", "まもなく開会いたしますので、お席にお着きくださいますようお願いいたします。", ""],
+  ["", "MC kiểm tra micro, nhắc đội kỹ thuật sẵn sàng nhạc hiệu.", "", "[NOTE]"],
+  ["", "PHẦN II. NGHI LỄ CHÍNH", "第二部　式典", "[HEADING_1]"],
+  ["", "2.1 Tuyên bố lý do, giới thiệu đại biểu", "2.1　開会宣言・来賓紹介", "[HEADING_2]"],
+  [3, "Xin trân trọng giới thiệu ông Terumasa Hirooka — Tổng Giám đốc công ty.", "代表取締役社長、廣岡輝政様をご紹介いたします。", ""],
+  ["", "", "拍手をお願いいたします。", "[LANG_2]"],
+  ["", "Xin một tràng pháo tay thật nồng nhiệt!", "", "[LANG_1]"],
+  [4, "Tiếp theo, xin kính mời ông lên sân khấu phát biểu.", "続きまして、社長よりご挨拶をいただきます。", ""],
+  ["", "2.2 Trao giải cuộc thi sáng tác", "2.2　創作コンテスト表彰", "[HEADING_2]"],
+  [5, "Xin chúc mừng các tác giả đạt giải trong cuộc thi “20 năm hành trình”.", "コンテストで入賞された皆様、おめでとうございます。", ""],
+  [6, "Chương trình xin được khép lại. Xin cảm ơn và hẹn gặp lại quý vị.", "これをもちまして式典を終了いたします。ありがとうございました。", ""]
+];
+function loadDemo(){ S.rows = DEMO.map(rowToObj).filter(r => !isEmptyRow(r)); S.fileName = ""; S.restored = false; noteDataChanged(true); renderSoon(); }
+
+/* ---------- Dựng HTML nội dung (flow) ---------- */
+let headingSeq = 0;
+function headingInner(o, cfg){
+  const parts = [];
+  if (cfg.showLang1 && o.l1.trim()) parts.push(`<div>${nl2br(o.l1)}</div>`);
+  if (cfg.showLang2 && o.l2.trim()) parts.push(`<div class="sub-lang">${nl2br(o.l2)}</div>`);
+  if (!parts.length) parts.push(`<div>${nl2br(o.l1 || o.l2)}</div>`);
+  return parts.join("");
+}
+function buildFlow(cfg){
+  headingSeq = 0;
+  let autoNo = 0, normalIdx = 0;
+  const tocItems = [];
+  const body = [];
+  const showSttCol = cfg.showStt;
+  /* Cấu trúc bảng thật: cột 1 = STT, các cột sau = ngôn ngữ (song song) hoặc 1 cột xếp chồng */
+  const langCols = S.layout === "cols" ? [cfg.showLang1 ? "l1" : null, cfg.showLang2 ? "l2" : null].filter(Boolean) : [];
+  const totalCols = (showSttCol ? 1 : 0) + (S.layout === "cols" ? langCols.length : 1);
+  /* Gắn bề rộng thẳng vào từng ô: khi Paged.js cắt bảng thành nhiều mảnh (mỗi trang một mảnh),
+     colgroup có thể không đi theo mảnh sau — ô nào cũng mang sẵn width thì trang nào tỷ lệ cột cũng như nhau. */
+  const W = colWidths(cfg);
+  const wA = v => ` style="width:${v.toFixed(2)}%"`;
+
+  const sttOf = o => {
+    if (S.sttMode === "auto"){
+      if (o.type === "" || o.type === "LANG_1" || o.type === "LANG_2"){ autoNo++; return String(autoNo); }
+      return "";
+    }
+    return o.stt;
+  };
+  const PALETTE = ["#fdf2e3","#e8f4ea","#fdeef2","#e9eefb","#f3eafd","#e6f6f8","#fdfbe8","#fdeee6"];
+
+  for (let ri = 0; ri < S.rows.length; ri++){
+    const o = S.rows[ri];
+    if (o.type === "TITLE"){
+      body.push(`<tr data-row="${ri}"><td class="r-title" colspan="${totalCols}" style="width:100%">${headingInner(o, cfg)}</td></tr>`);
+    } else if (o.type === "HEADING_1" || o.type === "HEADING_2" || o.type === "HEADING_3"){
+      headingSeq++;
+      const id = "hd-" + headingSeq, lvl = Number(o.type.slice(-1));
+      const tocText = (cfg.showLang1 && o.l1.trim()) ? o.l1.trim() : (o.l2.trim() || o.l1.trim());
+      tocItems.push({ id, lvl, text: tocText, sub: (cfg.showLang1 && cfg.showLang2 && o.l1.trim() && o.l2.trim()) ? o.l2.trim() : "" });
+      body.push(`<tr data-row="${ri}"><td class="r-h${lvl}" id="${id}" colspan="${totalCols}" style="width:100%">${headingInner(o, cfg)}</td></tr>`);
+    } else if (o.type === "NOTE"){
+      const txt = [o.l1, o.l2].map(s => s.trim()).filter(Boolean).join(" — ");
+      body.push(`<tr data-row="${ri}"><td class="r-note" colspan="${totalCols}" style="width:100%">📝 ${nl2br(txt)}</td></tr>`);
+    } else {
+      const stt = sttOf(o);
+      let bg = "";
+      if (o.type === "" && cfg.rowMode === "zebra") bg = (normalIdx % 2 === 0) ? cfg.zebraA : cfg.zebraB;
+      if (o.type === "" && cfg.rowMode === "palette") bg = PALETTE[normalIdx % PALETTE.length];
+      if (o.type === "") normalIdx++;
+      const bgAttr = bg ? ` style="background:${bg}"` : "";
+      const cells = [];
+      if (showSttCol) cells.push(`<td class="c-stt"${wA(W.stt)}>${stt ? `<span class="stt-badge">${esc(stt)}</span>` : ""}</td>`);
+      if (S.layout === "cols"){
+        if (o.type === "LANG_1"){
+          if (cfg.showLang1) cells.push(`<td class="c-l1" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${nl2br(o.l1)}</td>`);
+          else cells.push(langCols.map(c => `<td class="c-${c}"${wA(W[c])}></td>`).join(""));
+        } else if (o.type === "LANG_2"){
+          if (cfg.showLang2) cells.push(`<td class="c-l2" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${nl2br(o.l2)}</td>`);
+          else cells.push(langCols.map(c => `<td class="c-${c}"${wA(W[c])}></td>`).join(""));
+        } else {
+          if (cfg.showLang1) cells.push(`<td class="c-l1"${wA(W.l1)}>${nl2br(o.l1)}</td>`);
+          if (cfg.showLang2) cells.push(`<td class="c-l2"${wA(W.l2)}>${nl2br(o.l2)}</td>`);
+        }
+      } else {
+        const inner = [];
+        if (o.type !== "LANG_2" && cfg.showLang1 && o.l1.trim()) inner.push(`<div class="stack-l1">${nl2br(o.l1)}</div>`);
+        if (o.type !== "LANG_1" && cfg.showLang2 && o.l2.trim()) inner.push(`<div class="stack-l2">${nl2br(o.l2)}</div>`);
+        cells.push(`<td class="c-stack"${wA(W.stack)}>${inner.join("")}</td>`);
+      }
+      body.push(`<tr class="r-normal${cfg.showBorders ? " bordered" : ""}" data-row="${ri}"${bgAttr}>${cells.join("")}</tr>`);
+    }
+  }
+
+  let html = "";
+  /* --- Mục lục --- */
+  if (cfg.toc && tocItems.length){
+    const lis = tocItems.map(t =>
+      `<div class="toc-item lvl${t.lvl}"><a href="#${t.id}"><span class="toc-txt">${esc(t.text)}${t.sub ? ` <span class="toc-sub">— ${esc(t.sub)}</span>` : ""}</span><span class="toc-leader"></span></a></div>`
+    ).join("");
+    html += `<section class="toc"><div class="toc-title">MỤC LỤC</div>${lis}</section>`;
+  }
+  /* --- Bảng kịch bản: STT là cột đầu tiên thật, 2 ngôn ngữ nằm 2 cột song song --- */
+  let scriptHtml = "";
+  if (S.rows.length){
+    const colDefs = [];
+    if (showSttCol) colDefs.push(`<col class="col-stt">`);
+    if (S.layout === "cols") langCols.forEach(c => colDefs.push(`<col class="col-${c}">`));
+    else colDefs.push(`<col class="col-stack">`);
+    let thead = "";
+    if (cfg.showColHeader){
+      const cells = [];
+      if (showSttCol) cells.push(`<th class="c-stt"${wA(W.stt)}>STT</th>`);
+      if (S.layout === "cols"){
+        if (cfg.showLang1) cells.push(`<th class="c-l1"${wA(W.l1)}>${esc(cfg.lang1Name)}</th>`);
+        if (cfg.showLang2) cells.push(`<th class="c-l2"${wA(W.l2)}>${esc(cfg.lang2Name)}</th>`);
+      } else {
+        cells.push(`<th class="c-stack"${wA(W.stack)}>${esc(cfg.lang1Name)} / ${esc(cfg.lang2Name)}</th>`);
+      }
+      thead = `<thead><tr class="r-colhead">${cells.join("")}</tr></thead>`;
+    }
+    scriptHtml = `<table class="script-table"><colgroup>${colDefs.join("")}</colgroup>${thead}<tbody>${body.join("")}</tbody></table>`;
+  }
+  if (!S.rows.length) html = `<div class="r-note">Chưa có dữ liệu. Hãy upload file Excel (A: STT, B: Ngôn ngữ 1, C: Ngôn ngữ 2, D: Phân loại) hoặc bấm “↺ Dữ liệu mẫu”.</div>`;
+  else if (cfg.toc && tocItems.length && cfg.scriptSeparate) html += `<div class="script-body">${scriptHtml}</div>`;
+  else html += scriptHtml;
+  return html;
+}
+
+/* ---------- Dựng CSS cho nội dung + @page (động theo Page Setup) ---------- */
+function styleDecl(st, extra){
+  const d = [
+    `font-family:${st.font}`, `font-size:${st.size}pt`,
+    `font-weight:${st.bold ? "700" : "400"}`, `font-style:${st.italic ? "italic" : "normal"}`,
+    `text-decoration:${st.under ? "underline" : "none"}`, `text-align:${st.align}`,
+    `color:${st.color}`, st.bg ? `background:${st.bg}` : "",
+    `margin:${st.mt}mm 0 ${st.mb}mm 0`, `padding:${st.pt}mm 2mm ${st.pb}mm 2mm`
+  ];
+  return d.filter(Boolean).join(";") + (extra ? ";" + extra : "");
+}
+function pageNumContent(fmt){
+  switch(fmt){
+    case "dash":   return `"- " counter(page) " -"`;
+    case "numof":  return `counter(page) " / " counter(pages)`;
+    case "pageof": return `"Page " counter(page) " of " counter(pages)`;
+    case "trangof":return `"Trang " counter(page) " / " counter(pages)`;
+    default:       return `counter(page)`;
+  }
+}
+function buildPagedCSS(cfg){
+  const [w,h] = pageDims(cfg);
+  const st = S.styles, pad = cfg.rowPad;
+  let marginBox = "";
+  if (cfg.pageNum){
+    const box = "@" + cfg.pageNumPos.replace("-", "-"); // bottom-center -> @bottom-center
+    marginBox = `${box}{ content:${pageNumContent(cfg.pageNumFmt)}; font-family:'Times New Roman',serif; font-size:9.5pt; color:#555; vertical-align:middle; }`;
+  }
+  /* Bề rộng cột cho colgroup — cùng một nguồn tính với width gắn trên từng ô */
+  const { stt: sttPct, l1: l1Pct, l2: l2Pct, stack: stackPct } = colWidths(cfg);
+  /* td không nhận margin — gộp margin trên/dưới vào padding cho TITLE/HEADING/NOTE */
+  const padFull = s => `padding-top:${(s.mt + s.pt).toFixed(2)}mm;padding-bottom:${(s.mb + s.pb).toFixed(2)}mm;`;
+  return `
+  @page{
+    size:${w}mm ${h}mm;
+    margin:${cfg.mTop}mm ${cfg.mRight}mm ${cfg.mBottom}mm ${cfg.mLeft}mm;
+    ${marginBox}
+  }
+  *{ box-sizing:border-box; }
+  body{ margin:0; }
+  .flow{ font-family:${st.normal.font}; font-size:${st.normal.size}pt; line-height:${cfg.lineHeight}; color:#111; }
+  /* Bảng thật (không dùng CSS grid): STT là cột đầu tiên, 2 ngôn ngữ 2 cột song song —
+     table-layout:fixed giữ đúng cột trong cả Paged.js, bản xem liên tục và khi in */
+  .script-table{ width:100%; border-collapse:collapse; table-layout:fixed; }
+  .script-table thead{ display:table-header-group; }
+  .col-stt{ width:${sttPct.toFixed(2)}%; }
+  .col-l1{ width:${l1Pct.toFixed(2)}%; }
+  .col-l2{ width:${l2Pct.toFixed(2)}%; }
+  .col-stack{ width:${stackPct.toFixed(2)}%; }
+  .script-table td{ vertical-align:top; overflow-wrap:anywhere; }
+  .script-table tr.r-normal{ break-inside:${cfg.allowRowSplit ? "auto" : "avoid"}; page-break-inside:${cfg.allowRowSplit ? "auto" : "avoid"}; }
+  .r-normal{ ${styleDecl(st.normal, "margin:0")} }
+  .r-normal td{ padding-top:${(st.normal.pt + pad).toFixed(2)}mm; padding-bottom:${(st.normal.pb + pad).toFixed(2)}mm;
+                padding-left:1.5mm; padding-right:1.5mm; }
+  .r-normal.bordered td{ border-bottom:.4pt solid #c9d2de; }
+  .r-normal .c-stt{ text-align:center; }
+  /* STT nằm trong vòng tròn ở đầu dòng (câu MC đọc) */
+  .stt-badge{ display:inline-flex; align-items:center; justify-content:center; min-width:8mm; height:8mm;
+              padding:0 1.2mm; border-radius:999px; border:.5mm solid #14498f; background:#eaf1fa;
+              color:#0f3a74; font-weight:700; font-size:.95em; line-height:1; }
+  /* Kịch bản bắt đầu ở trang riêng sau Mục lục */
+  .script-body{ break-before:page; page-break-before:always; }
+  .stack-l2{ margin-top:1mm; }
+  .r-colhead th{ background:#14498f; color:#fff; font-weight:700; font-size:10.5pt; text-align:left; padding:1.6mm 2mm; }
+  .r-colhead .c-stt{ text-align:center; }
+  .r-title{ ${styleDecl(st.title)} ${padFull(st.title)} break-after:avoid; break-inside:avoid; }
+  .r-h1{ ${styleDecl(st.h1)} ${padFull(st.h1)} break-after:avoid; break-inside:avoid; }
+  .r-h2{ ${styleDecl(st.h2)} ${padFull(st.h2)} break-after:avoid; break-inside:avoid; }
+  .r-h3{ ${styleDecl(st.h3)} ${padFull(st.h3)} break-after:avoid; break-inside:avoid; }
+  .r-h1 .sub-lang,.r-h2 .sub-lang,.r-h3 .sub-lang,.r-title .sub-lang{ font-size:.78em; font-weight:400; opacity:.85; margin-top:.5mm; }
+  .r-note{ ${styleDecl(st.note)} ${padFull(st.note)} break-inside:avoid; border-left:2.2mm solid #c9a227; }
+  /* Mục lục: chấm dẫn + số trang qua target-counter (Paged.js) */
+  .toc{ margin-bottom:7mm; }
+  .toc-title{ font-family:'Times New Roman',serif; font-size:16pt; font-weight:700; text-align:center;
+              color:#0f3a74; margin:0 0 5mm 0; letter-spacing:.06em; }
+  .toc-item{ margin:0 0 1.6mm 0; font-family:'Times New Roman',serif; }
+  .toc-item.lvl1{ font-size:12.5pt; font-weight:700; margin-top:3mm; }
+  .toc-item.lvl2{ font-size:11.5pt; margin-left:7mm; }
+  .toc-item.lvl3{ font-size:11pt; margin-left:14mm; }
+  .toc-item a{ display:flex; align-items:baseline; gap:2mm; text-decoration:none; color:inherit; }
+  .toc-item .toc-leader{ flex:1; border-bottom:1pt dotted #8a97a8; transform:translateY(-1.2mm); }
+  .toc-item a::after{ content: target-counter(attr(href), page); font-weight:400; }
+  .toc-item .toc-sub{ font-weight:400; font-size:.85em; color:#555; }
+  `;
+}
+function updatePrintPageStyle(cfg){
+  const [w,h] = pageDims(cfg);
+  $("printPageStyle").textContent =
+    `@media print{ @page{ size:${w}mm ${h}mm; margin:0; } }`;
+}
+
+/* ---------- Render: Paged.js Previewer + fallback ---------- */
+let renderSeq = 0;
+const statusEl = () => $("status");
+function setStatus(html){ statusEl().innerHTML = html; }
+
+async function render(){
+  const cfg = settingsFromUI();
+  saveData(); // mọi thay đổi dữ liệu đều đi qua render -> tự lưu lại trên trình duyệt
+  const mySeq = ++renderSeq;
+  /* Giữ nguyên vị trí đang xem khi dựng lại bản xem trước:
+     - Neo theo TRANG: ghi nhớ trang giấy đang ở mép trên vùng xem + độ lệch của nó,
+       dựng xong thì cuộn lại đúng trang đó (đúng ý "đang xem trang nào thì ở yên trang đó",
+       kể cả khi thay đổi làm chiều cao nội dung thay đổi).
+     - Không có trang (bản liên tục): giữ theo tỷ lệ cuộn tương đối.
+     - Đồng thời khôi phục cả cuộn của cửa sổ phòng khi trang web vẫn cuộn. */
+  const wrap = $("previewWrap");
+  const previewEl0 = $("preview");
+  const keepTop = wrap ? wrap.scrollTop : 0, keepLeft = wrap ? wrap.scrollLeft : 0;
+  const winTop = window.scrollY || 0, winLeft = window.scrollX || 0;
+  let anchorPage = -1, anchorOff = 0;
+  if (wrap && previewEl0){
+    const pagesBefore = previewEl0.querySelectorAll(".pagedjs_page");
+    if (pagesBefore.length){
+      const wr = wrap.getBoundingClientRect();
+      for (let i = 0; i < pagesBefore.length; i++){
+        const r = pagesBefore[i].getBoundingClientRect();
+        if (r.bottom > wr.top + 4){ anchorPage = i; anchorOff = r.top - wr.top; break; }
+      }
+    }
+  }
+  const frac = wrap && wrap.scrollHeight > 0 ? keepTop / wrap.scrollHeight : 0;
+  const keepPos = () => {
+    if (mySeq !== renderSeq) return; // đã có lần dựng mới hơn — không khôi phục đè lên nữa
+    if (wrap){
+      const pagesAfter = previewEl0.querySelectorAll(".pagedjs_page");
+      if (anchorPage >= 0 && pagesAfter.length){
+        const idx = Math.min(anchorPage, pagesAfter.length - 1);
+        const r = pagesAfter[idx].getBoundingClientRect();
+        const wr = wrap.getBoundingClientRect();
+        wrap.scrollTop += (r.top - wr.top) - anchorOff;
+      } else if (!pagesAfter.length && wrap.scrollHeight > 0){
+        wrap.scrollTop = Math.round(frac * wrap.scrollHeight);
+      } else {
+        wrap.scrollTop = keepTop;
+      }
+      wrap.scrollLeft = keepLeft;
+    }
+    if (winTop || winLeft) window.scrollTo(winLeft, winTop);
+  };
+  /* Khôi phục ngay ở khung hình kế tiếp + một nhịp 80ms cho layout ổn định.
+     Không khôi phục trễ hơn nữa: khôi phục trễ có thể đè lên thao tác cuộn tay của người dùng vừa làm. */
+  const keepPosLater = () => { requestAnimationFrame(keepPos); setTimeout(keepPos, 80); };
+  const flowHTML = `<div class="flow">${buildFlow(cfg)}</div>`;
+  const css = buildPagedCSS(cfg);
+  updatePrintPageStyle(cfg);
+  const previewEl = $("preview");
+  const headings = S.rows.filter(r => r.type === "HEADING_1" || r.type === "HEADING_2" || r.type === "HEADING_3").length;
+  const baseInfo = `<b>${S.rows.length}</b> dòng • <b>${headings}</b> đề mục • khổ <b>${pageDims(cfg).join(" × ")} mm</b>${S.fileName ? " • file: " + esc(S.fileName) : (S.restored ? " • dữ liệu đã lưu trên trình duyệt này" : " • dữ liệu mẫu")}`;
+
+  if (window.Paged && window.Paged.Previewer){
+    try{
+      $("fallbackNote").style.display = "none";
+      setStatus(baseInfo + " • đang phân trang…");
+      /* Dựng các trang MỚI trong một vùng đệm khuất ngoài màn hình, xong mới thay
+         vào vùng xem trước trong đúng một khung hình. Cách cũ xóa trắng vùng xem
+         rồi mới phân trang lại nên mỗi lần đổi một cài đặt (kể cả cỡ chữ) là nội
+         dung biến mất -> trang giật. Giờ trang cũ vẫn nằm yên cho tới khi trang
+         mới sẵn sàng, và vị trí cuộn được khôi phục ngay trong cùng khung hình. */
+      const buffer = document.createElement("div");
+      buffer.style.cssText = "position:absolute;left:-100000px;top:0;visibility:hidden;pointer-events:none";
+      document.body.appendChild(buffer);
+      const previewer = new Paged.Previewer();
+      /* Truyền CSS dạng {tên-file: nội-dung-css} — Polisher của Paged.js nhận
+         trực tiếp, không cần fetch Blob URL (ổn định hơn trên mọi trình duyệt). */
+      let flow;
+      try{
+        flow = await previewer.preview(flowHTML, [{ "kich-ban-song-ngu-v2.css": css }], buffer);
+      }catch(err){ buffer.remove(); throw err; }
+      if (mySeq !== renderSeq){ buffer.remove(); return; } // đã có lần render mới hơn
+      const pages = flow && flow.total ? flow.total : buffer.querySelectorAll(".pagedjs_page").length;
+      previewEl.innerHTML = "";
+      while (buffer.firstChild) previewEl.appendChild(buffer.firstChild);
+      buffer.remove();
+      setStatus(baseInfo + ` • <b>${pages}</b> trang`);
+      keepPos();      // khôi phục vị trí ngay trong cùng khung hình với lần thay thế
+      keepPosLater(); // thêm một nhịp nữa cho font/layout ổn định hẳn
+      return;
+    }catch(err){
+      console.warn("Paged.js preview lỗi, chuyển fallback:", err);
+    }
+  }
+  /* Fallback: xem liên tục theo đúng khổ giấy */
+  $("fallbackNote").style.display = "block";
+  const [w] = pageDims(cfg);
+  previewEl.innerHTML = `<style>${css}</style><div id="fallbackSheet" style="width:${w}mm;padding:${cfg.mTop}mm ${cfg.mRight}mm ${cfg.mBottom}mm ${cfg.mLeft}mm">${flowHTML}</div>`;
+  setStatus(baseInfo + " • chế độ xem liên tục (chưa phân trang)");
+  keepPosLater();
+}
+let renderTimer = null;
+function renderSoon(){ clearTimeout(renderTimer); renderTimer = setTimeout(() => { saveSettings(); if (!S.editing && !S.cellEditing) render(); }, 220); }
+
+/* ---------- Đọc Excel bằng SheetJS ---------- */
+let workbook = null;
+async function handleFile(file){
+  if (!file) return;
+  exitEditMode(false);
+  if (/\.json$/i.test(file.name)){
+    try{
+      const data = JSON.parse(await file.text());
+      const res = importJSONData(data);
+      if (!res.rows) throw new Error("empty");
+      workbook = null; S.fileName = file.name;
+      $("sheetSelect").innerHTML = "<option>(file JSON)</option>"; $("sheetSelect").disabled = true;
+      $("fileName").textContent = "📄 " + file.name + " — " + res.rows + " dòng (JSON)" +
+        (res.settings ? " • đã khôi phục cả cài đặt từ bản backup" : "");
+      renderSoon();
+    }catch(e){ alert("Không đọc được file JSON. Hãy dùng đúng file JSON do công cụ này xuất ra."); }
+    return;
+  }
+  if (typeof XLSX === "undefined"){
+    alert("Chưa tải được thư viện SheetJS (cần internet ở lần mở đầu). Hãy nối mạng và tải lại trang.");
+    return;
+  }
+  try{
+    const buf = await file.arrayBuffer();
+    workbook = XLSX.read(buf, { type: "array" });
+    S.fileName = file.name;
+    const sel = $("sheetSelect");
+    sel.innerHTML = workbook.SheetNames.map(n => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+    sel.disabled = false;
+    $("fileName").textContent = "📄 " + file.name + " — " + workbook.SheetNames.length + " sheet: " + workbook.SheetNames.join(", ");
+    parseSheet(workbook.SheetNames[0]);
+  }catch(err){
+    console.error(err);
+    alert("Không đọc được file. Hãy chắc chắn đó là file .xlsx / .xls / .csv hợp lệ.");
+  }
+}
+function parseSheet(name){
+  if (!workbook) return;
+  S.sheetName = name;
+  const ws = workbook.Sheets[name];
+  const aoa = XLSX.utils.sheet_to_json(ws, { header: 1, defval: "", raw: false });
+  let objs = aoa.map(rowToObj).filter(o => !isEmptyRow(o));
+  const mode = $("headerMode").value;
+  if (objs.length && (mode === "always" || (mode === "auto" && looksLikeHeader(objs[0])))) objs = objs.slice(1);
+  S.rows = objs;
+  noteDataChanged(true);
+  renderSoon();
+}
+
+/* ---------- Tải xuống / xuất dữ liệu ---------- */
+function downloadBlob(blob, name){
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+}
+function baseName(){
+  const n = (S.fileName || "KichBan_SongNgu").replace(/\.(xlsx|xls|csv|json)$/i, "");
+  return n || "KichBan_SongNgu";
+}
+function buildExportAOA(){
+  const cfg = settingsFromUI();
+  const aoa = [["STT", cfg.lang1Name, cfg.lang2Name, "Phân loại (Type)"]];
+  S.rows.forEach((r, i) => aoa.push([sttForExport(i), r.l1, r.l2, r.type ? `[${r.type}]` : ""]));
+  return aoa;
+}
+function exportExcel(){
+  if (typeof XLSX === "undefined"){ alert("Chưa tải được thư viện SheetJS (cần internet ở lần mở đầu). Hãy nối mạng và tải lại trang."); return; }
+  const ws = XLSX.utils.aoa_to_sheet(buildExportAOA());
+  ws["!cols"] = [{ wch: 6 }, { wch: 62 }, { wch: 62 }, { wch: 16 }];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Kich_ban");
+  XLSX.writeFile(wb, baseName() + ".xlsx");
+}
+/* Số thứ tự tự động theo thứ tự dòng hiện tại: chỉ đếm dòng thường & LANG_1/LANG_2,
+   bỏ qua TITLE/HEADING/NOTE — khớp đúng cách bản xem trước đánh số. */
+function computeAutoStt(){
+  let n = 0;
+  return S.rows.map(o => (o.type === "" || o.type === "LANG_1" || o.type === "LANG_2") ? String(++n) : "");
+}
+/* STT dùng khi xuất file: chế độ tự động thì ghi số đã tính (số nhảy theo),
+   chế độ từ file thì giữ nguyên số trong dữ liệu. */
+function sttForExport(i){
+  return S.sttMode === "auto" ? computeAutoStt()[i] : (S.rows[i] ? S.rows[i].stt : "");
+}
+function buildExportJSON(){
+  const cfg = settingsFromUI();
+  /* File backup đầy đủ: nội dung (rows) + TOÀN BỘ cài đặt (settings) —
+     khổ giấy, lề, số trang, layout, tỷ lệ cột, typography từng loại dòng, zoom...
+     Upload lại file này là khôi phục nguyên trạng cả nội dung lẫn cài đặt. */
+  return JSON.stringify({
+    app: "CongCuKichBanSongNgu", kind: "backup", version: 3,
+    lang1Name: cfg.lang1Name, lang2Name: cfg.lang2Name,
+    exportedAt: new Date().toISOString(),
+    rows: S.rows.map((r, i) => ({ stt: sttForExport(i), lang1: r.l1, lang2: r.l2, type: r.type })),
+    settings: collectSettings()
+  }, null, 2);
+}
+function exportJSON(){
+  downloadBlob(new Blob([buildExportJSON()], { type: "application/json;charset=utf-8" }), baseName() + ".json");
+}
+function rowsFromJSON(data){
+  const arr = Array.isArray(data) ? data : (data && data.rows) || [];
+  return arr.map(r => ({
+    stt: String(r.stt ?? "").trim(),
+    l1: String(r.lang1 ?? r.l1 ?? ""),
+    l2: String(r.lang2 ?? r.l2 ?? ""),
+    type: normType(r.type ?? "")
+  })).filter(o => !isEmptyRow(o));
+}
+/* Nạp dữ liệu từ một object JSON đã parse:
+   - Có "settings" (file backup bản mới): khôi phục cả cài đặt lẫn nội dung.
+   - Chỉ có "rows" (file JSON bản cũ): chỉ nạp nội dung, giữ nguyên cài đặt hiện tại. */
+function importJSONData(data){
+  let appliedSettings = false;
+  if (data && data.settings && (data.settings.ui || data.settings.S)){
+    appliedSettings = applySettingsData(data.settings);
+    if (appliedSettings){
+      segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+      $("ratioRange").value = S.ratio;
+      loadTypoPanel(); applyZoom();
+    }
+  }
+  const rows = rowsFromJSON(data);
+  if (rows.length){ S.rows = rows; S.fileName = ""; S.restored = true; noteDataChanged(true); }
+  syncConditionalUI();
+  saveSettings(); saveData(); renderSoon();
+  return { rows: rows.length, settings: appliedSettings };
+}
+function buildExportHTML(lib){
+  const cfg = settingsFromUI();
+  const css = buildPagedCSS(cfg);
+  const [w, h] = pageDims(cfg);
+  const titleRow = S.rows.find(r => r.type === "TITLE");
+  const docTitle = titleRow ? (titleRow.l1 || titleRow.l2 || "Kịch bản song ngữ") : "Kịch bản song ngữ";
+  /* Nhúng thẳng thư viện Paged.js vào file xuất (nếu tải được lúc xuất):
+     file mở ở đâu cũng phân trang y hệt bản xem trước, kể cả khi không có mạng.
+     Không tải được thì dùng thẻ CDN như cũ. */
+  const libTag = lib
+    ? "<script>" + String(lib).replace(/<\/script/gi, "<\\/script") + "<\/script>"
+    : '<script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"><\/script>';
+  return `<!DOCTYPE html>
+<html lang="vi"><head><meta charset="UTF-8">
+<title>${esc(docTitle)}</title>
+${libTag}
+<style id="doc-css">${css}</style>
+<style>
+ body{margin:0;background:#e8ecf2}
+ .pagedjs_pages{display:flex;flex-direction:column;align-items:center;gap:26px;padding:26px 0 60px}
+ .pagedjs_page{background:#fff;box-shadow:0 3px 18px rgba(20,40,80,.18)}
+ #srcSheet{background:#fff;margin:26px auto;box-shadow:0 3px 18px rgba(20,40,80,.18)}
+ @media print{ body{background:#fff} .pagedjs_pages{display:block;gap:0;padding:0} .pagedjs_page{box-shadow:none;margin:0} #srcSheet{display:none !important} @page{size:${w}mm ${h}mm;margin:0} }
+</style></head>
+<body>
+<div id="srcSheet" style="width:${w}mm;padding:${cfg.mTop}mm ${cfg.mRight}mm ${cfg.mBottom}mm ${cfg.mLeft}mm"><div class="flow">${buildFlow(cfg)}</div></div>
+<div id="out"></div>
+<script>
+(function(){
+  var sheet = document.getElementById("srcSheet");
+  function go(){
+    if (window.Paged && window.Paged.Previewer){
+      var cssText = document.getElementById("doc-css").textContent;
+      /* Chỉ đưa đúng phần nội dung .flow (không kèm khung giấy + lề của #srcSheet) cho Paged.js —
+         giống hệt cách bản xem trước trong công cụ làm. Khung bọc ngoài từng khiến bản xuất
+         bị cộng lề hai lần và bề rộng trang sai lệch nên trông khác hẳn lúc soạn. */
+      var content = sheet.querySelector(".flow").outerHTML;
+      new window.Paged.Previewer().preview(content, [{ "kichban.css": cssText }], document.getElementById("out"))
+        .then(function(){
+          /* XÓA HẲN tờ nguồn khỏi DOM (không chỉ ẩn): tờ nguồn chứa các id đề mục trùng với
+             bản đã phân trang, khiến link Mục lục nhảy tới phần tử bị ẩn -> bấm mà không nhảy.
+             Xóa xong thì mỗi id chỉ còn một, link nhảy đúng vị trí và khi in cũng không
+             còn bất cứ thứ gì ngoài các trang thật. */
+          sheet.remove();
+        })
+        .catch(function(){});
+    }
+  }
+  if (document.readyState === "complete") go(); else window.addEventListener("load", go);
+})();
+<\/script>
+</body></html>`;
+}
+async function exportHTML(){
+  exitEditMode(true);
+  let lib = "";
+  try{
+    /* PHẢI dùng đúng bản paged.js như công cụ đang chạy: bản paged.min.js của Paged.js 0.4.3
+       gán thư viện vào window.PagedModule (không phải window.Paged) nên file xuất ra
+       không bao giờ phân trang được — chỉ hiện tờ liên tục và in ra bị chèn trang trắng. */
+    const res = await fetch("https://unpkg.com/pagedjs@0.4.3/dist/paged.js");
+    if (res.ok){
+      const t = await res.text();
+      if (t && t.length > 50000) lib = t;
+    }
+  }catch(e){}
+  downloadBlob(new Blob([buildExportHTML(lib)], { type: "text/html;charset=utf-8" }), baseName() + ".html");
+}
+
+/* ---------- Tự lưu dữ liệu đang soạn trên trình duyệt ----------
+   Soạn/sửa không cần Excel: mọi thay đổi được lưu vào localStorage,
+   mở lại trang là thấy đúng dữ liệu đang làm (không còn quay về dữ liệu mẫu). */
+const DATA_KEY = "bilingual-script-v2-data";
+function saveData(){
+  try{ localStorage.setItem(DATA_KEY, JSON.stringify({ rows: S.rows, fileName: S.fileName || "" })); }catch(e){}
+}
+function loadSavedData(){
+  try{
+    const d = JSON.parse(localStorage.getItem(DATA_KEY) || "null");
+    if (d && Array.isArray(d.rows) && d.rows.length) return d;
+  }catch(e){}
+  return null;
+}
+
+/* ---------- Bảng soạn / sửa toàn bộ trên giao diện ---------- */
+const TYPE_OPTIONS = [
+  ["", "Dòng thường (song ngữ)"],
+  ["TITLE", "[TITLE] Tiêu đề chính"],
+  ["HEADING_1", "[HEADING_1] Đề mục lớn"],
+  ["HEADING_2", "[HEADING_2] Đề mục nhỏ"],
+  ["HEADING_3", "[HEADING_3] Đề mục cấp 3"],
+  ["LANG_1", "[LANG_1] Chỉ ngôn ngữ 1"],
+  ["LANG_2", "[LANG_2] Chỉ ngôn ngữ 2"],
+  ["NOTE", "[NOTE] Ghi chú / đạo diễn"]
+];
+function edRender(focusIdx){
+  const tb = $("edBody"); if (!tb) return;
+  const l1n = esc($("lang1Name").value || "Ngôn ngữ 1");
+  const l2n = esc($("lang2Name").value || "Ngôn ngữ 2");
+  /* Chế độ đánh số tự động: ô STT hiện số đã tính và khóa lại — số tự nhảy theo thứ tự dòng */
+  const autoNums = S.sttMode === "auto" ? computeAutoStt() : null;
+  const note = $("edSttNote"); if (note) note.style.display = autoNums ? "block" : "none";
+  tb.innerHTML = S.rows.map((r, i) => `<div class="ed-row" data-i="${i}">
+    <div class="ed-rowHead">
+      <input type="text" class="ed-stt" value="${esc(autoNums ? autoNums[i] : r.stt)}" placeholder="STT" ${autoNums ? "disabled" : ""} title="${autoNums ? "Đang đánh số tự động — số tự nhảy theo thứ tự dòng" : "Số thứ tự (để trống nếu đang dùng đánh số tự động)"}">
+      <select class="ed-type">${TYPE_OPTIONS.map(([v, l]) => `<option value="${v}"${r.type === v ? " selected" : ""}>${l}</option>`).join("")}</select>
+      <div class="ed-act">
+        <button type="button" data-act="up" title="Chuyển lên">↑</button>
+        <button type="button" data-act="down" title="Chuyển xuống">↓</button>
+        <button type="button" data-act="add" title="Thêm dòng ngay dưới">＋</button>
+        <button type="button" data-act="del" class="ed-del" title="Xóa dòng này">✕</button>
+      </div>
+    </div>
+    <span class="ed-lab">${l1n}</span>
+    <textarea class="ed-l1" rows="2">${esc(r.l1)}</textarea>
+    <span class="ed-lab">${l2n}</span>
+    <textarea class="ed-l2" rows="2">${esc(r.l2)}</textarea>
+  </div>`).join("");
+  if (focusIdx != null && focusIdx >= 0){
+    const ta = tb.querySelector(`.ed-row[data-i="${focusIdx}"] .ed-l1`);
+    if (ta){ ta.focus(); try{ ta.setSelectionRange(ta.value.length, ta.value.length); }catch(e){} }
+  }
+}
+function edAfterChange(){ S.restored = true; saveData(); renderSoon(500); noteDataChanged(false); }
+function edAdd(afterIdx){
+  const at = Math.max(-1, Math.min(afterIdx, S.rows.length - 1));
+  S.rows.splice(at + 1, 0, { stt: "", l1: "", l2: "", type: "" });
+  edRender(at + 1); edAfterChange(); noteDataChanged(true);
+}
+function edDel(i){ S.rows.splice(i, 1); edRender(); edAfterChange(); noteDataChanged(true); }
+function edMove(i, dir){
+  const j = i + dir;
+  if (j < 0 || j >= S.rows.length) return;
+  const tmp = S.rows[i]; S.rows[i] = S.rows[j]; S.rows[j] = tmp;
+  edRender(); edAfterChange(); noteDataChanged(true);
+}
+function openEditor(){
+  edRender();
+  $("editorPanel").classList.remove("hidden");
+  document.body.classList.add("dock-open"); // đẩy bản xem trước sang phải, vẫn phân trang như bản in
+  renderSoon();
+}
+function closeEditor(){
+  $("editorPanel").classList.add("hidden");
+  document.body.classList.remove("dock-open");
+  renderSoon();
+}
+function openEditorAt(idx){
+  openEditor();
+  const card = document.querySelector(`#edBody .ed-row[data-i="${idx}"]`);
+  if (card){
+    card.scrollIntoView({ block: "center" });
+    card.style.outline = "2px solid #14498f";
+    setTimeout(() => { card.style.outline = ""; }, 1400);
+    const ta = card.querySelector(".ed-l1"); if (ta) ta.focus();
+  }
+}
+
+/* ---------- Sửa kiểu Word ngay trên bản phân trang ----------
+   Bấm vào ô chữ -> gõ sửa tại chỗ (bàn phím như Word), bấm ra ngoài là lưu.
+   Chuột phải vào dòng -> menu Thêm dòng/đề mục, Đổi loại, Xóa dòng.
+   Mỗi <tr> mang data-row = vị trí dòng trong dữ liệu nên sửa ở trang nào cũng trúng dòng đó. */
+/* ---------- Hoàn tác / Làm lại (Undo / Redo) cho nội dung kịch bản ----------
+   Mỗi bước là một ảnh chụp toàn bộ danh sách dòng. Gõ chữ liên tục được gộp
+   thành MỘT bước (chỉ chốt khi ngừng gõ ~0,8 giây); thêm/xóa/dời dòng, đổi loại
+   dòng, nhập file, điền số tự động... là từng bước riêng. Giữ tối đa 100 bước. */
+let histUndo = [], histRedo = [], histPresent = null, histTimer = null, histApplying = false;
+function cloneRows(rows){ return rows.map(r => ({ stt: r.stt, l1: r.l1, l2: r.l2, type: r.type })); }
+function initHistory(){
+  histUndo = []; histRedo = []; histPresent = cloneRows(S.rows);
+  clearTimeout(histTimer); histTimer = null;
+  updateUndoBtns();
+}
+function histSnap(){
+  const cur = cloneRows(S.rows);
+  if (JSON.stringify(cur) === JSON.stringify(histPresent)) return;
+  histUndo.push(histPresent);
+  if (histUndo.length > 100) histUndo.shift();
+  histRedo = [];
+  histPresent = cur;
+  updateUndoBtns();
+}
+function noteDataChanged(structural){
+  if (histApplying) return;
+  if (!histPresent){ initHistory(); return; }
+  if (structural){ clearTimeout(histTimer); histTimer = null; histSnap(); }
+  else { clearTimeout(histTimer); histTimer = setTimeout(() => { histTimer = null; histSnap(); }, 800); }
+}
+function histFlush(){ if (histTimer){ clearTimeout(histTimer); histTimer = null; histSnap(); } }
+function applyHist(){
+  histApplying = true;
+  S.rows = cloneRows(histPresent);
+  S.restored = true; saveData();
+  if (!$("editorPanel").classList.contains("hidden")) edRender();
+  render();
+  histApplying = false;
+  updateUndoBtns();
+}
+function doUndo(){
+  histFlush();
+  if (!histUndo.length) return;
+  histRedo.push(histPresent);
+  histPresent = histUndo.pop();
+  applyHist();
+}
+function doRedo(){
+  histFlush();
+  if (!histRedo.length) return;
+  histUndo.push(histPresent);
+  histPresent = histRedo.pop();
+  applyHist();
+}
+function updateUndoBtns(){
+  const u = $("undoBtn"), r = $("redoBtn");
+  if (u) u.disabled = !histUndo.length;
+  if (r) r.disabled = !histRedo.length;
+}
+function afterDataChange(){
+  S.restored = true;
+  saveData();
+  if (!$("editorPanel").classList.contains("hidden")) edRender();
+  renderSoon();
+  noteDataChanged(true);
+}
+function insertRowAfter(idx, type){
+  S.rows.splice(idx + 1, 0, { stt: "", l1: "", l2: "", type: type || "" });
+  afterDataChange();
+}
+function deleteRowAt(idx){ S.rows.splice(idx, 1); afterDataChange(); }
+function setRowType(idx, type){ if (S.rows[idx]){ S.rows[idx].type = type; afterDataChange(); } }
+
+function rowFromTr(tr){
+  const cfg = settingsFromUI();
+  const idx = +tr.dataset.row;
+  const orig = S.rows[idx] || { stt: "", l1: "", l2: "", type: "" };
+  const headMap = td => {
+    const sub = td.querySelector(":scope > div.sub-lang");
+    const divs = [...td.querySelectorAll(":scope > div")];
+    const main = divs.find(d => d !== sub);
+    const mt = main ? domText(main) : "", st = sub ? domText(sub) : "";
+    let l1 = "", l2 = "";
+    if (sub){ l1 = mt; l2 = st; }
+    else if (cfg.showLang1 && cfg.showLang2){ l1 = mt; }
+    else if (cfg.showLang2){ l2 = mt; }
+    else { l1 = mt; }
+    return { l1, l2 };
+  };
+  const titleTd = tr.querySelector("td.r-title");
+  const h1Td = tr.querySelector("td.r-h1"), h2Td = tr.querySelector("td.r-h2"), h3Td = tr.querySelector("td.r-h3"), noteTd = tr.querySelector("td.r-note");
+  if (titleTd) return { stt: "", type: "TITLE", ...headMap(titleTd) };
+  if (h1Td) return { stt: "", type: "HEADING_1", ...headMap(h1Td) };
+  if (h2Td) return { stt: "", type: "HEADING_2", ...headMap(h2Td) };
+  if (h3Td) return { stt: "", type: "HEADING_3", ...headMap(h3Td) };
+  if (noteTd) return { stt: "", type: "NOTE", l1: domText(noteTd).replace(/^📝\s*/, ""), l2: "" };
+  const badge = tr.querySelector(".stt-badge");
+  const stt = S.sttMode === "auto" ? orig.stt : (badge ? badge.textContent.trim() : orig.stt);
+  let l1 = "", l2 = "", type = "";
+  if (S.layout === "cols"){
+    const td1 = tr.querySelector("td.c-l1"), td2 = tr.querySelector("td.c-l2");
+    if (td1 && td1.colSpan > 1){ type = "LANG_1"; l1 = domText(td1); }
+    else if (td2 && td2.colSpan > 1){ type = "LANG_2"; l2 = domText(td2); }
+    else { if (td1) l1 = domText(td1); if (td2) l2 = domText(td2); }
+  } else {
+    const stack = tr.querySelector("td.c-stack");
+    if (stack){
+      const a = stack.querySelector(".stack-l1"), b = stack.querySelector(".stack-l2");
+      if (a) l1 = domText(a); if (b) l2 = domText(b);
+      if (a && !b && orig.type === "LANG_1") type = "LANG_1";
+      if (b && !a && orig.type === "LANG_2") type = "LANG_2";
+    }
+  }
+  return { stt, l1, l2, type };
+}
+
+let cellEditState = null;
+function beginCellEdit(td){
+  const tr = td.closest("tr[data-row]"); if (!tr) return;
+  const idx = +tr.dataset.row;
+  /* Dòng dài bị Paged.js chia làm 2 mảnh ở 2 trang: sửa tại chỗ dễ mất chữ -> mở bảng soạn đúng dòng đó */
+  if ($("preview").querySelectorAll(`tr[data-row="${idx}"]`).length > 1){ openEditorAt(idx); return; }
+  if (td.classList.contains("c-stt") && S.sttMode === "auto") return; // STT tự đánh số — không sửa tay
+  cellEditState = { tr, idx, td, origHTML: td.innerHTML };
+  S.cellEditing = true;
+  td.contentEditable = "true";
+  td.focus();
+  try{ const sel = window.getSelection(); sel.selectAllChildren(td); sel.collapseToEnd(); }catch(e){}
+}
+function commitCellEdit(save, silent){
+  if (!cellEditState) return;
+  const st = cellEditState;
+  cellEditState = null; S.cellEditing = false;
+  st.td.contentEditable = "false";
+  if (!save){ st.td.innerHTML = st.origHTML; renderSoon(); return; }
+  const parsed = rowFromTr(st.tr);
+  if (parsed) S.rows[st.idx] = parsed;
+  /* silent: chỉ ghi dữ liệu, KHÔNG dựng lại trang — dùng khi sắp mở menu chuột phải,
+     tránh trang bị giật và menu vừa hiện đã bị lần dựng lại làm cuộn -> tự tắt. */
+  if (silent){ S.restored = true; saveData(); return; }
+  afterDataChange();
+}
+function applyPageEditUI(){
+  $("preview").classList.toggle("page-editing", !!S.pageEdit);
+  const b = $("pageEditBtn");
+  b.textContent = S.pageEdit ? "✓ Đang sửa trên trang" : "✎ Sửa trên trang";
+  b.classList.toggle("primary", !!S.pageEdit);
+  b.classList.toggle("ghost", !S.pageEdit);
+}
+
+/* ---------- Menu chuột phải trên dòng ---------- */
+function typeName(t, cfg){
+  if (t === "") return "Dòng thường (song ngữ)";
+  if (t === "TITLE") return "[TITLE] Tiêu đề chính";
+  if (t === "HEADING_1") return "[HEADING_1] Đề mục cấp 1";
+  if (t === "HEADING_2") return "[HEADING_2] Đề mục cấp 2";
+  if (t === "HEADING_3") return "[HEADING_3] Đề mục cấp 3";
+  if (t === "LANG_1") return "[LANG_1] Chỉ " + (cfg.lang1Name || "Ngôn ngữ 1");
+  if (t === "LANG_2") return "[LANG_2] Chỉ " + (cfg.lang2Name || "Ngôn ngữ 2");
+  if (t === "NOTE") return "[NOTE] Ghi chú / đạo diễn";
+  return t;
+}
+function showCtxMenu(idx, x, y){
+  const row = S.rows[idx]; if (!row) return;
+  const cfg = settingsFromUI();
+  const menu = $("ctxMenu");
+  const addTypes = ["", "HEADING_1", "HEADING_2", "HEADING_3", "LANG_1", "LANG_2", "NOTE", "TITLE"];
+  const addItems = addTypes.map(t =>
+    `<div class="mi" data-act="add" data-type="${t}">＋ Thêm ${typeName(t, cfg).replace(/^\[.*?\]\s*/, "")} ở dưới</div>`).join("");
+  const allTypes = ["", "TITLE", "HEADING_1", "HEADING_2", "HEADING_3", "LANG_1", "LANG_2", "NOTE"];
+  const changeItems = allTypes.map(t =>
+    `<div class="mi" data-act="type" data-type="${t}">${row.type === t ? "✓ " : "&nbsp;&nbsp;&nbsp;"}${typeName(t, cfg)}</div>`).join("");
+  menu.innerHTML =
+    `<div class="mi" data-act="edit">✎ Sửa dòng này trong bảng soạn</div>` +
+    `<div class="sep"></div><div class="mhead">Thêm ở dưới dòng này</div>${addItems}` +
+    `<div class="sep"></div><div class="mhead">Đổi loại của dòng này</div>${changeItems}` +
+    `<div class="sep"></div><div class="mi" data-act="del" style="color:#b3261e">🗑 Xóa dòng này</div>`;
+  menu.dataset.idx = idx;
+  menu.classList.remove("hidden");
+  const mw = 260, mh = Math.min(menu.offsetHeight || 480, window.innerHeight - 16);
+  menu.style.left = Math.max(4, Math.min(x, window.innerWidth - mw - 8)) + "px";
+  menu.style.top = Math.max(4, Math.min(y, window.innerHeight - mh - 8)) + "px";
+}
+function hideCtxMenu(){ $("ctxMenu").classList.add("hidden"); }
+
+/* ---------- Zoom phần hiển thị ---------- */
+const ZOOM_STEPS = [50, 60, 70, 80, 90, 100, 110, 125, 150, 175, 200];
+function applyZoom(){
+  const p = $("preview"); if (p) p.style.zoom = S.zoom + "%";
+  const z = $("zoomVal"); if (z) z.textContent = S.zoom + "%";
+}
+function zoomStep(dir){
+  const target = dir > 0 ? ZOOM_STEPS.find(v => v > S.zoom) : [...ZOOM_STEPS].reverse().find(v => v < S.zoom);
+  if (target !== undefined){ S.zoom = target; applyZoom(); saveSettings(); }
+}
+
+/* ---------- Sửa trực tiếp: đọc ngược bản đang sửa thành dữ liệu ---------- */
+function domText(el){
+  let out = "";
+  const walk = n => {
+    if (n.nodeType === 3){ out += n.textContent; return; }
+    if (n.nodeType !== 1) return;
+    if (n.tagName === "BR"){ out += "\n"; return; }
+    const block = (n.tagName === "DIV" || n.tagName === "P");
+    [...n.childNodes].forEach(walk);
+    if (block) out += "\n";
+  };
+  [...el.childNodes].forEach(walk);
+  return out.replace(/\n{3,}/g, "\n\n").trim();
+}
+function parseEdited(){
+  const flow = document.querySelector("#editFlow");
+  if (!flow) return null;
+  const cfg = settingsFromUI();
+  const rows = [];
+  const headMap = td => {
+    const sub = td.querySelector(":scope > div.sub-lang");
+    const divs = [...td.querySelectorAll(":scope > div")];
+    const main = divs.find(d => d !== sub);
+    const mt = main ? domText(main) : "", st = sub ? domText(sub) : "";
+    let l1 = "", l2 = "";
+    if (sub){ l1 = mt; l2 = st; }
+    else if (cfg.showLang1 && cfg.showLang2){ l1 = mt; }
+    else if (cfg.showLang2){ l2 = mt; }
+    else { l1 = mt; }
+    return { l1, l2 };
+  };
+  flow.querySelectorAll("table.script-table > tbody > tr").forEach(tr => {
+    const titleTd = tr.querySelector("td.r-title");
+    const h1Td = tr.querySelector("td.r-h1"), h2Td = tr.querySelector("td.r-h2"), h3Td = tr.querySelector("td.r-h3"), noteTd = tr.querySelector("td.r-note");
+    if (titleTd){ rows.push({ stt: "", type: "TITLE", ...headMap(titleTd) }); return; }
+    if (h1Td){ rows.push({ stt: "", type: "HEADING_1", ...headMap(h1Td) }); return; }
+    if (h2Td){ rows.push({ stt: "", type: "HEADING_2", ...headMap(h2Td) }); return; }
+    if (h3Td){ rows.push({ stt: "", type: "HEADING_3", ...headMap(h3Td) }); return; }
+    if (noteTd){ rows.push({ stt: "", type: "NOTE", l1: domText(noteTd).replace(/^📝\s*/, ""), l2: "" }); return; }
+    const badge = tr.querySelector(".stt-badge");
+    const stt = badge ? badge.textContent.trim() : "";
+    let l1 = "", l2 = "", type = "";
+    if (S.layout === "cols"){
+      const td1 = tr.querySelector("td.c-l1"), td2 = tr.querySelector("td.c-l2");
+      if (td1 && td1.colSpan > 1){ type = "LANG_1"; l1 = domText(td1); }
+      else if (td2 && td2.colSpan > 1){ type = "LANG_2"; l2 = domText(td2); }
+      else { if (td1) l1 = domText(td1); if (td2) l2 = domText(td2); }
+    } else {
+      const stack = tr.querySelector("td.c-stack");
+      if (stack){
+        const a = stack.querySelector(".stack-l1"), b = stack.querySelector(".stack-l2");
+        if (a) l1 = domText(a); if (b) l2 = domText(b);
+      }
+    }
+    rows.push({ stt, l1, l2, type });
+  });
+  return rows;
+}
+function exitEditMode(apply){
+  if (!S.editing) return;
+  if (apply){
+    const rows = parseEdited();
+    if (rows && rows.length) S.rows = rows;
+  }
+  S.editing = false;
+  const b = $("editBtn"); if (b) b.textContent = "✎ Sửa trực tiếp";
+}
+
+/* ---------- Lưu / khôi phục style ---------- */
+const LS_KEY = "bilingual-script-v2-settings";
+/* Gói toàn bộ cài đặt hiện tại thành một object — dùng cho cả việc tự lưu
+   (localStorage) lẫn file backup JSON xuất ra. */
+function collectSettings(){
+  const data = { fmtMigrated: true, ui: null, S: { sttMode: S.sttMode, layout: S.layout, ratio: S.ratio, orient: S.orient, zoom: S.zoom, styles: S.styles } };
+  data.ui = {};
+  ["headerMode","lang1Name","lang2Name","pageSize","customW","customH","mTop","mBottom","mLeft","mRight",
+   "pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"].forEach(id => data.ui[id] = $(id).value);
+  ["tocToggle","scriptSeparateToggle","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"]
+    .forEach(id => data.ui[id] = $(id).checked);
+  data.ui.lineHeight = $("lineHeight").value; data.ui.rowPad = $("rowPad").value;
+  data.ui.ratioRange = $("ratioRange").value;
+  return data;
+}
+function saveSettings(){
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(collectSettings())); }
+  catch(e){ /* bỏ qua nếu localStorage bị chặn */ }
+}
+/* Áp một gói cài đặt (từ localStorage lúc mở trang, hoặc từ file backup JSON) vào giao diện + trạng thái. */
+function applySettingsData(data){
+  if (!data) return false;
+  if (data.S){ Object.assign(S, { sttMode: data.S.sttMode || "file", layout: data.S.layout || "cols",
+    ratio: data.S.ratio ?? 50, orient: data.S.orient || "portrait", zoom: data.S.zoom || 100 });
+    if (data.S.styles) S.styles = Object.assign(defaultStyles(), data.S.styles); }
+  if (data.ui){
+    Object.entries(data.ui).forEach(([id, v]) => {
+      const el = $(id); if (!el) return;
+      if (el.type === "checkbox") el.checked = !!v; else el.value = v;
+    });
+    /* Mặc định cũ của V2 là số trang kiểu "1" — chuyển một lần sang kiểu "1 / N" theo yêu cầu mới.
+       Sau lần lưu đầu tiên với bản này (fmtMigrated=true) lựa chọn của người dùng được giữ nguyên. */
+    if (!data.fmtMigrated && data.ui.pageNumFormat === "plain") $("pageNumFormat").value = "numof";
+    if (data.ui.scriptSeparateToggle === undefined) $("scriptSeparateToggle").checked = true;
+  }
+  return true;
+}
+function loadSettings(){
+  try{
+    const raw = localStorage.getItem(LS_KEY); if (!raw) return false;
+    return applySettingsData(JSON.parse(raw));
+  }catch(e){ return false; }
+}
+
+/* ---------- Typography panel: nạp style của đối tượng đang chọn ---------- */
+function segSet(segEl, val){ segEl.querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === String(val))); }
+function loadTypoPanel(){
+  const st = S.styles[S.typoTarget];
+  $("tyFont").value = st.font;
+  if ([...$("tyFont").options].every(o => o.value !== st.font)){
+    const opt = document.createElement("option"); opt.value = st.font; opt.textContent = st.font; $("tyFont").appendChild(opt);
+    $("tyFont").value = st.font;
+  }
+  $("tySize").value = st.size;
+  $("tyBold").classList.toggle("on", !!st.bold);
+  $("tyItalic").classList.toggle("on", !!st.italic);
+  $("tyUnder").classList.toggle("on", !!st.under);
+  segSet($("tyAlignSeg"), st.align);
+  $("tyColor").value = st.color || "#111111";
+  $("tyBgNone").checked = !st.bg;
+  $("tyBg").value = st.bg || "#ffffff";
+  $("tyBg").disabled = !st.bg;
+  $("tyMt").value = st.mt; $("tyMb").value = st.mb; $("tyPt").value = st.pt; $("tyPb").value = st.pb;
+}
+function bindTypoPanel(){
+  const cur = () => S.styles[S.typoTarget];
+  $("typoTarget").addEventListener("change", e => { S.typoTarget = e.target.value; loadTypoPanel(); });
+  $("tyFont").addEventListener("change", e => { cur().font = e.target.value; renderSoon(); });
+  $("tySize").addEventListener("input", e => { cur().size = parseFloat(e.target.value) || 12; renderSoon(); });
+  $("tyColor").addEventListener("input", e => { cur().color = e.target.value; renderSoon(); });
+  $("tyBg").addEventListener("input", e => { cur().bg = e.target.value; $("tyBgNone").checked = false; $("tyBg").disabled = false; renderSoon(); });
+  $("tyBgNone").addEventListener("change", e => { cur().bg = e.target.checked ? "" : $("tyBg").value; $("tyBg").disabled = e.target.checked; renderSoon(); });
+  [["tyMt","mt"],["tyMb","mb"],["tyPt","pt"],["tyPb","pb"]].forEach(([id, key]) =>
+    $(id).addEventListener("input", e => { cur()[key] = parseFloat(e.target.value) || 0; renderSoon(); }));
+  $("tyBold").addEventListener("click", () => { cur().bold = !cur().bold; loadTypoPanelSoft(); renderSoon(); });
+  $("tyItalic").addEventListener("click", () => { cur().italic = !cur().italic; loadTypoPanelSoft(); renderSoon(); });
+  $("tyUnder").addEventListener("click", () => { cur().under = !cur().under; loadTypoPanelSoft(); renderSoon(); });
+  $("tyAlignSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { cur().align = b.dataset.v; segSet($("tyAlignSeg"), b.dataset.v); renderSoon(); }));
+  function loadTypoPanelSoft(){
+    const st = cur();
+    $("tyBold").classList.toggle("on", !!st.bold);
+    $("tyItalic").classList.toggle("on", !!st.italic);
+    $("tyUnder").classList.toggle("on", !!st.under);
+  }
+}
+
+/* ---------- Gắn sự kiện toàn bộ UI ---------- */
+function segBind(id, fn){
+  $(id).querySelectorAll("button").forEach(b => b.addEventListener("click", () => {
+    segSet($(id), b.dataset.v); fn(b.dataset.v);
+  }));
+}
+function syncConditionalUI(){
+  $("customSizeFld").style.display = $("pageSize").value === "custom" ? "block" : "none";
+  $("pageNumOpts").style.display = $("pageNumToggle").checked ? "block" : "none";
+  $("zebraOpts").style.display = $("rowMode").value === "zebra" ? "block" : "none";
+  $("ratioFld").style.display = S.layout === "cols" ? "block" : "none";
+  $("ratioVal").textContent = S.ratio + " : " + (100 - S.ratio);
+  $("lhVal").textContent = $("lineHeight").value;
+  $("rowPadVal").textContent = $("rowPad").value;
+}
+function init(){
+  loadSettings();
+  /* segmented */
+  segBind("sttModeSeg", v => { S.sttMode = v; renderSoon(); });
+  segBind("layoutSeg", v => { S.layout = v; syncConditionalUI(); renderSoon(); });
+  segBind("orientSeg", v => { S.orient = v; renderSoon(); });
+  segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+  $("ratioRange").value = S.ratio;
+
+  /* file */
+  const fi = $("fileInput");
+  $("dropZone").addEventListener("click", () => fi.click());
+  fi.addEventListener("change", () => { handleFile(fi.files[0]); fi.value = ""; });
+  $("sheetSelect").addEventListener("change", e => parseSheet(e.target.value));
+  $("headerMode").addEventListener("change", () => { if (S.sheetName) parseSheet(S.sheetName); else renderSoon(); });
+  ["dragenter","dragover"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); document.body.classList.add("dragging"); }));
+  ["dragleave","drop"].forEach(ev => document.addEventListener(ev, e => { e.preventDefault(); document.body.classList.remove("dragging"); }));
+  document.addEventListener("drop", e => { const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if (f) handleFile(f); });
+  $("demoBtn").addEventListener("click", () => {
+    exitEditMode(false);
+    workbook = null; $("sheetSelect").innerHTML = "<option>(chưa có file)</option>"; $("sheetSelect").disabled = true;
+    $("fileName").textContent = "Chưa chọn file — đang hiển thị dữ liệu mẫu Nhật–Việt.";
+    loadDemo();
+  });
+  $("sampleInfoBtn").addEventListener("click", () =>
+    alert("File Excel mẫu kèm theo công cụ này (cùng thư mục):\n“ Mau_KichBanSongNgu_V2.xlsx ”\n\nCột A: STT • B: Ngôn ngữ 1 • C: Ngôn ngữ 2 • D: Phân loại\n[TITLE] / [HEADING_1] / [HEADING_2] / [LANG_1] / [LANG_2] / [NOTE], để trống = dòng thường.\n\nHãy mở file mẫu, sửa nội dung theo kịch bản của bạn rồi Upload vào đây."));
+
+  /* các control render lại khi đổi */
+  ["tocToggle","scriptSeparateToggle","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
+    $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }));
+  ["lang1Name","lang2Name","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
+    .forEach(id => { $(id).addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
+                     $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }); });
+  $("ratioRange").addEventListener("input", e => { S.ratio = parseInt(e.target.value, 10); syncConditionalUI(); renderSoon(); });
+  $("lineHeight").addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
+  $("rowPad").addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
+
+  bindTypoPanel();
+  loadTypoPanel();
+
+  $("printBtn").addEventListener("click", async () => { if (S.editing) exitEditMode(true); await render(); setTimeout(() => window.print(), 350); });
+  $("htmlBtn").addEventListener("click", () => { if (S.editing) exitEditMode(true); exportHTML(); });
+  $("expXlsxBtn").addEventListener("click", () => { if (S.editing) exitEditMode(true); exportExcel(); });
+  $("expJsonBtn").addEventListener("click", () => { if (S.editing) exitEditMode(true); exportJSON(); });
+  $("zoomInBtn").addEventListener("click", () => zoomStep(1));
+  $("zoomOutBtn").addEventListener("click", () => zoomStep(-1));
+  /* Bảng soạn / sửa toàn bộ (dock cạnh bản xem trước đã phân trang) */
+  $("editorBtn").addEventListener("click", openEditor);
+  $("edClose").addEventListener("click", closeEditor);
+  $("edAddTop").addEventListener("click", () => edAdd(S.rows.length - 1));
+  $("edAddBottom").addEventListener("click", () => edAdd(S.rows.length - 1));
+  $("edBody").addEventListener("input", e => {
+    const tr = e.target.closest(".ed-row"); if (!tr) return;
+    const r = S.rows[+tr.dataset.i]; if (!r) return;
+    if (e.target.classList.contains("ed-stt")) r.stt = e.target.value;
+    else if (e.target.classList.contains("ed-l1")) r.l1 = e.target.value;
+    else if (e.target.classList.contains("ed-l2")) r.l2 = e.target.value;
+    else return;
+    edAfterChange();
+  });
+  $("edBody").addEventListener("change", e => {
+    if (!e.target.classList.contains("ed-type")) return;
+    const tr = e.target.closest(".ed-row"); if (!tr) return;
+    const r = S.rows[+tr.dataset.i]; if (!r) return;
+    r.type = e.target.value; edAfterChange();
+    edRender(); // đổi loại dòng có thể làm số thứ tự của cả dãy nhảy theo — vẽ lại để thấy ngay
+    noteDataChanged(true);
+  });
+  $("bakeSttBtn").addEventListener("click", () => {
+    const nums = computeAutoStt();
+    S.rows.forEach((r, i) => { r.stt = nums[i]; });
+    S.restored = true; saveData(); noteDataChanged(true);
+    if (!$("editorPanel").classList.contains("hidden")) edRender();
+    renderSoon();
+  });
+  $("undoBtn").addEventListener("click", doUndo);
+  $("redoBtn").addEventListener("click", doRedo);
+  document.addEventListener("keydown", e => {
+    if (!(e.ctrlKey || e.metaKey) || e.altKey) return;
+    const t = e.target;
+    /* Đang gõ trong ô nhập/ô sửa trên trang: để trình duyệt tự hoàn tác theo từng ký tự như Word */
+    if (t && (t.isContentEditable || /^(INPUT|TEXTAREA)$/.test(t.tagName || ""))) return;
+    const k = (e.key || "").toLowerCase();
+    if (k === "z" && !e.shiftKey){ e.preventDefault(); doUndo(); }
+    else if (k === "y" || (k === "z" && e.shiftKey)){ e.preventDefault(); doRedo(); }
+  });
+  $("edBody").addEventListener("click", e => {
+    const b = e.target.closest("button[data-act]"); if (!b) return;
+    const i = +b.closest(".ed-row").dataset.i, act = b.dataset.act;
+    if (act === "up") edMove(i, -1);
+    else if (act === "down") edMove(i, 1);
+    else if (act === "add") edAdd(i);
+    else if (act === "del") edDel(i);
+  });
+  /* Sửa kiểu Word trên bản phân trang */
+  $("pageEditBtn").addEventListener("click", () => {
+    if (S.pageEdit) commitCellEdit(true);
+    S.pageEdit = !S.pageEdit;
+    if (!S.pageEdit) hideCtxMenu();
+    applyPageEditUI();
+  });
+  const pv = $("preview");
+  pv.addEventListener("click", e => {
+    if (!S.pageEdit) return;
+    const td = e.target.closest("td");
+    if (!td || !pv.contains(td)) return;
+    if (cellEditState && cellEditState.td === td) return;
+    if (cellEditState) commitCellEdit(true);
+    beginCellEdit(td);
+  });
+  pv.addEventListener("focusout", e => {
+    if (cellEditState && e.target === cellEditState.td) commitCellEdit(true);
+  });
+  pv.addEventListener("keydown", e => {
+    if (cellEditState && e.key === "Escape"){ e.preventDefault(); commitCellEdit(false); }
+  });
+  pv.addEventListener("contextmenu", e => {
+    if (!S.pageEdit) return;
+    const tr = e.target.closest("tr[data-row]");
+    if (!tr || !pv.contains(tr)) return;
+    e.preventDefault();
+    if (cellEditState) commitCellEdit(true, true); // ghi thầm, không dựng lại trang trước khi mở menu
+    showCtxMenu(+tr.dataset.row, e.clientX, e.clientY);
+  });
+  $("ctxMenu").addEventListener("click", e => {
+    const mi = e.target.closest(".mi"); if (!mi) return;
+    const idx = +$("ctxMenu").dataset.idx;
+    const act = mi.dataset.act, type = mi.dataset.type || "";
+    hideCtxMenu();
+    if (act === "edit") openEditorAt(idx);
+    else if (act === "add") insertRowAfter(idx, type);
+    else if (act === "type") setRowType(idx, type);
+    else if (act === "del") deleteRowAt(idx);
+  });
+  document.addEventListener("click", e => { if (!$("ctxMenu").contains(e.target)) hideCtxMenu(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") hideCtxMenu(); });
+  /* Không tắt menu khi cuộn: lần dựng lại trang sau khi sửa sẽ tự khôi phục vị trí cuộn,
+     sự kiện cuộn đó từng làm menu vừa mở đã tắt trước khi kịp chọn. Menu chỉ tắt khi
+     bấm ra ngoài, nhấn Esc, hoặc đã chọn một mục. */
+  applyPageEditUI();
+  $("rerenderBtn").addEventListener("click", () => render());
+  $("resetBtn").addEventListener("click", () => {
+    if (!confirm("Đặt lại toàn bộ style về mặc định V2?")) return;
+    S.styles = defaultStyles(); S.typoTarget = "normal"; $("typoTarget").value = "normal";
+    loadTypoPanel(); renderSoon();
+  });
+
+  syncConditionalUI();
+  applyZoom();
+  /* Khôi phục dữ liệu đang soạn đã tự lưu trên trình duyệt (nếu có);
+     chưa có thì nạp dữ liệu mẫu. */
+  const savedData = loadSavedData();
+  if (savedData){
+    S.rows = savedData.rows; S.fileName = savedData.fileName || ""; S.restored = true;
+    renderSoon();
+  } else loadDemo();
+  initHistory();
+}
+document.addEventListener("DOMContentLoaded", init);
+</script>
+</body>
+</html>
