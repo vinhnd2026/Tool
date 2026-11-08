@@ -1,6 +1,5 @@
 ## Danh sách công cụ
 
-
 | Công cụ | Mô tả | Mở |
 |---|---|---|
 | ID Photo Studio Pro | Làm ảnh thẻ: chỉnh kích thước, DPI và màu nền | [Mở công cụ](https://vinhnd2026.github.io/Tool/Anh_the.html) |
