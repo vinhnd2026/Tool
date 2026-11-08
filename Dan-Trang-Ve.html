@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>In Vé Số</title>
+    <title>Dàn Trang Vé — In Vé & Thẻ Nhân Viên</title>
     <!-- Google Fonts hỗ trợ tiếng Việt -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -610,6 +610,76 @@
             background: rgba(37, 99, 235, 0.05);
         }
 
+
+        /* ================= V2: KÉO THẢ ẢNH & THẺ NHÂN VIÊN ================= */
+        .dropzone-img {
+            transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
+        }
+        .dropzone-img.dragover {
+            border-color: var(--primary) !important;
+            background-color: var(--primary-light) !important;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        #dz-portraits.dragover { background-color: #ecfdf5 !important; }
+        .drop-hint {
+            font-size: 11px;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+        .card-photo {
+            position: absolute;
+            overflow: hidden;
+            z-index: 1;
+        }
+        .card-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .card-frame-overlay {
+            position: absolute;
+            inset: 0;
+            background-size: 100% 100%;
+            background-repeat: no-repeat;
+            z-index: 2;
+            pointer-events: none;
+        }
+        .card-field { z-index: 3; }
+        .card-photo-empty {
+            border: 1.5px dashed #94a3b8;
+            background: rgba(148, 163, 184, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            font-size: 8pt;
+            text-align: center;
+            padding: 2px;
+        }
+        .editable-card .card-photo { cursor: move; }
+        .editable-card .card-photo.selected-photo {
+            outline: 2px solid #059669;
+            outline-offset: 2px;
+        }
+        .card-photo-resize {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+            width: 13px;
+            height: 13px;
+            background: #059669;
+            border-radius: 3px 0 0 0;
+            cursor: nwse-resize;
+            z-index: 5;
+        }
+        @media print {
+            .card-photo-empty { display: none !important; }
+            .card-photo-resize { display: none !important; }
+            .editable-card .card-photo.selected-photo { outline: none !important; }
+        }
         @media print {
             .no-print { display: none !important; }
             body { background-color: white; margin: 0; }
@@ -647,7 +717,7 @@
 
             <!-- ================= TAB 1: GIẤY & VÉ ================= -->
             <div id="tab-layout" class="tab-pane active">
-                <div class="group-card">
+                <div class="group-card dropzone-img" id="dz-front">
                     <div class="group-title">Ảnh Nền Mặt Trước</div>
                     <div class="control-group">
                         <label>Chọn ảnh từ máy:</label>
@@ -657,6 +727,7 @@
                         <label>Hoặc tên file ảnh cùng thư mục:</label>
                         <input type="text" id="inp-img-path" value="card.jpg">
                     </div>
+                    <div class="drop-hint">🖱️ <b>Kéo &amp; thả</b> file ảnh vào khung này cho nhanh, hoặc bấm vào khung rồi dán ảnh bằng <b>Ctrl+V</b></div>
                 </div>
 
                 <div class="group-card">
@@ -816,7 +887,7 @@
                         </select>
                     </div>
 
-                    <div id="duplex-settings-box" style="display:none; margin-top:8px;">
+                    <div id="duplex-settings-box" class="dropzone-img" style="display:none; margin-top:8px;">
                         <div class="control-group">
                             <label>Ảnh mặt sau từ máy:</label>
                             <input type="file" id="inp-back-file" accept="image/*" style="font-size:11.5px;">
@@ -825,6 +896,7 @@
                             <label>Hoặc tên file mặt sau:</label>
                             <input type="text" id="inp-back-path" placeholder="card-back.jpg">
                         </div>
+                        <div class="drop-hint">🖱️ <b>Kéo &amp; thả</b> ảnh mặt sau vào khung này, hoặc dán bằng <b>Ctrl+V</b></div>
                         <div class="control-group" style="margin-top:10px;">
                             <label>Dữ liệu chèn lên mặt sau:</label>
                             <select id="sel-back-data-source" style="font-weight:600;">
@@ -922,6 +994,79 @@
                         </label>
                     </div>
                 </div>
+
+                <div class="group-card" id="emp-card" style="border-color:#6ee7b7; background:#f0fdf4;">
+                    <div class="group-title" style="color:#047857;">🪪 Thẻ Nhân Viên — Ảnh Chân Dung</div>
+                    <label class="checkbox-row" style="margin-top:0; font-weight:600;">
+                        <input type="checkbox" id="chk-emp-enabled">
+                        Bật chế độ in thẻ nhân viên (có ảnh chân dung)
+                    </label>
+                    <div id="emp-settings-box" style="display:none; margin-top:8px;">
+                        <button type="button" class="btn-outline" id="btn-emp-preset">📐 Áp cỡ thẻ chuẩn CR80 (85,6 × 53,98 mm) + tự dàn lưới A4</button>
+                        <div class="hint" style="margin-top:6px;">
+                            Lúc này <b>Ảnh nền mặt trước</b> chính là <b>khung thẻ PNG</b>: dùng file PNG có <b>ô ảnh khoét trong suốt</b> —
+                            ảnh chân dung nằm <b>dưới</b> lớp khung nên hiện đúng qua ô khoét, chữ in nằm trên cùng.
+                        </div>
+                        <div class="control-group" style="margin-top:8px;">
+                            <label>Cột dùng làm mã ghép ảnh (tên file ảnh = giá trị ở cột này):</label>
+                            <select id="sel-emp-keycol"></select>
+                        </div>
+                        <div class="dropzone-img" id="dz-portraits" style="background:#ffffff; border:1.5px dashed #a7f3d0; border-radius:8px; padding:10px;">
+                            <div class="control-group">
+                                <label>Kéo &amp; thả NHIỀU ảnh chân dung vào khung này, hoặc chọn file:</label>
+                                <input type="file" id="inp-portraits-file" accept="image/*" multiple style="font-size:11.5px;">
+                            </div>
+                            <div class="drop-hint">Đặt tên file theo mã ở cột trên, ví dụ <b>NV001.jpg</b>, <b>001.png</b>… Ghép không phân biệt hoa/thường và có/không dấu tiếng Việt.</div>
+                        </div>
+                        <div id="emp-report" class="hint" style="margin-top:8px;"></div>
+
+                        <div class="group-title" style="margin-top:12px; color:#047857;">Ô Ảnh Chân Dung (theo % khổ thẻ)</div>
+                        <div class="grid-2">
+                            <div class="control-group">
+                                <label>Ngang X (%):</label>
+                                <input type="number" id="emp-x" min="0" max="95" step="0.5" value="4">
+                            </div>
+                            <div class="control-group">
+                                <label>Dọc Y (%):</label>
+                                <input type="number" id="emp-y" min="0" max="95" step="0.5" value="18">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="control-group">
+                                <label>Rộng (%):</label>
+                                <input type="number" id="emp-w" min="5" max="100" step="0.5" value="30">
+                            </div>
+                            <div class="control-group">
+                                <label>Cao (%):</label>
+                                <input type="number" id="emp-h" min="5" max="100" step="0.5" value="63">
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="control-group">
+                                <label>Bo góc ô ảnh (px):</label>
+                                <input type="number" id="emp-radius" min="0" max="40" step="1" value="3">
+                            </div>
+                            <div class="control-group">
+                                <label>&nbsp;</label>
+                                <button type="button" class="btn-outline" id="btn-emp-clear" style="color:#dc2626; border-color:#fca5a5; background:#fef2f2;">🗑️ Xoá hết ảnh đã nạp</button>
+                            </div>
+                        </div>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-emp-overlay" checked>
+                            Phủ khung PNG lên trên ảnh (ô khoét trong suốt) — tắt nếu khung của anh là ô trắng đặc, ảnh sẽ nằm trên khung
+                        </label>
+                        <label class="checkbox-row">
+                            <input type="checkbox" id="chk-emp-fallback">
+                            Ghép theo thứ tự thả vào nếu tên file không khớp mã nào
+                        </label>
+                        <div class="hint">
+                            💡 <b>Kéo thả ô ảnh</b> trực tiếp trên chiếc thẻ đầu tiên để dời vị trí; kéo <b>góc xanh</b> ở góc dưới-phải ô ảnh để đổi kích thước.
+                            <b>Nhấp đúp</b> vào ô ảnh của bất kỳ thẻ nào để thay ảnh riêng cho người đó.
+                            Ảnh được lưu trong trình duyệt; nếu nạp quá nhiều ảnh lớn vượt bộ nhớ trình duyệt, hãy bấm <b>Xuất HTML</b> để lưu bản in hoàn chỉnh.
+                        </div>
+                    </div>
+                </div>
+                <input type="file" id="inp-photo-replace" accept="image/*" style="display:none;">
 
                 <div class="group-card" id="back-data-card" style="display:none; border-color:#c4b5fd; background:#faf5ff;">
                     <div class="group-title" style="color:#6d28d9;">Dữ Liệu Mặt Sau (Riêng)</div>
@@ -1268,6 +1413,11 @@
             pasteData: "001\tNguyễn Văn A\tGiải Nhất\n002\tTrần Thị B\tGiải Nhì\n003\tLê Văn C\tGiải Ba\n004\tPhạm Thị D\tKhuyến Khích",
             hasHeader: false,
             orderMode: 'normal',
+            empEnabled: false,
+            empKeyCol: 0,
+            empFallbackOrder: false,
+            empFrameOverlay: true,
+            empPhoto: { x: 4, y: 18, w: 30, h: 63, radius: 3 },
             imgPath: 'card.jpg',
             backPath: '',
             fields: [
@@ -1294,6 +1444,15 @@
         let activeFieldIndex = 0;
         let editingSide = 'front';
         let allAvailableFonts = [...POPULAR_FONTS];
+
+        // ===== V2: Ảnh chân dung thẻ nhân viên & kéo thả ảnh =====
+        const PORTRAIT_STORAGE_KEY = 'STUDIO_IN_VE_PORTRAITS_V1';
+        let portraitMap = {};        // khoá đã chuẩn hoá (từ tên file) -> dataURL
+        let portraitOrder = [];      // thứ tự các khoá khi thả vào (phục vụ ghép theo thứ tự)
+        let portraitOverrides = {};  // chỉ số dòng dữ liệu -> dataURL (thay ảnh riêng từng thẻ)
+        let portraitPersistFailed = false;
+        let lastImageDropTarget = 'front'; // đích dán Ctrl+V gần nhất: 'front' | 'back' | 'portraits'
+        let pendingPhotoReplaceIndex = null;
 
         // ================= XÂY DỰNG DROPDOWN XEM TRƯỚC FONT TRỰC TIẾP =================
         function buildFontDropdown(filterText = "") {
@@ -2012,7 +2171,7 @@
             return list;
         }
 
-        function createCardElement(rowValues, isBackSide, isFirstEditable) {
+        function createCardElement(rowValues, isBackSide, isFirstEditable, rowIndex) {
             const wrapper = document.createElement('div');
             wrapper.className = 'card-wrapper';
             if (!rowValues) return wrapper;
@@ -2028,6 +2187,41 @@
 
             const inner = document.createElement('div');
             inner.className = 'card-inner';
+
+            // ===== V2: Lớp ảnh chân dung nằm DƯỚI khung PNG + lớp khung phủ lên trên (chỉ mặt trước) =====
+            if (!isBackSide && state.empEnabled) {
+                const conf = getEmpPhotoConf();
+                const photoSrc = resolvePhotoForRow(rowValues, rowIndex);
+                const photoEl = document.createElement('div');
+                photoEl.className = 'card-photo' + (photoSrc ? '' : ' card-photo-empty');
+                photoEl.style.left = conf.x + '%';
+                photoEl.style.top = conf.y + '%';
+                photoEl.style.width = conf.w + '%';
+                photoEl.style.height = conf.h + '%';
+                photoEl.style.borderRadius = (conf.radius || 0) + 'px';
+                if (photoSrc) {
+                    const img = document.createElement('img');
+                    img.src = photoSrc;
+                    img.alt = '';
+                    photoEl.appendChild(img);
+                } else {
+                    photoEl.textContent = 'Chưa có ảnh';
+                }
+                photoEl.title = 'Nhấp đúp để thay ảnh riêng cho thẻ này';
+                photoEl.addEventListener('dblclick', function() {
+                    pendingPhotoReplaceIndex = rowIndex;
+                    document.getElementById('inp-photo-replace').click();
+                });
+                if (isFirstEditable) attachPhotoDragBehavior(photoEl, card);
+                inner.appendChild(photoEl);
+
+                if (state.empFrameOverlay !== false) {
+                    const overlay = document.createElement('div');
+                    overlay.className = 'card-frame-overlay';
+                    overlay.style.backgroundImage = 'var(--bg-img)';
+                    inner.appendChild(overlay);
+                }
+            }
 
             const side = isBackSide ? 'back' : 'front';
             let shouldRenderText = state.dataMode !== 'none';
@@ -2074,6 +2268,258 @@
             return wrapper;
         }
 
+        // ================= V2: THẺ NHÂN VIÊN — ẢNH CHÂN DUNG =================
+        function getEmpPhotoConf() {
+            if (!state.empPhoto || typeof state.empPhoto !== 'object') {
+                state.empPhoto = { x: 4, y: 18, w: 30, h: 63, radius: 3 };
+            }
+            return state.empPhoto;
+        }
+
+        function normalizePhotoKey(str) {
+            return String(str == null ? '' : str)
+                .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+                .replace(/đ/g, 'd').replace(/Đ/g, 'D')
+                .toLowerCase().replace(/[^a-z0-9]/g, '');
+        }
+
+        function photoKeyFromFilename(name) {
+            const base = String(name || '').replace(/\.[^.]*$/, '');
+            return normalizePhotoKey(base);
+        }
+
+        function resolvePhotoForRow(rowValues, rowIndex) {
+            if (rowIndex != null && portraitOverrides[rowIndex]) return portraitOverrides[rowIndex];
+            if (!rowValues) return null;
+            const keyCol = parseInt(state.empKeyCol) || 0;
+            const key = normalizePhotoKey(rowValues[keyCol]);
+            if (key && portraitMap[key]) return portraitMap[key];
+            if (state.empFallbackOrder && rowIndex != null && portraitOrder[rowIndex]) {
+                return portraitMap[portraitOrder[rowIndex]] || null;
+            }
+            return null;
+        }
+
+        function applyPhotoStylesToDOM() {
+            const conf = getEmpPhotoConf();
+            document.querySelectorAll('.card-photo').forEach(el => {
+                el.style.left = conf.x + '%';
+                el.style.top = conf.y + '%';
+                el.style.width = conf.w + '%';
+                el.style.height = conf.h + '%';
+                el.style.borderRadius = (conf.radius || 0) + 'px';
+            });
+        }
+
+        function syncEmpPhotoInputs() {
+            const conf = getEmpPhotoConf();
+            const set = (id, v) => { const el = document.getElementById(id); if (el) el.value = v; };
+            set('emp-x', conf.x); set('emp-y', conf.y); set('emp-w', conf.w); set('emp-h', conf.h);
+            set('emp-radius', conf.radius || 0);
+        }
+
+        let lastEmpColCount = -1;
+        function rebuildEmpKeyColOptions() {
+            const sel = document.getElementById('sel-emp-keycol');
+            if (!sel) return;
+            let maxCols = 1;
+            parseMultiRows().forEach(r => { if (r.length > maxCols) maxCols = r.length; });
+            if (maxCols === lastEmpColCount && sel.options.length) { return; }
+            lastEmpColCount = maxCols;
+            const cur = parseInt(state.empKeyCol) || 0;
+            sel.innerHTML = '';
+            for (let i = 0; i < maxCols; i++) {
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = 'Cột ' + (i + 1) + (i === 0 ? ' (thường là Mã NV / STT)' : '');
+                sel.appendChild(opt);
+            }
+            sel.value = Math.min(cur, maxCols - 1);
+        }
+
+        function updateEmpReport() {
+            const el = document.getElementById('emp-report');
+            if (!el) return;
+            rebuildEmpKeyColOptions();
+            if (!state.empEnabled) { el.innerHTML = ''; return; }
+            if (state.dataMode !== 'multi') {
+                el.innerHTML = '⚠️ Chế độ thẻ nhân viên ghép ảnh theo từng dòng dữ liệu — hãy chuyển <b>Nguồn dữ liệu</b> sang <b>3. Nhiều giá trị (Excel / Paste)</b> (hoặc bấm nút áp cỡ CR80 ở trên, máy sẽ tự chuyển).';
+                return;
+            }
+            const rows = generateCardsData();
+            const keyCol = parseInt(state.empKeyCol) || 0;
+            const usedKeys = new Set();
+            let matched = 0;
+            const missing = [];
+            rows.forEach((row, i) => {
+                const k = normalizePhotoKey(row[keyCol]);
+                if (k) usedKeys.add(k);
+                if (resolvePhotoForRow(row, i)) matched++;
+                else missing.push('#' + (i + 1) + ' (' + (row[keyCol] || 'trống') + ')');
+            });
+            const extra = portraitOrder.filter(k => !usedKeys.has(k));
+            let html = '📷 Đã nạp <b>' + portraitOrder.length + '</b> ảnh chân dung. ';
+            html += '✅ Ghép được <b>' + matched + '/' + rows.length + '</b> thẻ.';
+            if (missing.length) {
+                const show = missing.slice(0, 12).join(', ') + (missing.length > 12 ? '…' : '');
+                html += '<br>⚠️ <b>' + missing.length + '</b> thẻ chưa có ảnh: ' + show + ' — khi in, ô ảnh của các thẻ này sẽ để trống.';
+            }
+            if (extra.length) html += '<br>ℹ️ Có ' + extra.length + ' ảnh chưa khớp dòng nào — kiểm tra lại tên file hoặc cột mã đang chọn.';
+            if (portraitPersistFailed) html += '<br>⚠️ Ảnh quá nhiều/lớn nên trình duyệt không lưu trữ được — ảnh chỉ giữ trong phiên làm việc này; hãy bấm <b>Xuất HTML</b> để lưu bản in hoàn chỉnh.';
+            el.innerHTML = html;
+        }
+
+        function persistPortraits() {
+            try {
+                localStorage.setItem(PORTRAIT_STORAGE_KEY, JSON.stringify({ map: portraitMap, order: portraitOrder, overrides: portraitOverrides }));
+                portraitPersistFailed = false;
+            } catch (e) {
+                portraitPersistFailed = true;
+            }
+        }
+
+        function loadPortraits() {
+            try {
+                const raw = localStorage.getItem(PORTRAIT_STORAGE_KEY);
+                if (!raw) return;
+                const parsed = JSON.parse(raw);
+                portraitMap = parsed.map || {};
+                portraitOrder = parsed.order || [];
+                portraitOverrides = parsed.overrides || {};
+            } catch (e) {}
+        }
+
+        function addPortraitFiles(fileList) {
+            const files = Array.from(fileList || []).filter(f => f.type && f.type.startsWith('image/'));
+            if (!files.length) return;
+            let done = 0;
+            files.forEach(file => {
+                const reader = new FileReader();
+                reader.onload = evt => {
+                    const key = photoKeyFromFilename(file.name);
+                    if (key) {
+                        if (!portraitMap[key]) portraitOrder.push(key);
+                        portraitMap[key] = evt.target.result;
+                    }
+                    done++;
+                    if (done === files.length) { persistPortraits(); renderPages(); }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function loadFrontImageFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                currentBgUrl = evt.target.result;
+                rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
+                fetchImageRatio(currentBgUrl);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function loadBackImageFile(file) {
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                currentBackUrl = evt.target.result;
+                rootStyle.setProperty('--bg-img-back', `url('${currentBackUrl}')`);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function attachPhotoDragBehavior(photoEl, cardEl) {
+            const conf = getEmpPhotoConf();
+            const handle = document.createElement('div');
+            handle.className = 'card-photo-resize no-print';
+            photoEl.appendChild(handle);
+
+            photoEl.addEventListener('mousedown', function(e) {
+                if (e.target === handle) return;
+                e.preventDefault();
+                e.stopPropagation();
+                document.querySelectorAll('.card-photo').forEach(el => el.classList.remove('selected-photo'));
+                photoEl.classList.add('selected-photo');
+                const rect = cardEl.getBoundingClientRect();
+                const startClientX = e.clientX, startClientY = e.clientY;
+                const origX = conf.x, origY = conf.y;
+                function onMove(moveEvt) {
+                    const nx = origX + ((moveEvt.clientX - startClientX) / rect.width) * 100;
+                    const ny = origY + ((moveEvt.clientY - startClientY) / rect.height) * 100;
+                    conf.x = Math.max(0, Math.min(100 - conf.w, Math.round(nx * 5) / 5));
+                    conf.y = Math.max(0, Math.min(100 - conf.h, Math.round(ny * 5) / 5));
+                    applyPhotoStylesToDOM();
+                    syncEmpPhotoInputs();
+                }
+                function onUp() {
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                    saveStateToLocal();
+                }
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+            });
+
+            handle.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const rect = cardEl.getBoundingClientRect();
+                const startClientX = e.clientX, startClientY = e.clientY;
+                const origW = conf.w, origH = conf.h;
+                function onMove(moveEvt) {
+                    const nw = origW + ((moveEvt.clientX - startClientX) / rect.width) * 100;
+                    const nh = origH + ((moveEvt.clientY - startClientY) / rect.height) * 100;
+                    conf.w = Math.max(5, Math.min(100 - conf.x, Math.round(nw * 5) / 5));
+                    conf.h = Math.max(5, Math.min(100 - conf.y, Math.round(nh * 5) / 5));
+                    applyPhotoStylesToDOM();
+                    syncEmpPhotoInputs();
+                }
+                function onUp() {
+                    window.removeEventListener('mousemove', onMove);
+                    window.removeEventListener('mouseup', onUp);
+                    saveStateToLocal();
+                }
+                window.addEventListener('mousemove', onMove);
+                window.addEventListener('mouseup', onUp);
+            });
+        }
+
+        function applyEmpPreset() {
+            state.lockRatio = false;
+            document.getElementById('chk-lock-ratio').checked = false;
+            state.cardW = 85.6;
+            state.cardH = 53.98;
+            document.getElementById('inp-card-w').value = state.cardW;
+            document.getElementById('inp-card-h').value = state.cardH;
+            setSizeMode('exact');
+            if (state.dataMode !== 'multi') {
+                state.dataMode = 'multi';
+                document.getElementById('sel-mode').value = 'multi';
+                document.getElementById('mode-sequence-box').style.display = 'none';
+                document.getElementById('mode-none-box').style.display = 'none';
+                document.getElementById('mode-multi-box').style.display = 'block';
+                updateFieldActionsVisibility();
+                syncMultiFieldsFromData();
+            }
+            autoFitGridFromCardSize();
+        }
+
+        function syncEmpUIFromState() {
+            const chk = document.getElementById('chk-emp-enabled');
+            if (!chk) return;
+            chk.checked = !!state.empEnabled;
+            document.getElementById('emp-settings-box').style.display = state.empEnabled ? 'block' : 'none';
+            const ov = document.getElementById('chk-emp-overlay');
+            if (ov) ov.checked = state.empFrameOverlay !== false;
+            const fb = document.getElementById('chk-emp-fallback');
+            if (fb) fb.checked = !!state.empFallbackOrder;
+            rebuildEmpKeyColOptions();
+            const sel = document.getElementById('sel-emp-keycol');
+            if (sel) sel.value = parseInt(state.empKeyCol) || 0;
+            syncEmpPhotoInputs();
+        }
+
         function renderPages() {
             printArea.innerHTML = '';
             const cols = state.cols;
@@ -2115,7 +2561,8 @@
                     for (let s = 0; s < cardsPerPage; s++) {
                         const isEditable = !firstFrontRendered && pageSlots[s] !== null;
                         if (isEditable) firstFrontRendered = true;
-                        frontPage.appendChild(createCardElement(pageSlots[s], false, isEditable));
+                        const frontDataIdx = state.orderMode === 'cutstack' ? (s * numLogicalPages + p) : (p * cardsPerPage + s);
+                        frontPage.appendChild(createCardElement(pageSlots[s], false, isEditable, frontDataIdx));
                     }
                     printArea.appendChild(frontPage);
                     totalPhysicalPages++;
@@ -2142,7 +2589,7 @@
                             const slotIdx = r * cols + mirroredCol;
                             const isEditable = !firstBackRendered && backPageSlots[slotIdx] !== null;
                             if (isEditable) firstBackRendered = true;
-                            backPage.appendChild(createCardElement(backPageSlots[slotIdx], true, isEditable));
+                            backPage.appendChild(createCardElement(backPageSlots[slotIdx], true, isEditable, slotIdx));
                         }
                     }
                     printArea.appendChild(backPage);
@@ -2153,6 +2600,7 @@
             document.getElementById('lbl-total-cards').innerText = totalCards;
             document.getElementById('lbl-total-pages').innerText = totalPhysicalPages;
             highlightSelectedField();
+            updateEmpReport();
         }
 
         function attachDragBehavior(fieldEl, cardEl, fieldIdx, side) {
@@ -2240,6 +2688,7 @@
         function resetAllSettings() {
             if (!confirm('Khôi phục lại thiết lập mặc định ban đầu?')) return;
             localStorage.removeItem(STORAGE_KEY);
+            localStorage.removeItem(PORTRAIT_STORAGE_KEY);
             location.reload();
         }
 
@@ -2328,6 +2777,7 @@
             fetchImageRatio(currentBgUrl);
             syncMultiFieldsFromData();
             syncBackFieldsFromData();
+            syncEmpUIFromState();
             updateEditingSideUI();
             updateLayoutCSS();
             renderPages();
@@ -2365,6 +2815,7 @@
             const clonedHtml = document.documentElement.cloneNode(true);
             clonedHtml.querySelectorAll('.no-print').forEach(el => el.remove());
             clonedHtml.querySelectorAll('script').forEach(s => s.remove());
+            clonedHtml.querySelectorAll('.card-photo-empty, .card-photo-resize').forEach(el => el.remove());
 
             const styleTag = document.createElement('style');
             styleTag.innerHTML = currentStyles;
@@ -2391,15 +2842,8 @@
         });
 
         document.getElementById('inp-img-file').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = evt => {
-                currentBgUrl = evt.target.result;
-                rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
-                fetchImageRatio(currentBgUrl);
-            };
-            reader.readAsDataURL(file);
+            loadFrontImageFile(e.target.files[0]);
+            e.target.value = '';
         });
 
         document.getElementById('inp-back-path').addEventListener('input', e => {
@@ -2410,14 +2854,8 @@
         });
 
         document.getElementById('inp-back-file').addEventListener('change', e => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = evt => {
-                currentBackUrl = evt.target.result;
-                rootStyle.setProperty('--bg-img-back', `url('${currentBackUrl}')`);
-            };
-            reader.readAsDataURL(file);
+            loadBackImageFile(e.target.files[0]);
+            e.target.value = '';
         });
 
         document.getElementById('sel-paper-size').addEventListener('change', e => {
@@ -2697,9 +3135,122 @@
             document.getElementById('val-zoom').innerText = Math.round(z * 100) + '%';
         });
 
+        // ================= V2: SỰ KIỆN KÉO THẢ ẢNH & THẺ NHÂN VIÊN =================
+        function handleDroppedImageFiles(files, target) {
+            const images = (files || []).filter(f => f.type && f.type.startsWith('image/'));
+            if (!images.length) return;
+            if (target === 'portraits') addPortraitFiles(images);
+            else if (target === 'back') loadBackImageFile(images[0]);
+            else loadFrontImageFile(images[0]);
+        }
+
+        function setupImageDropZone(el, target) {
+            if (!el) return;
+            ['dragenter', 'dragover'].forEach(evt => el.addEventListener(evt, e => {
+                e.preventDefault(); e.stopPropagation(); el.classList.add('dragover');
+            }));
+            ['dragleave', 'drop'].forEach(evt => el.addEventListener(evt, e => {
+                e.preventDefault(); e.stopPropagation(); el.classList.remove('dragover');
+            }));
+            el.addEventListener('mouseenter', () => { lastImageDropTarget = target; });
+            el.addEventListener('click', () => { lastImageDropTarget = target; });
+            el.addEventListener('drop', e => {
+                const files = e.dataTransfer ? Array.from(e.dataTransfer.files || []) : [];
+                handleDroppedImageFiles(files, target);
+            });
+        }
+
+        setupImageDropZone(document.getElementById('dz-front'), 'front');
+        setupImageDropZone(document.getElementById('duplex-settings-box'), 'back');
+        setupImageDropZone(document.getElementById('dz-portraits'), 'portraits');
+
+        // Chặn trình duyệt mở file ảnh khi thả trượt ra ngoài vùng thả
+        window.addEventListener('dragover', e => e.preventDefault());
+        window.addEventListener('drop', e => e.preventDefault());
+
+        // Dán ảnh bằng Ctrl+V vào đích gần nhất (khung trước / khung sau / loạt ảnh chân dung)
+        document.addEventListener('paste', e => {
+            const tag = (e.target && e.target.tagName) || '';
+            if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT') return;
+            const items = e.clipboardData ? Array.from(e.clipboardData.items || []) : [];
+            const imgItem = items.find(it => it.type && it.type.startsWith('image/'));
+            if (!imgItem) return;
+            const file = imgItem.getAsFile();
+            if (file) handleDroppedImageFiles([file], lastImageDropTarget);
+        });
+
+        document.getElementById('chk-emp-enabled').addEventListener('change', e => {
+            state.empEnabled = e.target.checked;
+            document.getElementById('emp-settings-box').style.display = state.empEnabled ? 'block' : 'none';
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('btn-emp-preset').addEventListener('click', applyEmpPreset);
+
+        document.getElementById('sel-emp-keycol').addEventListener('change', e => {
+            state.empKeyCol = parseInt(e.target.value) || 0;
+            renderPages();
+            saveStateToLocal();
+        });
+
+        ['emp-x', 'emp-y', 'emp-w', 'emp-h', 'emp-radius'].forEach(id => {
+            document.getElementById(id).addEventListener('input', () => {
+                const conf = getEmpPhotoConf();
+                conf.x = parseFloat(document.getElementById('emp-x').value) || 0;
+                conf.y = parseFloat(document.getElementById('emp-y').value) || 0;
+                conf.w = Math.max(5, parseFloat(document.getElementById('emp-w').value) || 5);
+                conf.h = Math.max(5, parseFloat(document.getElementById('emp-h').value) || 5);
+                conf.radius = parseFloat(document.getElementById('emp-radius').value) || 0;
+                applyPhotoStylesToDOM();
+                saveStateToLocal();
+            });
+        });
+
+        document.getElementById('chk-emp-overlay').addEventListener('change', e => {
+            state.empFrameOverlay = e.target.checked;
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('chk-emp-fallback').addEventListener('change', e => {
+            state.empFallbackOrder = e.target.checked;
+            renderPages();
+            saveStateToLocal();
+        });
+
+        document.getElementById('inp-portraits-file').addEventListener('change', e => {
+            addPortraitFiles(e.target.files);
+            e.target.value = '';
+        });
+
+        document.getElementById('inp-photo-replace').addEventListener('change', e => {
+            const file = e.target.files[0];
+            e.target.value = '';
+            if (!file || pendingPhotoReplaceIndex == null) return;
+            const reader = new FileReader();
+            reader.onload = evt => {
+                portraitOverrides[pendingPhotoReplaceIndex] = evt.target.result;
+                pendingPhotoReplaceIndex = null;
+                persistPortraits();
+                renderPages();
+            };
+            reader.readAsDataURL(file);
+        });
+
+        document.getElementById('btn-emp-clear').addEventListener('click', () => {
+            if (!confirm('Xoá toàn bộ ảnh chân dung đã nạp?')) return;
+            portraitMap = {};
+            portraitOrder = [];
+            portraitOverrides = {};
+            persistPortraits();
+            renderPages();
+        });
+
         // Khởi chạy ứng dụng
         rootStyle.setProperty('--preview-zoom', 0.85);
         loadStateFromLocal();
+        loadPortraits();
         buildFontDropdown();
         syncUIFromState();
     </script>
