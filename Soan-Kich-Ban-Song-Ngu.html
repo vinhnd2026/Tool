@@ -23,6 +23,9 @@
     ở Nhóm 1; mỗi tên riêng có một màu chữ riêng; nhãn người đọc hiện ở đầu câu
     trong bản in và file HTML xuất ra, tự lưu kèm backup JSON. Có lựa chọn ẩn
     số thứ tự câu đọc (dùng chung cài đặt với cột STT).
+  - Bảng chọn chuột phải gom theo nhóm, mỗi nhóm mở bảng chọn phụ sang bên
+    (Thêm dòng / Đổi loại / Gán lời dẫn) cho gọn; Nhóm 1 có nút "Xoá bộ nhớ
+    đã lưu trong trình duyệt" để xoá kịch bản tự lưu + cài đặt và tải lại từ đầu.
 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"></script>
@@ -141,6 +144,11 @@
   #ctxMenu .mi:hover{background:#e8f1fd}
   #ctxMenu .sep{height:1px;background:#e3e8f0;margin:4px 6px}
   #ctxMenu .mhead{padding:5px 10px 2px;font-size:11px;font-weight:700;color:#5b6b82;text-transform:uppercase;letter-spacing:.04em}
+  #ctxMenu .mi{position:relative}
+  #ctxMenu .sub-arrow{float:right;color:#8aa0b8;margin-left:16px}
+  #ctxMenu .submenu{position:absolute;left:calc(100% + 3px);top:-5px;min-width:240px;background:#fff;border:1px solid #ccd6e4;border-radius:10px;box-shadow:0 12px 34px rgba(10,25,50,.28);padding:5px;display:none}
+  #ctxMenu .mi:hover>.submenu,#ctxMenu .mi.open>.submenu{display:block}
+  #ctxMenu.sub-left .submenu{left:auto;right:calc(100% + 3px)}
   #fallbackNote{display:none;max-width:820px;margin:0 auto 14px;background:#fff7e0;border:1px solid #e3c964;color:#5c4b00;
     border-radius:9px;padding:9px 13px;font-size:12.5px;line-height:1.5}
   #editNote{display:none;max-width:820px;margin:0 auto 14px;background:#e8f1fd;border:1px solid #8db1e3;color:#123d75;
@@ -227,6 +235,10 @@
           <button class="btn ghost sm" id="expJsonBtn" type="button" style="flex:1">⬇ Xuất JSON (backup)</button>
         </div>
         <div class="hint">Xuất Excel theo cấu trúc A–D để sửa ở nơi khác. <b>Xuất JSON là bản backup đầy đủ</b>: gồm nội dung và <b>toàn bộ cài đặt</b> (khổ giấy, lề, typography, layout…). Upload lại file JSON đó vào đây là khôi phục nguyên trạng cả nội dung lẫn cài đặt.</div>
+        <div class="fld" style="margin-top:8px">
+          <button class="btn ghost sm" id="clearMemBtn" type="button" style="width:100%;color:#b3261e;border-color:#e5b4b0">🧹 Xoá bộ nhớ đã lưu trong trình duyệt</button>
+          <div class="hint">Công cụ tự lưu <b>kịch bản đang soạn</b> và <b>cài đặt</b> vào trình duyệt để mở lại là thấy ngay dữ liệu đang làm. Bấm nút này khi muốn <b>xoá sạch bộ nhớ cũ</b>: trang sẽ tải lại với dữ liệu mẫu và cài đặt mặc định. Nên <b>Xuất JSON (backup)</b> trước nếu cần giữ lại.</div>
+        </div>
       </div>
     </details>
 
@@ -1197,6 +1209,12 @@ function loadSavedData(){
   }catch(e){}
   return null;
 }
+/* Xoá sạch bộ nhớ công cụ đã lưu trong trình duyệt (kịch bản tự lưu + cài đặt),
+   rồi tải lại trang: trang mở lại sẽ về dữ liệu mẫu và cài đặt mặc định. */
+function clearSavedMemory(){
+  try{ localStorage.removeItem(DATA_KEY); localStorage.removeItem(LS_KEY); }catch(e){}
+  location.reload();
+}
 
 /* ---------- Bảng soạn / sửa toàn bộ trên giao diện ---------- */
 const TYPE_OPTIONS = [
@@ -1444,27 +1462,32 @@ function showCtxMenu(idx, x, y){
   const allTypes = ["", "TITLE", "HEADING_1", "HEADING_2", "HEADING_3", "LANG_1", "LANG_2", "NOTE"];
   const changeItems = allTypes.map(t =>
     `<div class="mi" data-act="type" data-type="${t}">${row.type === t ? "✓ " : "&nbsp;&nbsp;&nbsp;"}${typeName(t, cfg)}</div>`).join("");
+  /* Bảng chọn phụ: mỗi nhóm là một mục cha, rê chuột (hoặc bấm) là mở menu con sang bên */
+  const sub = (label, items) => `<div class="mi has-sub">${label}<span class="sub-arrow">▸</span><div class="submenu">${items}</div></div>`;
   /* Phân vai lời dẫn — chỉ cho các câu được đánh số (dòng thường & LANG_1/LANG_2) */
-  let spkItems = "";
+  let spkMenu = "";
   if (row.type === "" || row.type === "LANG_1" || row.type === "LANG_2"){
     const cur = row.speaker || "";
     const opt = (v, label) => `<div class="mi" data-act="spk" data-spk="${v}">${cur === v ? "✓ " : "&nbsp;&nbsp;&nbsp;"}${label}</div>`;
-    spkItems = `<div class="sep"></div><div class="mhead">Gán lời dẫn — người đọc câu này</div>`
-      + opt("", "Không gán")
+    const spkOpts = opt("", "Không gán")
       + opt("M", esc(cfg.mcNameM || "MC Nam"))
       + opt("F", esc(cfg.mcNameF || "MC Nữ"))
       + opt("B", "Cả 2 (hai MC cùng đọc)")
       + opt("C", cur === "C" && row.speakerName ? `Tên khác: ${esc(row.speakerName)} (đổi tên…)` : "Tên khác (tự nhập)…");
+    const curName = cur ? speakerDisplayName(row, cfg) : "";
+    spkMenu = sub(`🎤 Gán lời dẫn${curName ? `: <b>${esc(curName)}</b>` : ""}`, spkOpts);
   }
   menu.innerHTML =
     `<div class="mi" data-act="edit">✎ Sửa dòng này trong bảng soạn</div>` +
-    `<div class="sep"></div><div class="mhead">Thêm ở dưới dòng này</div>${addItems}` +
-    `<div class="sep"></div><div class="mhead">Đổi loại của dòng này</div>${changeItems}` +
-    spkItems +
+    sub("➕ Thêm dòng ở dưới", addItems) +
+    sub("🔀 Đổi loại của dòng này", changeItems) +
+    spkMenu +
     `<div class="sep"></div><div class="mi" data-act="del" style="color:#b3261e">🗑 Xóa dòng này</div>`;
   menu.dataset.idx = idx;
   menu.classList.remove("hidden");
-  const mw = 260, mh = Math.min(menu.offsetHeight || 480, window.innerHeight - 16);
+  /* Gần mép phải màn hình thì bảng chọn phụ mở sang trái cho khỏi tràn */
+  menu.classList.toggle("sub-left", x > window.innerWidth - 560);
+  const mw = 290, mh = Math.min(menu.offsetHeight || 200, window.innerHeight - 16);
   menu.style.left = Math.max(4, Math.min(x, window.innerWidth - mw - 8)) + "px";
   menu.style.top = Math.max(4, Math.min(y, window.innerHeight - mh - 8)) + "px";
 }
@@ -1781,6 +1804,14 @@ function init(){
   });
   $("ctxMenu").addEventListener("click", e => {
     const mi = e.target.closest(".mi"); if (!mi) return;
+    /* Bấm vào mục có bảng chọn phụ: mở/đóng menu con, giữ nguyên bảng chọn chính
+       (rê chuột qua cũng tự mở nhờ CSS :hover) */
+    if (mi.classList.contains("has-sub")){
+      const wasOpen = mi.classList.contains("open");
+      $("ctxMenu").querySelectorAll(".mi.open").forEach(m => m.classList.remove("open"));
+      if (!wasOpen) mi.classList.add("open");
+      return;
+    }
     const idx = +$("ctxMenu").dataset.idx;
     const act = mi.dataset.act, type = mi.dataset.type || "";
     hideCtxMenu();
@@ -1808,6 +1839,10 @@ function init(){
      bấm ra ngoài, nhấn Esc, hoặc đã chọn một mục. */
   applyPageEditUI();
   $("rerenderBtn").addEventListener("click", () => render());
+  $("clearMemBtn").addEventListener("click", () => {
+    if (!confirm("Xoá sạch bộ nhớ công cụ đã lưu trong trình duyệt này?\n\n• Kịch bản đang tự lưu sẽ bị xoá\n• Toàn bộ cài đặt/style trở về mặc định\n• Trang sẽ tải lại với dữ liệu mẫu\n\nHãy Xuất JSON (backup) trước nếu cần giữ lại.")) return;
+    clearSavedMemory();
+  });
   $("resetBtn").addEventListener("click", () => {
     if (!confirm("Đặt lại toàn bộ style về mặc định V2?")) return;
     S.styles = defaultStyles(); S.typoTarget = "normal"; $("typoTarget").value = "normal";
