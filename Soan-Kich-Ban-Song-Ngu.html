@@ -17,8 +17,10 @@
       [HEADING_3]: đề mục cấp 3 -> vào Mục lục cấp 3
       [LANG_1] / [LANG_2] : dòng chỉ 1 ngôn ngữ
       [NOTE]     : ghi chú kịch bản / đạo diễn
-  - Lời dẫn: chọn người dẫn Nam / Nữ / tên tùy chỉnh ở Nhóm 1 — dòng "🎤 Người dẫn: ..."
-    tự hiện dưới [TITLE] trong bản in và file HTML xuất ra, tự lưu kèm backup JSON.
+  - Lời dẫn (phân vai từng câu): mỗi câu được đánh số gán cho MC Nam / MC Nữ / tên
+    tùy chỉnh bằng menu chuột phải khi "Sửa trên trang" (hoặc ghi [NAM] / [NU] /
+    [MC=Tên] ở cột D trong Excel). Tên MC Nam/Nữ tùy chỉnh ở Nhóm 1; nhãn người đọc
+    hiện ở đầu câu trong bản in và file HTML xuất ra, tự lưu kèm backup JSON.
 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"></script>
@@ -181,7 +183,7 @@
           <label class="lab">Cấu trúc cột (cố định theo quy ước)</label>
           <div class="hint">A = STT &nbsp;•&nbsp; B = Ngôn ngữ 1 &nbsp;•&nbsp; C = Ngôn ngữ 2 &nbsp;•&nbsp; D = Phân loại:
             <span class="kbd">[TITLE]</span> <span class="kbd">[HEADING_1]</span> <span class="kbd">[HEADING_2]</span> <span class="kbd">[HEADING_3]</span>
-            <span class="kbd">[LANG_1]</span> <span class="kbd">[LANG_2]</span> <span class="kbd">[NOTE]</span> (trống = dòng thường)</div>
+            <span class="kbd">[LANG_1]</span> <span class="kbd">[LANG_2]</span> <span class="kbd">[NOTE]</span> (trống = dòng thường)<br>Phân vai lời dẫn (ghi thêm ở cột D, sau loại dòng): <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[MC=Tên người đọc]</span></div>
         </div>
         <div class="fld">
           <label class="lab" for="headerMode">Dòng tiêu đề đầu bảng</label>
@@ -205,18 +207,14 @@
         <div class="hint" style="margin:-2px 0 4px 22px">Trích [HEADING_1] / [HEADING_2] / [HEADING_3] lên đầu tài liệu, kèm số trang (tự cập nhật theo phân trang).</div>
         <label class="chk"><input type="checkbox" id="scriptSeparateToggle" checked> Kịch bản ở trang riêng (ngắt trang sau Mục lục)</label>
         <div class="fld">
-          <label class="lab">Lời dẫn — chọn người dẫn chương trình</label>
-          <div class="seg" id="narratorSeg">
-            <button type="button" data-v="male" class="on">Nam</button>
-            <button type="button" data-v="female">Nữ</button>
-            <button type="button" data-v="custom">Tên tùy chỉnh</button>
+          <label class="lab">Lời dẫn — tên MC (phân vai cho từng câu)</label>
+          <div class="row2">
+            <div><label class="lab" for="mcNameM">MC Nam</label><input type="text" id="mcNameM" value="MC Nam"></div>
+            <div><label class="lab" for="mcNameF">MC Nữ</label><input type="text" id="mcNameF" value="MC Nữ"></div>
           </div>
-          <div id="narratorNameFld" style="display:none;margin-top:6px">
-            <input type="text" id="narratorName" placeholder="Nhập tên người dẫn — ví dụ: MC Thu Hà">
-          </div>
-          <div class="hint">Dòng <b>“🎤 Người dẫn: …”</b> tự hiện ngay dưới tiêu đề chính [TITLE] trong bản xem trước, bản in và file HTML xuất ra (kịch bản không có [TITLE] thì hiện ở đầu bảng). Chọn <b>Nam</b> → “MC Nam”, <b>Nữ</b> → “MC Nữ”, <b>Tên tùy chỉnh</b> → hiện đúng tên anh nhập. Lựa chọn được tự lưu và đi theo cả file backup JSON.</div>
+          <div class="hint">Đổi tên MC tại đây là <b>mọi câu đã gán</b> Nam/Nữ tự hiện theo tên mới. <b>Cách gán từng câu:</b> bật <b>“✎ Sửa trên trang”</b>, <b>chuột phải vào câu</b> cần gán → mục <b>“Gán lời dẫn”</b> → chọn MC Nam / MC Nữ / <i>Tên khác (tự nhập)…</i> / bỏ gán. Trong file Excel, cột D ghi thêm <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[MC=Tên]</span> ngay sau loại dòng — sửa ngay trong Excel cũng được.</div>
         </div>
-        <label class="chk"><input type="checkbox" id="showNarrator" checked> Hiện dòng người dẫn trong tài liệu</label>
+        <label class="chk"><input type="checkbox" id="showSpeaker" checked> Hiện nhãn người đọc trên từng câu lời dẫn</label>
         <div class="fld" style="display:flex;gap:8px">
           <button class="btn ghost sm" id="demoBtn" type="button" style="flex:1">↺ Dữ liệu mẫu</button>
           <button class="btn ghost sm" id="sampleInfoBtn" type="button" style="flex:1">ⓘ Mẫu Excel kèm theo</button>
@@ -516,7 +514,6 @@ function defaultStyles(){
 let S = {
   rows: [], fileName: "", sheetName: "",
   sttMode: "file",            // file | auto
-  narratorMode: "male",       // male | female | custom — người dẫn (lời dẫn)
   layout: "cols",             // cols | stack
   ratio: 50,                  // % cho ngôn ngữ 1
   orient: "portrait",
@@ -528,8 +525,9 @@ let S = {
 function settingsFromUI(){
   return {
     headerMode: $("headerMode").value, toc: $("tocToggle").checked, scriptSeparate: $("scriptSeparateToggle").checked,
-    narratorMode: S.narratorMode, narratorName: $("narratorName") ? $("narratorName").value.trim() : "",
-    showNarrator: $("showNarrator") ? $("showNarrator").checked : true,
+    mcNameM: $("mcNameM") && $("mcNameM").value.trim() ? $("mcNameM").value.trim() : "MC Nam",
+    mcNameF: $("mcNameF") && $("mcNameF").value.trim() ? $("mcNameF").value.trim() : "MC Nữ",
+    showSpeaker: $("showSpeaker") ? $("showSpeaker").checked : true,
     lang1Name: $("lang1Name").value, lang2Name: $("lang2Name").value,
     showLang1: $("showLang1").checked, showLang2: $("showLang2").checked,
     showStt: $("showStt").checked, showColHeader: $("showColHeader").checked,
@@ -577,8 +575,32 @@ function normType(raw){
   if (t === "NOTE" || t === "GHICHU") return "NOTE";
   return ""; // không nhận diện được -> coi như dòng thường
 }
+/* Cột D có thể mang THÊM phân vai lời dẫn, ghi sau loại dòng:
+   [NAM] / [NU] -> MC Nam / MC Nữ;  [MC=Tên] -> người đọc tên tùy chỉnh.
+   Ví dụ: "[LANG_1] [NU]" = dòng chỉ Ngôn ngữ 1 do MC Nữ đọc. */
+function parseTypeCell(raw){
+  const s = String(raw ?? "");
+  let speaker = "", speakerName = "";
+  const m = s.match(/\[\s*MC\s*=\s*([^\]]+)\]/i) || s.match(/\[\s*TEN\s*[:=]\s*([^\]]+)\]/i);
+  if (m){ speaker = "C"; speakerName = m[1].trim(); }
+  else if (/\[\s*(NAM|MC\s*NAM)\s*\]/i.test(s)) speaker = "M";
+  else if (/\[\s*(NU|NỮ|MC\s*NU|MC\s*NỮ)\s*\]/i.test(s)) speaker = "F";
+  const rest = s.replace(/\[\s*MC\s*=\s*[^\]]+\]/gi, " ").replace(/\[\s*TEN\s*[:=]\s*[^\]]+\]/gi, " ")
+                .replace(/\[\s*(NAM|NU|NỮ|MC\s*NAM|MC\s*NU|MC\s*NỮ)\s*\]/gi, " ");
+  return { type: normType(rest), speaker, speakerName };
+}
+/* Token cột D khi xuất Excel: loại dòng + phân vai (nếu có) */
+function typeCellForExport(r){
+  const parts = [];
+  if (r.type) parts.push(`[${r.type}]`);
+  if (r.speaker === "M") parts.push("[NAM]");
+  else if (r.speaker === "F") parts.push("[NU]");
+  else if (r.speaker === "C" && r.speakerName) parts.push(`[MC=${r.speakerName}]`);
+  return parts.join(" ");
+}
 function rowToObj(r){
-  return { stt: String(r[0] ?? "").trim(), l1: String(r[1] ?? ""), l2: String(r[2] ?? ""), type: normType(r[3]) };
+  const pc = parseTypeCell(r[3]);
+  return { stt: String(r[0] ?? "").trim(), l1: String(r[1] ?? ""), l2: String(r[2] ?? ""), type: pc.type, speaker: pc.speaker, speakerName: pc.speakerName };
 }
 function isEmptyRow(o){ return !o.stt && !o.l1.trim() && !o.l2.trim() && !o.type; }
 function looksLikeHeader(o){
@@ -594,18 +616,18 @@ const DEMO = [
   ["", "LỄ KỶ NIỆM 20 NĂM THÀNH LẬP — DEMO", "創立20周年記念式典 — デモ", "[NOTE]"],
   ["", "PHẦN I. ĐÓN KHÁCH & KHAI MẠC", "第一部　受付・開会", "[HEADING_1]"],
   ["", "1.1 Đón khách, chụp ảnh backdrop", "1.1　来場受付、バックドロップ撮影", "[HEADING_2]"],
-  [1, "Kính chào quý vị đại biểu, quý vị khách quý đã đến tham dự buổi lễ hôm nay.", "ご来賓の皆様、本日はご出席いただき、誠にありがとうございます。", ""],
-  [2, "Xin quý vị vui lòng ổn định chỗ ngồi, chương trình sẽ bắt đầu trong ít phút nữa.", "まもなく開会いたしますので、お席にお着きくださいますようお願いいたします。", ""],
+  [1, "Kính chào quý vị đại biểu, quý vị khách quý đã đến tham dự buổi lễ hôm nay.", "ご来賓の皆様、本日はご出席いただき、誠にありがとうございます。", "[NAM]"],
+  [2, "Xin quý vị vui lòng ổn định chỗ ngồi, chương trình sẽ bắt đầu trong ít phút nữa.", "まもなく開会いたしますので、お席にお着きくださいますようお願いいたします。", "[NU]"],
   ["", "MC kiểm tra micro, nhắc đội kỹ thuật sẵn sàng nhạc hiệu.", "", "[NOTE]"],
   ["", "PHẦN II. NGHI LỄ CHÍNH", "第二部　式典", "[HEADING_1]"],
   ["", "2.1 Tuyên bố lý do, giới thiệu đại biểu", "2.1　開会宣言・来賓紹介", "[HEADING_2]"],
-  [3, "Xin trân trọng giới thiệu ông Terumasa Hirooka — Tổng Giám đốc công ty.", "代表取締役社長、廣岡輝政様をご紹介いたします。", ""],
-  ["", "", "拍手をお願いいたします。", "[LANG_2]"],
-  ["", "Xin một tràng pháo tay thật nồng nhiệt!", "", "[LANG_1]"],
-  [4, "Tiếp theo, xin kính mời ông lên sân khấu phát biểu.", "続きまして、社長よりご挨拶をいただきます。", ""],
+  [3, "Xin trân trọng giới thiệu ông Terumasa Hirooka — Tổng Giám đốc công ty.", "代表取締役社長、廣岡輝政様をご紹介いたします。", "[NAM]"],
+  ["", "", "拍手をお願いいたします。", "[LANG_2] [NU]"],
+  ["", "Xin một tràng pháo tay thật nồng nhiệt!", "", "[LANG_1] [NAM]"],
+  [4, "Tiếp theo, xin kính mời ông lên sân khấu phát biểu.", "続きまして、社長よりご挨拶をいただきます。", "[NU]"],
   ["", "2.2 Trao giải cuộc thi sáng tác", "2.2　創作コンテスト表彰", "[HEADING_2]"],
-  [5, "Xin chúc mừng các tác giả đạt giải trong cuộc thi “20 năm hành trình”.", "コンテストで入賞された皆様、おめでとうございます。", ""],
-  [6, "Chương trình xin được khép lại. Xin cảm ơn và hẹn gặp lại quý vị.", "これをもちまして式典を終了いたします。ありがとうございました。", ""]
+  [5, "Xin chúc mừng các tác giả đạt giải trong cuộc thi “20 năm hành trình”.", "コンテストで入賞された皆様、おめでとうございます。", "[NAM]"],
+  [6, "Chương trình xin được khép lại. Xin cảm ơn và hẹn gặp lại quý vị.", "これをもちまして式典を終了いたします。ありがとうございました。", "[NU]"]
 ];
 function loadDemo(){ S.rows = DEMO.map(rowToObj).filter(r => !isEmptyRow(r)); S.fileName = ""; S.restored = false; noteDataChanged(true); renderSoon(); }
 
@@ -618,12 +640,20 @@ function headingInner(o, cfg){
   if (!parts.length) parts.push(`<div>${nl2br(o.l1 || o.l2)}</div>`);
   return parts.join("");
 }
-/* Tên người dẫn theo chế độ lời dẫn: Nam -> "MC Nam", Nữ -> "MC Nữ",
-   Tên tùy chỉnh -> đúng tên người dùng nhập (trống thì dùng "MC"). */
-function narratorLabel(cfg){
-  if (cfg.narratorMode === "female") return "MC Nữ";
-  if (cfg.narratorMode === "custom") return (cfg.narratorName || "").trim() || "MC";
-  return "MC Nam";
+/* Tên hiển thị của người đọc một câu: M -> tên MC Nam (tùy chỉnh ở Nhóm 1),
+   F -> tên MC Nữ, C -> tên riêng đã gán cho chính câu đó. */
+function speakerDisplayName(o, cfg){
+  if (o.speaker === "M") return cfg.mcNameM || "MC Nam";
+  if (o.speaker === "F") return cfg.mcNameF || "MC Nữ";
+  if (o.speaker === "C") return (o.speakerName || "").trim() || "MC";
+  return "";
+}
+/* Nhãn người đọc gắn ở đầu câu lời dẫn. data-spk/data-spkname để khi đọc ngược
+   bản "sửa trên trang" không bị mất phân vai; domText bỏ qua nhãn này. */
+function speakerBadge(o, cfg){
+  if (!cfg.showSpeaker || !o.speaker) return "";
+  const cls = o.speaker === "M" ? "spk-m" : (o.speaker === "F" ? "spk-f" : "spk-c");
+  return `<span class="spk-badge ${cls}" data-spk="${o.speaker}" data-spkname="${esc(o.speakerName || "")}">${esc(speakerDisplayName(o, cfg))}</span>`;
 }
 function buildFlow(cfg){
   headingSeq = 0;
@@ -639,7 +669,6 @@ function buildFlow(cfg){
   const W = colWidths(cfg);
   const wA = v => ` style="width:${v.toFixed(2)}%"`;
 
-  let presenterDone = false;
   const sttOf = o => {
     if (S.sttMode === "auto"){
       if (o.type === "" || o.type === "LANG_1" || o.type === "LANG_2"){ autoNo++; return String(autoNo); }
@@ -653,10 +682,6 @@ function buildFlow(cfg){
     const o = S.rows[ri];
     if (o.type === "TITLE"){
       body.push(`<tr data-row="${ri}"><td class="r-title" colspan="${totalCols}" style="width:100%">${headingInner(o, cfg)}</td></tr>`);
-      if (cfg.showNarrator && !presenterDone){
-        presenterDone = true;
-        body.push(`<tr class="r-presenter-row"><td class="r-presenter" colspan="${totalCols}" style="width:100%">🎤 Người dẫn: <b>${esc(narratorLabel(cfg))}</b></td></tr>`);
-      }
     } else if (o.type === "HEADING_1" || o.type === "HEADING_2" || o.type === "HEADING_3"){
       headingSeq++;
       const id = "hd-" + headingSeq, lvl = Number(o.type.slice(-1));
@@ -675,31 +700,27 @@ function buildFlow(cfg){
       const bgAttr = bg ? ` style="background:${bg}"` : "";
       const cells = [];
       if (showSttCol) cells.push(`<td class="c-stt"${wA(W.stt)}>${stt ? `<span class="stt-badge">${esc(stt)}</span>` : ""}</td>`);
+      const badge = speakerBadge(o, cfg);
       if (S.layout === "cols"){
         if (o.type === "LANG_1"){
-          if (cfg.showLang1) cells.push(`<td class="c-l1" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${nl2br(o.l1)}</td>`);
+          if (cfg.showLang1) cells.push(`<td class="c-l1" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${badge}${nl2br(o.l1)}</td>`);
           else cells.push(langCols.map(c => `<td class="c-${c}"${wA(W[c])}></td>`).join(""));
         } else if (o.type === "LANG_2"){
-          if (cfg.showLang2) cells.push(`<td class="c-l2" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${nl2br(o.l2)}</td>`);
+          if (cfg.showLang2) cells.push(`<td class="c-l2" colspan="${langCols.length}"${wA(W.l1 + W.l2)}>${badge}${nl2br(o.l2)}</td>`);
           else cells.push(langCols.map(c => `<td class="c-${c}"${wA(W[c])}></td>`).join(""));
         } else {
-          if (cfg.showLang1) cells.push(`<td class="c-l1"${wA(W.l1)}>${nl2br(o.l1)}</td>`);
-          if (cfg.showLang2) cells.push(`<td class="c-l2"${wA(W.l2)}>${nl2br(o.l2)}</td>`);
+          /* Nhãn người đọc nằm ở ô ngôn ngữ đầu tiên đang hiện */
+          if (cfg.showLang1) cells.push(`<td class="c-l1"${wA(W.l1)}>${badge}${nl2br(o.l1)}</td>`);
+          if (cfg.showLang2) cells.push(`<td class="c-l2"${wA(W.l2)}>${cfg.showLang1 ? "" : badge}${nl2br(o.l2)}</td>`);
         }
       } else {
         const inner = [];
         if (o.type !== "LANG_2" && cfg.showLang1 && o.l1.trim()) inner.push(`<div class="stack-l1">${nl2br(o.l1)}</div>`);
         if (o.type !== "LANG_1" && cfg.showLang2 && o.l2.trim()) inner.push(`<div class="stack-l2">${nl2br(o.l2)}</div>`);
-        cells.push(`<td class="c-stack"${wA(W.stack)}>${inner.join("")}</td>`);
+        cells.push(`<td class="c-stack"${wA(W.stack)}>${badge}${inner.join("")}</td>`);
       }
       body.push(`<tr class="r-normal${cfg.showBorders ? " bordered" : ""}" data-row="${ri}"${bgAttr}>${cells.join("")}</tr>`);
     }
-  }
-
-  /* Không có [TITLE]: dòng người dẫn nằm ở đầu bảng kịch bản */
-  if (cfg.showNarrator && !presenterDone && body.length){
-    body.unshift(`<tr class="r-presenter-row"><td class="r-presenter" colspan="${totalCols}" style="width:100%">🎤 Người dẫn: <b>${esc(narratorLabel(cfg))}</b></td></tr>`);
-    presenterDone = true;
   }
 
   let html = "";
@@ -808,9 +829,11 @@ function buildPagedCSS(cfg){
   .r-h3{ ${styleDecl(st.h3)} ${padFull(st.h3)} break-after:avoid; break-inside:avoid; }
   .r-h1 .sub-lang,.r-h2 .sub-lang,.r-h3 .sub-lang,.r-title .sub-lang{ font-size:.78em; font-weight:400; opacity:.85; margin-top:.5mm; }
   .r-note{ ${styleDecl(st.note)} ${padFull(st.note)} break-inside:avoid; border-left:2.2mm solid #c9a227; }
-  .r-presenter{ font-family:${st.normal.font}; font-size:11.5pt; font-style:italic; text-align:center; color:#0f3a74;
-                padding:1mm 2mm 3mm 2mm; break-inside:avoid; break-after:avoid; }
-  .r-presenter b{ font-style:normal; }
+  .spk-badge{ display:inline-block; font-size:.76em; font-weight:700; line-height:1.25; white-space:nowrap;
+              padding:.3mm 1.8mm; border-radius:999px; margin-right:1.6mm; vertical-align:.14em; }
+  .spk-badge.spk-m{ background:#dbeafe; color:#1e40af; border:.3mm solid #93c5fd; }
+  .spk-badge.spk-f{ background:#fde7f3; color:#9d174d; border:.3mm solid #f9a8d4; }
+  .spk-badge.spk-c{ background:#fef3c7; color:#92400e; border:.3mm solid #fcd34d; }
   /* Mục lục: chấm dẫn + số trang qua target-counter (Paged.js) */
   .toc{ margin-bottom:7mm; }
   .toc-title{ font-family:'Times New Roman',serif; font-size:16pt; font-weight:700; text-align:center;
@@ -996,7 +1019,7 @@ function baseName(){
 function buildExportAOA(){
   const cfg = settingsFromUI();
   const aoa = [["STT", cfg.lang1Name, cfg.lang2Name, "Phân loại (Type)"]];
-  S.rows.forEach((r, i) => aoa.push([sttForExport(i), r.l1, r.l2, r.type ? `[${r.type}]` : ""]));
+  S.rows.forEach((r, i) => aoa.push([sttForExport(i), r.l1, r.l2, typeCellForExport(r)]));
   return aoa;
 }
 function exportExcel(){
@@ -1027,7 +1050,7 @@ function buildExportJSON(){
     app: "CongCuKichBanSongNgu", kind: "backup", version: 3,
     lang1Name: cfg.lang1Name, lang2Name: cfg.lang2Name,
     exportedAt: new Date().toISOString(),
-    rows: S.rows.map((r, i) => ({ stt: sttForExport(i), lang1: r.l1, lang2: r.l2, type: r.type })),
+    rows: S.rows.map((r, i) => ({ stt: sttForExport(i), lang1: r.l1, lang2: r.l2, type: r.type, speaker: r.speaker || "", speakerName: r.speakerName || "" })),
     settings: collectSettings()
   }, null, 2);
 }
@@ -1036,12 +1059,18 @@ function exportJSON(){
 }
 function rowsFromJSON(data){
   const arr = Array.isArray(data) ? data : (data && data.rows) || [];
-  return arr.map(r => ({
-    stt: String(r.stt ?? "").trim(),
-    l1: String(r.lang1 ?? r.l1 ?? ""),
-    l2: String(r.lang2 ?? r.l2 ?? ""),
-    type: normType(r.type ?? "")
-  })).filter(o => !isEmptyRow(o));
+  return arr.map(r => {
+    const pc = parseTypeCell(r.type ?? "");
+    let speaker = ["M", "F", "C"].includes(r.speaker) ? r.speaker : pc.speaker;
+    let speakerName = String(r.speakerName ?? "").trim() || pc.speakerName;
+    if (speaker !== "C") speakerName = "";
+    return {
+      stt: String(r.stt ?? "").trim(),
+      l1: String(r.lang1 ?? r.l1 ?? ""),
+      l2: String(r.lang2 ?? r.l2 ?? ""),
+      type: pc.type, speaker, speakerName
+    };
+  }).filter(o => !isEmptyRow(o));
 }
 /* Nạp dữ liệu từ một object JSON đã parse:
    - Có "settings" (file backup bản mới): khôi phục cả cài đặt lẫn nội dung.
@@ -1051,7 +1080,7 @@ function importJSONData(data){
   if (data && data.settings && (data.settings.ui || data.settings.S)){
     appliedSettings = applySettingsData(data.settings);
     if (appliedSettings){
-      segSet($("sttModeSeg"), S.sttMode); segSet($("narratorSeg"), S.narratorMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+      segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
       $("ratioRange").value = S.ratio;
       loadTypoPanel(); applyZoom();
     }
@@ -1229,7 +1258,7 @@ function openEditorAt(idx){
    thành MỘT bước (chỉ chốt khi ngừng gõ ~0,8 giây); thêm/xóa/dời dòng, đổi loại
    dòng, nhập file, điền số tự động... là từng bước riêng. Giữ tối đa 100 bước. */
 let histUndo = [], histRedo = [], histPresent = null, histTimer = null, histApplying = false;
-function cloneRows(rows){ return rows.map(r => ({ stt: r.stt, l1: r.l1, l2: r.l2, type: r.type })); }
+function cloneRows(rows){ return rows.map(r => ({ stt: r.stt, l1: r.l1, l2: r.l2, type: r.type, speaker: r.speaker || "", speakerName: r.speakerName || "" })); }
 function initHistory(){
   histUndo = []; histRedo = []; histPresent = cloneRows(S.rows);
   clearTimeout(histTimer); histTimer = null;
@@ -1333,7 +1362,7 @@ function rowFromTr(tr){
       if (b && !a && orig.type === "LANG_2") type = "LANG_2";
     }
   }
-  return { stt, l1, l2, type };
+  return { stt, l1, l2, type, speaker: orig.speaker || "", speakerName: orig.speakerName || "" };
 }
 
 let cellEditState = null;
@@ -1392,10 +1421,22 @@ function showCtxMenu(idx, x, y){
   const allTypes = ["", "TITLE", "HEADING_1", "HEADING_2", "HEADING_3", "LANG_1", "LANG_2", "NOTE"];
   const changeItems = allTypes.map(t =>
     `<div class="mi" data-act="type" data-type="${t}">${row.type === t ? "✓ " : "&nbsp;&nbsp;&nbsp;"}${typeName(t, cfg)}</div>`).join("");
+  /* Phân vai lời dẫn — chỉ cho các câu được đánh số (dòng thường & LANG_1/LANG_2) */
+  let spkItems = "";
+  if (row.type === "" || row.type === "LANG_1" || row.type === "LANG_2"){
+    const cur = row.speaker || "";
+    const opt = (v, label) => `<div class="mi" data-act="spk" data-spk="${v}">${cur === v ? "✓ " : "&nbsp;&nbsp;&nbsp;"}${label}</div>`;
+    spkItems = `<div class="sep"></div><div class="mhead">Gán lời dẫn — người đọc câu này</div>`
+      + opt("", "Không gán")
+      + opt("M", esc(cfg.mcNameM || "MC Nam"))
+      + opt("F", esc(cfg.mcNameF || "MC Nữ"))
+      + opt("C", cur === "C" && row.speakerName ? `Tên khác: ${esc(row.speakerName)} (đổi tên…)` : "Tên khác (tự nhập)…");
+  }
   menu.innerHTML =
     `<div class="mi" data-act="edit">✎ Sửa dòng này trong bảng soạn</div>` +
     `<div class="sep"></div><div class="mhead">Thêm ở dưới dòng này</div>${addItems}` +
     `<div class="sep"></div><div class="mhead">Đổi loại của dòng này</div>${changeItems}` +
+    spkItems +
     `<div class="sep"></div><div class="mi" data-act="del" style="color:#b3261e">🗑 Xóa dòng này</div>`;
   menu.dataset.idx = idx;
   menu.classList.remove("hidden");
@@ -1422,6 +1463,7 @@ function domText(el){
   const walk = n => {
     if (n.nodeType === 3){ out += n.textContent; return; }
     if (n.nodeType !== 1) return;
+    if (n.classList && n.classList.contains("spk-badge")) return; // nhãn người đọc không phải nội dung câu
     if (n.tagName === "BR"){ out += "\n"; return; }
     const block = (n.tagName === "DIV" || n.tagName === "P");
     [...n.childNodes].forEach(walk);
@@ -1448,7 +1490,6 @@ function parseEdited(){
     return { l1, l2 };
   };
   flow.querySelectorAll("table.script-table > tbody > tr").forEach(tr => {
-    if (tr.classList.contains("r-presenter-row")) return; // dòng người dẫn là dòng tổng hợp, không phải dữ liệu
     const titleTd = tr.querySelector("td.r-title");
     const h1Td = tr.querySelector("td.r-h1"), h2Td = tr.querySelector("td.r-h2"), h3Td = tr.querySelector("td.r-h3"), noteTd = tr.querySelector("td.r-note");
     if (titleTd){ rows.push({ stt: "", type: "TITLE", ...headMap(titleTd) }); return; }
@@ -1471,7 +1512,8 @@ function parseEdited(){
         if (a) l1 = domText(a); if (b) l2 = domText(b);
       }
     }
-    rows.push({ stt, l1, l2, type });
+    const bd = tr.querySelector(".spk-badge");
+    rows.push({ stt, l1, l2, type, speaker: bd ? (bd.dataset.spk || "") : "", speakerName: bd ? (bd.dataset.spkname || "") : "" });
   });
   return rows;
 }
@@ -1490,11 +1532,11 @@ const LS_KEY = "bilingual-script-v2-settings";
 /* Gói toàn bộ cài đặt hiện tại thành một object — dùng cho cả việc tự lưu
    (localStorage) lẫn file backup JSON xuất ra. */
 function collectSettings(){
-  const data = { fmtMigrated: true, ui: null, S: { sttMode: S.sttMode, narratorMode: S.narratorMode, layout: S.layout, ratio: S.ratio, orient: S.orient, zoom: S.zoom, styles: S.styles } };
+  const data = { fmtMigrated: true, ui: null, S: { sttMode: S.sttMode, layout: S.layout, ratio: S.ratio, orient: S.orient, zoom: S.zoom, styles: S.styles } };
   data.ui = {};
-  ["headerMode","lang1Name","lang2Name","narratorName","pageSize","customW","customH","mTop","mBottom","mLeft","mRight",
+  ["headerMode","lang1Name","lang2Name","mcNameM","mcNameF","pageSize","customW","customH","mTop","mBottom","mLeft","mRight",
    "pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"].forEach(id => data.ui[id] = $(id).value);
-  ["tocToggle","scriptSeparateToggle","showNarrator","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"]
+  ["tocToggle","scriptSeparateToggle","showSpeaker","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"]
     .forEach(id => data.ui[id] = $(id).checked);
   data.ui.lineHeight = $("lineHeight").value; data.ui.rowPad = $("rowPad").value;
   data.ui.ratioRange = $("ratioRange").value;
@@ -1507,7 +1549,7 @@ function saveSettings(){
 /* Áp một gói cài đặt (từ localStorage lúc mở trang, hoặc từ file backup JSON) vào giao diện + trạng thái. */
 function applySettingsData(data){
   if (!data) return false;
-  if (data.S){ Object.assign(S, { sttMode: data.S.sttMode || "file", narratorMode: data.S.narratorMode || "male", layout: data.S.layout || "cols",
+  if (data.S){ Object.assign(S, { sttMode: data.S.sttMode || "file", layout: data.S.layout || "cols",
     ratio: data.S.ratio ?? 50, orient: data.S.orient || "portrait", zoom: data.S.zoom || 100 });
     if (data.S.styles) S.styles = Object.assign(defaultStyles(), data.S.styles); }
   if (data.ui){
@@ -1582,7 +1624,6 @@ function syncConditionalUI(){
   $("pageNumOpts").style.display = $("pageNumToggle").checked ? "block" : "none";
   $("zebraOpts").style.display = $("rowMode").value === "zebra" ? "block" : "none";
   $("ratioFld").style.display = S.layout === "cols" ? "block" : "none";
-  const nnf = $("narratorNameFld"); if (nnf) nnf.style.display = S.narratorMode === "custom" ? "block" : "none";
   $("ratioVal").textContent = S.ratio + " : " + (100 - S.ratio);
   $("lhVal").textContent = $("lineHeight").value;
   $("rowPadVal").textContent = $("rowPad").value;
@@ -1591,10 +1632,9 @@ function init(){
   loadSettings();
   /* segmented */
   segBind("sttModeSeg", v => { S.sttMode = v; renderSoon(); });
-  segBind("narratorSeg", v => { S.narratorMode = v; syncConditionalUI(); renderSoon(); });
   segBind("layoutSeg", v => { S.layout = v; syncConditionalUI(); renderSoon(); });
   segBind("orientSeg", v => { S.orient = v; renderSoon(); });
-  segSet($("sttModeSeg"), S.sttMode); segSet($("narratorSeg"), S.narratorMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+  segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
   $("ratioRange").value = S.ratio;
 
   /* file */
@@ -1616,9 +1656,9 @@ function init(){
     alert("File Excel mẫu kèm theo công cụ này (cùng thư mục):\n“ Mau_KichBanSongNgu_V2.xlsx ”\n\nCột A: STT • B: Ngôn ngữ 1 • C: Ngôn ngữ 2 • D: Phân loại\n[TITLE] / [HEADING_1] / [HEADING_2] / [LANG_1] / [LANG_2] / [NOTE], để trống = dòng thường.\n\nHãy mở file mẫu, sửa nội dung theo kịch bản của bạn rồi Upload vào đây."));
 
   /* các control render lại khi đổi */
-  ["tocToggle","scriptSeparateToggle","showNarrator","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
+  ["tocToggle","scriptSeparateToggle","showSpeaker","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
     $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }));
-  ["lang1Name","lang2Name","narratorName","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
+  ["lang1Name","lang2Name","mcNameM","mcNameF","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
     .forEach(id => { $(id).addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
                      $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }); });
   $("ratioRange").addEventListener("input", e => { S.ratio = parseInt(e.target.value, 10); syncConditionalUI(); renderSoon(); });
@@ -1720,6 +1760,18 @@ function init(){
     if (act === "edit") openEditorAt(idx);
     else if (act === "add") insertRowAfter(idx, type);
     else if (act === "type") setRowType(idx, type);
+    else if (act === "spk"){
+      const row = S.rows[idx]; if (!row) return;
+      const v = mi.dataset.spk || "";
+      if (v === "C"){
+        const nm = prompt("Nhập tên người đọc câu này:", row.speakerName || "");
+        if (nm === null) return;
+        const name = nm.trim();
+        if (name){ row.speaker = "C"; row.speakerName = name; }
+        else { row.speaker = ""; row.speakerName = ""; }
+      } else { row.speaker = v; row.speakerName = ""; }
+      afterDataChange();
+    }
     else if (act === "del") deleteRowAt(idx);
   });
   document.addEventListener("click", e => { if (!$("ctxMenu").contains(e.target)) hideCtxMenu(); });
