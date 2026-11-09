@@ -17,10 +17,12 @@
       [HEADING_3]: đề mục cấp 3 -> vào Mục lục cấp 3
       [LANG_1] / [LANG_2] : dòng chỉ 1 ngôn ngữ
       [NOTE]     : ghi chú kịch bản / đạo diễn
-  - Lời dẫn (phân vai từng câu): mỗi câu được đánh số gán cho MC Nam / MC Nữ / tên
-    tùy chỉnh bằng menu chuột phải khi "Sửa trên trang" (hoặc ghi [NAM] / [NU] /
-    [MC=Tên] ở cột D trong Excel). Tên MC Nam/Nữ tùy chỉnh ở Nhóm 1; nhãn người đọc
-    hiện ở đầu câu trong bản in và file HTML xuất ra, tự lưu kèm backup JSON.
+  - Lời dẫn (phân vai từng câu): mỗi câu được đánh số gán cho MC Nam / MC Nữ /
+    Cả 2 / tên tùy chỉnh bằng menu chuột phải khi "Sửa trên trang" (hoặc ghi
+    [NAM] / [NU] / [CA2] / [MC=Tên] ở cột D trong Excel). Tên MC Nam/Nữ tùy chỉnh
+    ở Nhóm 1; mỗi tên riêng có một màu chữ riêng; nhãn người đọc hiện ở đầu câu
+    trong bản in và file HTML xuất ra, tự lưu kèm backup JSON. Có lựa chọn ẩn
+    số thứ tự câu đọc (dùng chung cài đặt với cột STT).
 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"></script>
@@ -183,7 +185,7 @@
           <label class="lab">Cấu trúc cột (cố định theo quy ước)</label>
           <div class="hint">A = STT &nbsp;•&nbsp; B = Ngôn ngữ 1 &nbsp;•&nbsp; C = Ngôn ngữ 2 &nbsp;•&nbsp; D = Phân loại:
             <span class="kbd">[TITLE]</span> <span class="kbd">[HEADING_1]</span> <span class="kbd">[HEADING_2]</span> <span class="kbd">[HEADING_3]</span>
-            <span class="kbd">[LANG_1]</span> <span class="kbd">[LANG_2]</span> <span class="kbd">[NOTE]</span> (trống = dòng thường)<br>Phân vai lời dẫn (ghi thêm ở cột D, sau loại dòng): <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[MC=Tên người đọc]</span></div>
+            <span class="kbd">[LANG_1]</span> <span class="kbd">[LANG_2]</span> <span class="kbd">[NOTE]</span> (trống = dòng thường)<br>Phân vai lời dẫn (ghi thêm ở cột D, sau loại dòng): <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[CA2]</span> <span class="kbd">[MC=Tên người đọc]</span></div>
         </div>
         <div class="fld">
           <label class="lab" for="headerMode">Dòng tiêu đề đầu bảng</label>
@@ -212,9 +214,10 @@
             <div><label class="lab" for="mcNameM">MC Nam</label><input type="text" id="mcNameM" value="MC Nam"></div>
             <div><label class="lab" for="mcNameF">MC Nữ</label><input type="text" id="mcNameF" value="MC Nữ"></div>
           </div>
-          <div class="hint">Đổi tên MC tại đây là <b>mọi câu đã gán</b> Nam/Nữ tự hiện theo tên mới. <b>Cách gán từng câu:</b> bật <b>“✎ Sửa trên trang”</b>, <b>chuột phải vào câu</b> cần gán → mục <b>“Gán lời dẫn”</b> → chọn MC Nam / MC Nữ / <i>Tên khác (tự nhập)…</i> / bỏ gán. Trong file Excel, cột D ghi thêm <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[MC=Tên]</span> ngay sau loại dòng — sửa ngay trong Excel cũng được.</div>
+          <div class="hint">Đổi tên MC tại đây là <b>mọi câu đã gán</b> Nam/Nữ tự hiện theo tên mới. <b>Cách gán từng câu:</b> bật <b>“✎ Sửa trên trang”</b>, <b>chuột phải vào câu</b> cần gán → mục <b>“Gán lời dẫn”</b> → chọn MC Nam / MC Nữ / Cả 2 / <i>Tên khác (tự nhập)…</i> / bỏ gán. Tên riêng: <b>mỗi tên một màu chữ riêng</b>, không trùng nhau và không trùng màu của Nam (xanh dương) / Nữ (hồng) / Cả 2 (tím). Trong file Excel, cột D ghi thêm <span class="kbd">[NAM]</span> <span class="kbd">[NU]</span> <span class="kbd">[CA2]</span> <span class="kbd">[MC=Tên]</span> ngay sau loại dòng — sửa ngay trong Excel cũng được.</div>
         </div>
         <label class="chk"><input type="checkbox" id="showSpeaker" checked> Hiện nhãn người đọc trên từng câu lời dẫn</label>
+        <label class="chk"><input type="checkbox" id="hideReadStt"> Ẩn số thứ tự câu đọc (ẩn cột STT)</label>
         <div class="fld" style="display:flex;gap:8px">
           <button class="btn ghost sm" id="demoBtn" type="button" style="flex:1">↺ Dữ liệu mẫu</button>
           <button class="btn ghost sm" id="sampleInfoBtn" type="button" style="flex:1">ⓘ Mẫu Excel kèm theo</button>
@@ -576,17 +579,19 @@ function normType(raw){
   return ""; // không nhận diện được -> coi như dòng thường
 }
 /* Cột D có thể mang THÊM phân vai lời dẫn, ghi sau loại dòng:
-   [NAM] / [NU] -> MC Nam / MC Nữ;  [MC=Tên] -> người đọc tên tùy chỉnh.
+   [NAM] / [NU] -> MC Nam / MC Nữ;  [CA2] -> cả hai MC cùng đọc;
+   [MC=Tên] -> người đọc tên tùy chỉnh.
    Ví dụ: "[LANG_1] [NU]" = dòng chỉ Ngôn ngữ 1 do MC Nữ đọc. */
 function parseTypeCell(raw){
   const s = String(raw ?? "");
   let speaker = "", speakerName = "";
   const m = s.match(/\[\s*MC\s*=\s*([^\]]+)\]/i) || s.match(/\[\s*TEN\s*[:=]\s*([^\]]+)\]/i);
   if (m){ speaker = "C"; speakerName = m[1].trim(); }
+  else if (/\[\s*(CA\s*2|CẢ\s*2|BOTH)\s*\]/i.test(s)) speaker = "B";
   else if (/\[\s*(NAM|MC\s*NAM)\s*\]/i.test(s)) speaker = "M";
   else if (/\[\s*(NU|NỮ|MC\s*NU|MC\s*NỮ)\s*\]/i.test(s)) speaker = "F";
   const rest = s.replace(/\[\s*MC\s*=\s*[^\]]+\]/gi, " ").replace(/\[\s*TEN\s*[:=]\s*[^\]]+\]/gi, " ")
-                .replace(/\[\s*(NAM|NU|NỮ|MC\s*NAM|MC\s*NU|MC\s*NỮ)\s*\]/gi, " ");
+                .replace(/\[\s*(CA\s*2|CẢ\s*2|BOTH|NAM|NU|NỮ|MC\s*NAM|MC\s*NU|MC\s*NỮ)\s*\]/gi, " ");
   return { type: normType(rest), speaker, speakerName };
 }
 /* Token cột D khi xuất Excel: loại dòng + phân vai (nếu có) */
@@ -595,6 +600,7 @@ function typeCellForExport(r){
   if (r.type) parts.push(`[${r.type}]`);
   if (r.speaker === "M") parts.push("[NAM]");
   else if (r.speaker === "F") parts.push("[NU]");
+  else if (r.speaker === "B") parts.push("[CA2]");
   else if (r.speaker === "C" && r.speakerName) parts.push(`[MC=${r.speakerName}]`);
   return parts.join(" ");
 }
@@ -627,7 +633,7 @@ const DEMO = [
   [4, "Tiếp theo, xin kính mời ông lên sân khấu phát biểu.", "続きまして、社長よりご挨拶をいただきます。", "[NU]"],
   ["", "2.2 Trao giải cuộc thi sáng tác", "2.2　創作コンテスト表彰", "[HEADING_2]"],
   [5, "Xin chúc mừng các tác giả đạt giải trong cuộc thi “20 năm hành trình”.", "コンテストで入賞された皆様、おめでとうございます。", "[NAM]"],
-  [6, "Chương trình xin được khép lại. Xin cảm ơn và hẹn gặp lại quý vị.", "これをもちまして式典を終了いたします。ありがとうございました。", "[NU]"]
+  [6, "Chương trình xin được khép lại. Xin cảm ơn và hẹn gặp lại quý vị.", "これをもちまして式典を終了いたします。ありがとうございました。", "[CA2]"]
 ];
 function loadDemo(){ S.rows = DEMO.map(rowToObj).filter(r => !isEmptyRow(r)); S.fileName = ""; S.restored = false; noteDataChanged(true); renderSoon(); }
 
@@ -643,17 +649,33 @@ function headingInner(o, cfg){
 /* Tên hiển thị của người đọc một câu: M -> tên MC Nam (tùy chỉnh ở Nhóm 1),
    F -> tên MC Nữ, C -> tên riêng đã gán cho chính câu đó. */
 function speakerDisplayName(o, cfg){
+  if (o.speaker === "B") return (cfg.mcNameM || "MC Nam") + " & " + (cfg.mcNameF || "MC Nữ");
   if (o.speaker === "M") return cfg.mcNameM || "MC Nam";
   if (o.speaker === "F") return cfg.mcNameF || "MC Nữ";
   if (o.speaker === "C") return (o.speakerName || "").trim() || "MC";
   return "";
 }
+/* Màu chữ riêng cho từng tên tùy chỉnh: chọn bền vững theo tên từ bảng màu
+   KHÔNG trùng với màu của Nam (xanh dương), Nữ (hồng) và Cả 2 (tím);
+   cùng một tên ở mọi câu luôn cùng một màu. */
+const SPK_CUSTOM_COLORS = ["#0f766e", "#c2410c", "#4d7c0f", "#b91c1c", "#a16207", "#166534", "#7c2d12", "#9a3412"];
+function customSpeakerColor(name){
+  const s = String(name || "");
+  let h = 0;
+  for (let i = 0; i < s.length; i++){ h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return SPK_CUSTOM_COLORS[Math.abs(h) % SPK_CUSTOM_COLORS.length];
+}
 /* Nhãn người đọc gắn ở đầu câu lời dẫn. data-spk/data-spkname để khi đọc ngược
    bản "sửa trên trang" không bị mất phân vai; domText bỏ qua nhãn này. */
 function speakerBadge(o, cfg){
   if (!cfg.showSpeaker || !o.speaker) return "";
-  const cls = o.speaker === "M" ? "spk-m" : (o.speaker === "F" ? "spk-f" : "spk-c");
-  return `<span class="spk-badge ${cls}" data-spk="${o.speaker}" data-spkname="${esc(o.speakerName || "")}">${esc(speakerDisplayName(o, cfg))}</span>`;
+  const cls = o.speaker === "M" ? "spk-m" : (o.speaker === "F" ? "spk-f" : (o.speaker === "B" ? "spk-b" : "spk-c"));
+  let style = "";
+  if (o.speaker === "C"){
+    const c = customSpeakerColor(o.speakerName);
+    style = ` style="color:${c};border-color:${c};background:${c}1f"`;
+  }
+  return `<span class="spk-badge ${cls}"${style} data-spk="${o.speaker}" data-spkname="${esc(o.speakerName || "")}">${esc(speakerDisplayName(o, cfg))}</span>`;
 }
 function buildFlow(cfg){
   headingSeq = 0;
@@ -833,6 +855,7 @@ function buildPagedCSS(cfg){
               padding:.3mm 1.8mm; border-radius:999px; margin-right:1.6mm; vertical-align:.14em; }
   .spk-badge.spk-m{ background:#dbeafe; color:#1e40af; border:.3mm solid #93c5fd; }
   .spk-badge.spk-f{ background:#fde7f3; color:#9d174d; border:.3mm solid #f9a8d4; }
+  .spk-badge.spk-b{ background:#ede9fe; color:#5b21b8; border:.3mm solid #c4b5fd; }
   .spk-badge.spk-c{ background:#fef3c7; color:#92400e; border:.3mm solid #fcd34d; }
   /* Mục lục: chấm dẫn + số trang qua target-counter (Paged.js) */
   .toc{ margin-bottom:7mm; }
@@ -1061,7 +1084,7 @@ function rowsFromJSON(data){
   const arr = Array.isArray(data) ? data : (data && data.rows) || [];
   return arr.map(r => {
     const pc = parseTypeCell(r.type ?? "");
-    let speaker = ["M", "F", "C"].includes(r.speaker) ? r.speaker : pc.speaker;
+    let speaker = ["M", "F", "B", "C"].includes(r.speaker) ? r.speaker : pc.speaker;
     let speakerName = String(r.speakerName ?? "").trim() || pc.speakerName;
     if (speaker !== "C") speakerName = "";
     return {
@@ -1430,6 +1453,7 @@ function showCtxMenu(idx, x, y){
       + opt("", "Không gán")
       + opt("M", esc(cfg.mcNameM || "MC Nam"))
       + opt("F", esc(cfg.mcNameF || "MC Nữ"))
+      + opt("B", "Cả 2 (hai MC cùng đọc)")
       + opt("C", cur === "C" && row.speakerName ? `Tên khác: ${esc(row.speakerName)} (đổi tên…)` : "Tên khác (tự nhập)…");
   }
   menu.innerHTML =
@@ -1627,6 +1651,7 @@ function syncConditionalUI(){
   $("ratioVal").textContent = S.ratio + " : " + (100 - S.ratio);
   $("lhVal").textContent = $("lineHeight").value;
   $("rowPadVal").textContent = $("rowPad").value;
+  const hrs = $("hideReadStt"); if (hrs) hrs.checked = !$("showStt").checked;
 }
 function init(){
   loadSettings();
@@ -1658,6 +1683,8 @@ function init(){
   /* các control render lại khi đổi */
   ["tocToggle","scriptSeparateToggle","showSpeaker","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
     $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }));
+  /* "Ẩn số thứ tự câu đọc" là mặt trái của "Hiện cột STT" — dùng chung một cài đặt */
+  $("hideReadStt").addEventListener("change", e => { $("showStt").checked = !e.target.checked; syncConditionalUI(); renderSoon(); });
   ["lang1Name","lang2Name","mcNameM","mcNameF","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
     .forEach(id => { $(id).addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
                      $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }); });
