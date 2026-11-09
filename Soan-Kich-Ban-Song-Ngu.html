@@ -17,6 +17,8 @@
       [HEADING_3]: đề mục cấp 3 -> vào Mục lục cấp 3
       [LANG_1] / [LANG_2] : dòng chỉ 1 ngôn ngữ
       [NOTE]     : ghi chú kịch bản / đạo diễn
+  - Lời dẫn: chọn người dẫn Nam / Nữ / tên tùy chỉnh ở Nhóm 1 — dòng "🎤 Người dẫn: ..."
+    tự hiện dưới [TITLE] trong bản in và file HTML xuất ra, tự lưu kèm backup JSON.
 -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/pagedjs@0.4.3/dist/paged.js"></script>
@@ -202,6 +204,19 @@
         <label class="chk"><input type="checkbox" id="tocToggle" checked> Tạo Mục Lục Tự Động (Table of Contents)</label>
         <div class="hint" style="margin:-2px 0 4px 22px">Trích [HEADING_1] / [HEADING_2] / [HEADING_3] lên đầu tài liệu, kèm số trang (tự cập nhật theo phân trang).</div>
         <label class="chk"><input type="checkbox" id="scriptSeparateToggle" checked> Kịch bản ở trang riêng (ngắt trang sau Mục lục)</label>
+        <div class="fld">
+          <label class="lab">Lời dẫn — chọn người dẫn chương trình</label>
+          <div class="seg" id="narratorSeg">
+            <button type="button" data-v="male" class="on">Nam</button>
+            <button type="button" data-v="female">Nữ</button>
+            <button type="button" data-v="custom">Tên tùy chỉnh</button>
+          </div>
+          <div id="narratorNameFld" style="display:none;margin-top:6px">
+            <input type="text" id="narratorName" placeholder="Nhập tên người dẫn — ví dụ: MC Thu Hà">
+          </div>
+          <div class="hint">Dòng <b>“🎤 Người dẫn: …”</b> tự hiện ngay dưới tiêu đề chính [TITLE] trong bản xem trước, bản in và file HTML xuất ra (kịch bản không có [TITLE] thì hiện ở đầu bảng). Chọn <b>Nam</b> → “MC Nam”, <b>Nữ</b> → “MC Nữ”, <b>Tên tùy chỉnh</b> → hiện đúng tên anh nhập. Lựa chọn được tự lưu và đi theo cả file backup JSON.</div>
+        </div>
+        <label class="chk"><input type="checkbox" id="showNarrator" checked> Hiện dòng người dẫn trong tài liệu</label>
         <div class="fld" style="display:flex;gap:8px">
           <button class="btn ghost sm" id="demoBtn" type="button" style="flex:1">↺ Dữ liệu mẫu</button>
           <button class="btn ghost sm" id="sampleInfoBtn" type="button" style="flex:1">ⓘ Mẫu Excel kèm theo</button>
@@ -501,6 +516,7 @@ function defaultStyles(){
 let S = {
   rows: [], fileName: "", sheetName: "",
   sttMode: "file",            // file | auto
+  narratorMode: "male",       // male | female | custom — người dẫn (lời dẫn)
   layout: "cols",             // cols | stack
   ratio: 50,                  // % cho ngôn ngữ 1
   orient: "portrait",
@@ -512,6 +528,8 @@ let S = {
 function settingsFromUI(){
   return {
     headerMode: $("headerMode").value, toc: $("tocToggle").checked, scriptSeparate: $("scriptSeparateToggle").checked,
+    narratorMode: S.narratorMode, narratorName: $("narratorName") ? $("narratorName").value.trim() : "",
+    showNarrator: $("showNarrator") ? $("showNarrator").checked : true,
     lang1Name: $("lang1Name").value, lang2Name: $("lang2Name").value,
     showLang1: $("showLang1").checked, showLang2: $("showLang2").checked,
     showStt: $("showStt").checked, showColHeader: $("showColHeader").checked,
@@ -600,6 +618,13 @@ function headingInner(o, cfg){
   if (!parts.length) parts.push(`<div>${nl2br(o.l1 || o.l2)}</div>`);
   return parts.join("");
 }
+/* Tên người dẫn theo chế độ lời dẫn: Nam -> "MC Nam", Nữ -> "MC Nữ",
+   Tên tùy chỉnh -> đúng tên người dùng nhập (trống thì dùng "MC"). */
+function narratorLabel(cfg){
+  if (cfg.narratorMode === "female") return "MC Nữ";
+  if (cfg.narratorMode === "custom") return (cfg.narratorName || "").trim() || "MC";
+  return "MC Nam";
+}
 function buildFlow(cfg){
   headingSeq = 0;
   let autoNo = 0, normalIdx = 0;
@@ -614,6 +639,7 @@ function buildFlow(cfg){
   const W = colWidths(cfg);
   const wA = v => ` style="width:${v.toFixed(2)}%"`;
 
+  let presenterDone = false;
   const sttOf = o => {
     if (S.sttMode === "auto"){
       if (o.type === "" || o.type === "LANG_1" || o.type === "LANG_2"){ autoNo++; return String(autoNo); }
@@ -627,6 +653,10 @@ function buildFlow(cfg){
     const o = S.rows[ri];
     if (o.type === "TITLE"){
       body.push(`<tr data-row="${ri}"><td class="r-title" colspan="${totalCols}" style="width:100%">${headingInner(o, cfg)}</td></tr>`);
+      if (cfg.showNarrator && !presenterDone){
+        presenterDone = true;
+        body.push(`<tr class="r-presenter-row"><td class="r-presenter" colspan="${totalCols}" style="width:100%">🎤 Người dẫn: <b>${esc(narratorLabel(cfg))}</b></td></tr>`);
+      }
     } else if (o.type === "HEADING_1" || o.type === "HEADING_2" || o.type === "HEADING_3"){
       headingSeq++;
       const id = "hd-" + headingSeq, lvl = Number(o.type.slice(-1));
@@ -664,6 +694,12 @@ function buildFlow(cfg){
       }
       body.push(`<tr class="r-normal${cfg.showBorders ? " bordered" : ""}" data-row="${ri}"${bgAttr}>${cells.join("")}</tr>`);
     }
+  }
+
+  /* Không có [TITLE]: dòng người dẫn nằm ở đầu bảng kịch bản */
+  if (cfg.showNarrator && !presenterDone && body.length){
+    body.unshift(`<tr class="r-presenter-row"><td class="r-presenter" colspan="${totalCols}" style="width:100%">🎤 Người dẫn: <b>${esc(narratorLabel(cfg))}</b></td></tr>`);
+    presenterDone = true;
   }
 
   let html = "";
@@ -772,6 +808,9 @@ function buildPagedCSS(cfg){
   .r-h3{ ${styleDecl(st.h3)} ${padFull(st.h3)} break-after:avoid; break-inside:avoid; }
   .r-h1 .sub-lang,.r-h2 .sub-lang,.r-h3 .sub-lang,.r-title .sub-lang{ font-size:.78em; font-weight:400; opacity:.85; margin-top:.5mm; }
   .r-note{ ${styleDecl(st.note)} ${padFull(st.note)} break-inside:avoid; border-left:2.2mm solid #c9a227; }
+  .r-presenter{ font-family:${st.normal.font}; font-size:11.5pt; font-style:italic; text-align:center; color:#0f3a74;
+                padding:1mm 2mm 3mm 2mm; break-inside:avoid; break-after:avoid; }
+  .r-presenter b{ font-style:normal; }
   /* Mục lục: chấm dẫn + số trang qua target-counter (Paged.js) */
   .toc{ margin-bottom:7mm; }
   .toc-title{ font-family:'Times New Roman',serif; font-size:16pt; font-weight:700; text-align:center;
@@ -1012,7 +1051,7 @@ function importJSONData(data){
   if (data && data.settings && (data.settings.ui || data.settings.S)){
     appliedSettings = applySettingsData(data.settings);
     if (appliedSettings){
-      segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+      segSet($("sttModeSeg"), S.sttMode); segSet($("narratorSeg"), S.narratorMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
       $("ratioRange").value = S.ratio;
       loadTypoPanel(); applyZoom();
     }
@@ -1409,6 +1448,7 @@ function parseEdited(){
     return { l1, l2 };
   };
   flow.querySelectorAll("table.script-table > tbody > tr").forEach(tr => {
+    if (tr.classList.contains("r-presenter-row")) return; // dòng người dẫn là dòng tổng hợp, không phải dữ liệu
     const titleTd = tr.querySelector("td.r-title");
     const h1Td = tr.querySelector("td.r-h1"), h2Td = tr.querySelector("td.r-h2"), h3Td = tr.querySelector("td.r-h3"), noteTd = tr.querySelector("td.r-note");
     if (titleTd){ rows.push({ stt: "", type: "TITLE", ...headMap(titleTd) }); return; }
@@ -1450,11 +1490,11 @@ const LS_KEY = "bilingual-script-v2-settings";
 /* Gói toàn bộ cài đặt hiện tại thành một object — dùng cho cả việc tự lưu
    (localStorage) lẫn file backup JSON xuất ra. */
 function collectSettings(){
-  const data = { fmtMigrated: true, ui: null, S: { sttMode: S.sttMode, layout: S.layout, ratio: S.ratio, orient: S.orient, zoom: S.zoom, styles: S.styles } };
+  const data = { fmtMigrated: true, ui: null, S: { sttMode: S.sttMode, narratorMode: S.narratorMode, layout: S.layout, ratio: S.ratio, orient: S.orient, zoom: S.zoom, styles: S.styles } };
   data.ui = {};
-  ["headerMode","lang1Name","lang2Name","pageSize","customW","customH","mTop","mBottom","mLeft","mRight",
+  ["headerMode","lang1Name","lang2Name","narratorName","pageSize","customW","customH","mTop","mBottom","mLeft","mRight",
    "pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"].forEach(id => data.ui[id] = $(id).value);
-  ["tocToggle","scriptSeparateToggle","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"]
+  ["tocToggle","scriptSeparateToggle","showNarrator","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"]
     .forEach(id => data.ui[id] = $(id).checked);
   data.ui.lineHeight = $("lineHeight").value; data.ui.rowPad = $("rowPad").value;
   data.ui.ratioRange = $("ratioRange").value;
@@ -1467,7 +1507,7 @@ function saveSettings(){
 /* Áp một gói cài đặt (từ localStorage lúc mở trang, hoặc từ file backup JSON) vào giao diện + trạng thái. */
 function applySettingsData(data){
   if (!data) return false;
-  if (data.S){ Object.assign(S, { sttMode: data.S.sttMode || "file", layout: data.S.layout || "cols",
+  if (data.S){ Object.assign(S, { sttMode: data.S.sttMode || "file", narratorMode: data.S.narratorMode || "male", layout: data.S.layout || "cols",
     ratio: data.S.ratio ?? 50, orient: data.S.orient || "portrait", zoom: data.S.zoom || 100 });
     if (data.S.styles) S.styles = Object.assign(defaultStyles(), data.S.styles); }
   if (data.ui){
@@ -1542,6 +1582,7 @@ function syncConditionalUI(){
   $("pageNumOpts").style.display = $("pageNumToggle").checked ? "block" : "none";
   $("zebraOpts").style.display = $("rowMode").value === "zebra" ? "block" : "none";
   $("ratioFld").style.display = S.layout === "cols" ? "block" : "none";
+  const nnf = $("narratorNameFld"); if (nnf) nnf.style.display = S.narratorMode === "custom" ? "block" : "none";
   $("ratioVal").textContent = S.ratio + " : " + (100 - S.ratio);
   $("lhVal").textContent = $("lineHeight").value;
   $("rowPadVal").textContent = $("rowPad").value;
@@ -1550,9 +1591,10 @@ function init(){
   loadSettings();
   /* segmented */
   segBind("sttModeSeg", v => { S.sttMode = v; renderSoon(); });
+  segBind("narratorSeg", v => { S.narratorMode = v; syncConditionalUI(); renderSoon(); });
   segBind("layoutSeg", v => { S.layout = v; syncConditionalUI(); renderSoon(); });
   segBind("orientSeg", v => { S.orient = v; renderSoon(); });
-  segSet($("sttModeSeg"), S.sttMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
+  segSet($("sttModeSeg"), S.sttMode); segSet($("narratorSeg"), S.narratorMode); segSet($("layoutSeg"), S.layout); segSet($("orientSeg"), S.orient);
   $("ratioRange").value = S.ratio;
 
   /* file */
@@ -1574,9 +1616,9 @@ function init(){
     alert("File Excel mẫu kèm theo công cụ này (cùng thư mục):\n“ Mau_KichBanSongNgu_V2.xlsx ”\n\nCột A: STT • B: Ngôn ngữ 1 • C: Ngôn ngữ 2 • D: Phân loại\n[TITLE] / [HEADING_1] / [HEADING_2] / [LANG_1] / [LANG_2] / [NOTE], để trống = dòng thường.\n\nHãy mở file mẫu, sửa nội dung theo kịch bản của bạn rồi Upload vào đây."));
 
   /* các control render lại khi đổi */
-  ["tocToggle","scriptSeparateToggle","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
+  ["tocToggle","scriptSeparateToggle","showNarrator","showLang1","showLang2","showStt","showColHeader","showBorders","rowSplitToggle","pageNumToggle"].forEach(id =>
     $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }));
-  ["lang1Name","lang2Name","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
+  ["lang1Name","lang2Name","narratorName","pageSize","customW","customH","mTop","mBottom","mLeft","mRight","pageNumPos","pageNumFormat","rowMode","zebraA","zebraB"]
     .forEach(id => { $(id).addEventListener("input", () => { syncConditionalUI(); renderSoon(); });
                      $(id).addEventListener("change", () => { syncConditionalUI(); renderSoon(); }); });
   $("ratioRange").addEventListener("input", e => { S.ratio = parseInt(e.target.value, 10); syncConditionalUI(); renderSoon(); });
