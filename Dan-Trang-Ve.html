@@ -615,6 +615,8 @@
         .dropzone-img {
             transition: border-color 0.15s, background-color 0.15s, box-shadow 0.15s;
         }
+        #dz-front, #duplex-settings-box { border: 1.5px dashed #cbd5e1; }
+        .workspace.workspace-dragover { outline: 3px dashed var(--primary); outline-offset: -6px; }
         .dropzone-img.dragover {
             border-color: var(--primary) !important;
             background-color: var(--primary-light) !important;
@@ -727,7 +729,8 @@
                         <label>Hoặc tên file ảnh cùng thư mục:</label>
                         <input type="text" id="inp-img-path" value="card.jpg">
                     </div>
-                    <div class="drop-hint">🖱️ <b>Kéo &amp; thả</b> file ảnh vào khung này cho nhanh, hoặc bấm vào khung rồi dán ảnh bằng <b>Ctrl+V</b></div>
+                    <div class="drop-hint">🖱️ <b>Kéo &amp; thả</b> file ảnh vào khung này — hoặc thả thẳng lên <b>trang vé</b> bên phải cũng được — hoặc dán ảnh bằng <b>Ctrl+V</b></div>
+                    <div class="drop-hint" id="front-img-status" style="font-weight:600;"></div>
                 </div>
 
                 <div class="group-card">
@@ -897,6 +900,7 @@
                             <input type="text" id="inp-back-path" placeholder="card-back.jpg">
                         </div>
                         <div class="drop-hint">🖱️ <b>Kéo &amp; thả</b> ảnh mặt sau vào khung này, hoặc dán bằng <b>Ctrl+V</b></div>
+                        <div class="drop-hint" id="back-img-status" style="font-weight:600;"></div>
                         <div class="control-group" style="margin-top:10px;">
                             <label>Dữ liệu chèn lên mặt sau:</label>
                             <select id="sel-back-data-source" style="font-weight:600;">
@@ -2390,7 +2394,7 @@
         }
 
         function addPortraitFiles(fileList) {
-            const files = Array.from(fileList || []).filter(f => f.type && f.type.startsWith('image/'));
+            const files = Array.from(fileList || []).filter(isImageFile);
             if (!files.length) return;
             let done = 0;
             files.forEach(file => {
@@ -2399,7 +2403,7 @@
                     const key = photoKeyFromFilename(file.name);
                     if (key) {
                         if (!portraitMap[key]) portraitOrder.push(key);
-                        portraitMap[key] = evt.target.result;
+                        portraitMap[key] = fixDataUrlMime(evt.target.result, file.name);
                     }
                     done++;
                     if (done === files.length) { persistPortraits(); renderPages(); }
@@ -2408,24 +2412,126 @@
             });
         }
 
+        // ===== V2.1: Nạp ảnh tin cậy — nhận diện file, kiểm tra đọc được, lưu ảnh nền đã thả =====
+        function isImageFile(f) {
+            if (!f) return false;
+            if (f.type && f.type.startsWith('image/')) return true;
+            return /\.(png|jpe?g|webp|gif|bmp|svg|avif|heic|heif|tiff?)$/i.test(f.name || '');
+        }
+
+        function setImgStatus(id, ok, text) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.textContent = text;
+            el.style.color = ok === null ? '#64748b' : (ok ? '#059669' : '#dc2626');
+        }
+
+        function verifyImageDecodes(src, statusId, okText) {
+            const img = new Image();
+            img.onload = () => setImgStatus(statusId, true, okText);
+            img.onerror = () => setImgStatus(statusId, false, '⚠️ Không đọc được ảnh này — trình duyệt không giải mã được định dạng (hay gặp với ảnh HEIC của iPhone hoặc file bị lỗi). Hãy đổi sang JPG/PNG rồi thả lại.');
+            img.src = src;
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes == null) return '';
+            if (bytes < 1024) return bytes + ' B';
+            if (bytes < 1024 * 1024) return Math.round(bytes / 1024) + ' KB';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+        }
+
+        const BG_STORAGE_KEY = 'STUDIO_IN_VE_BG_V1';
+        let droppedFrontUrl = '';
+        let droppedBackUrl = '';
+        let bgPersistFailed = false;
+
+        function persistBgImages() {
+            try {
+                localStorage.setItem(BG_STORAGE_KEY, JSON.stringify({ front: droppedFrontUrl, back: droppedBackUrl }));
+                bgPersistFailed = false;
+            } catch (e) { bgPersistFailed = true; }
+        }
+
+        function restoreBgImages() {
+            try {
+                const raw = localStorage.getItem(BG_STORAGE_KEY);
+                if (!raw) return;
+                const p = JSON.parse(raw);
+                if (p.front) {
+                    droppedFrontUrl = p.front;
+                    currentBgUrl = p.front;
+                    rootStyle.setProperty('--bg-img', `url('${p.front}')`);
+                    fetchImageRatio(p.front);
+                    setImgStatus('front-img-status', true, '✅ Đang dùng ảnh đã thả/chọn ở lần làm việc trước (gõ tên file khác ở ô trên để thay).');
+                }
+                if (p.back) {
+                    droppedBackUrl = p.back;
+                    currentBackUrl = p.back;
+                    rootStyle.setProperty('--bg-img-back', `url('${p.back}')`);
+                    setImgStatus('back-img-status', true, '✅ Đang dùng ảnh mặt sau đã thả/chọn ở lần làm việc trước.');
+                }
+            } catch (e) {}
+        }
+
+        // Chuẩn hoá MIME của dataURL theo đuôi file (file không khai báo type sẽ bị
+        // trình đọc gán application/octet-stream khiến ảnh nền có thể không hiển thị)
+        function fixDataUrlMime(dataUrl, fileName) {
+            const m = String(fileName || '').match(/\.([a-z0-9]+)$/i);
+            if (!m || typeof dataUrl !== 'string') return dataUrl;
+            const map = { png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp',
+                gif: 'image/gif', bmp: 'image/bmp', svg: 'image/svg+xml', avif: 'image/avif',
+                heic: 'image/heic', heif: 'image/heif', tif: 'image/tiff', tiff: 'image/tiff' };
+            const mime = map[m[1].toLowerCase()];
+            if (!mime) return dataUrl;
+            return dataUrl.replace(/^data:[^,]*,/, 'data:' + mime + ';base64,');
+        }
+
+        function setFrontImageFromURL(url) {
+            if (!url) return;
+            droppedFrontUrl = '';
+            persistBgImages();
+            currentBgUrl = url;
+            state.imgPath = url;
+            const inp = document.getElementById('inp-img-path');
+            if (inp) inp.value = url;
+            rootStyle.setProperty('--bg-img', `url('${url}')`);
+            fetchImageRatio(url);
+            verifyImageDecodes(url, 'front-img-status', '✅ Đã nạp ảnh từ liên kết vừa kéo vào.');
+            saveStateToLocal();
+        }
+
         function loadFrontImageFile(file) {
             if (!file) return;
+            setImgStatus('front-img-status', null, '⏳ Đang nạp ảnh "' + file.name + '"…');
             const reader = new FileReader();
             reader.onload = evt => {
-                currentBgUrl = evt.target.result;
+                currentBgUrl = fixDataUrlMime(evt.target.result, file.name);
+                droppedFrontUrl = currentBgUrl;
+                persistBgImages();
                 rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
                 fetchImageRatio(currentBgUrl);
+                verifyImageDecodes(currentBgUrl, 'front-img-status',
+                    '✅ Đã nạp ảnh "' + file.name + '" (' + formatFileSize(file.size) + ')' +
+                    (bgPersistFailed ? ' — ảnh quá lớn nên chỉ giữ trong phiên này, lần mở sau cần thả lại.' : ''));
             };
+            reader.onerror = () => setImgStatus('front-img-status', false, '⚠️ Không đọc được file "' + file.name + '".');
             reader.readAsDataURL(file);
         }
 
         function loadBackImageFile(file) {
             if (!file) return;
+            setImgStatus('back-img-status', null, '⏳ Đang nạp ảnh mặt sau "' + file.name + '"…');
             const reader = new FileReader();
             reader.onload = evt => {
-                currentBackUrl = evt.target.result;
+                currentBackUrl = fixDataUrlMime(evt.target.result, file.name);
+                droppedBackUrl = currentBackUrl;
+                persistBgImages();
                 rootStyle.setProperty('--bg-img-back', `url('${currentBackUrl}')`);
+                verifyImageDecodes(currentBackUrl, 'back-img-status',
+                    '✅ Đã nạp ảnh mặt sau "' + file.name + '" (' + formatFileSize(file.size) + ')' +
+                    (bgPersistFailed ? ' — ảnh quá lớn nên chỉ giữ trong phiên này, lần mở sau cần thả lại.' : ''));
             };
+            reader.onerror = () => setImgStatus('back-img-status', false, '⚠️ Không đọc được file "' + file.name + '".');
             reader.readAsDataURL(file);
         }
 
@@ -2689,6 +2795,7 @@
             if (!confirm('Khôi phục lại thiết lập mặc định ban đầu?')) return;
             localStorage.removeItem(STORAGE_KEY);
             localStorage.removeItem(PORTRAIT_STORAGE_KEY);
+            localStorage.removeItem(BG_STORAGE_KEY);
             location.reload();
         }
 
@@ -2833,7 +2940,14 @@
         }
 
         // Lắng nghe sự kiện
+        document.getElementById('inp-img-path').addEventListener('change', e => {
+            const v = e.target.value.trim().replace(/\\/g, '/');
+            if (v) verifyImageDecodes(v, 'front-img-status', '✅ Đã nạp ảnh "' + e.target.value.trim() + '" theo tên file.');
+        });
+
         document.getElementById('inp-img-path').addEventListener('input', e => {
+            droppedFrontUrl = '';
+            persistBgImages();
             state.imgPath = e.target.value;
             currentBgUrl = state.imgPath.trim().replace(/\\/g, '/');
             rootStyle.setProperty('--bg-img', `url('${currentBgUrl}')`);
@@ -2847,6 +2961,8 @@
         });
 
         document.getElementById('inp-back-path').addEventListener('input', e => {
+            droppedBackUrl = '';
+            persistBgImages();
             state.backPath = e.target.value;
             currentBackUrl = state.backPath.trim().replace(/\\/g, '/');
             rootStyle.setProperty('--bg-img-back', currentBackUrl ? `url('${currentBackUrl}')` : 'none');
@@ -3137,7 +3253,7 @@
 
         // ================= V2: SỰ KIỆN KÉO THẢ ẢNH & THẺ NHÂN VIÊN =================
         function handleDroppedImageFiles(files, target) {
-            const images = (files || []).filter(f => f.type && f.type.startsWith('image/'));
+            const images = (files || []).filter(isImageFile);
             if (!images.length) return;
             if (target === 'portraits') addPortraitFiles(images);
             else if (target === 'back') loadBackImageFile(images[0]);
@@ -3164,9 +3280,35 @@
         setupImageDropZone(document.getElementById('duplex-settings-box'), 'back');
         setupImageDropZone(document.getElementById('dz-portraits'), 'portraits');
 
-        // Chặn trình duyệt mở file ảnh khi thả trượt ra ngoài vùng thả
-        window.addEventListener('dragover', e => e.preventDefault());
-        window.addEventListener('drop', e => e.preventDefault());
+        // Thả trượt ra ngoài các vùng thả (ví dụ thả thẳng lên trang vé bên phải) -> vẫn nạp làm ảnh nền
+        // mặt trước; đồng thời chặn trình duyệt mở file. (Thả đúng vùng thả thì vùng đó tự xử lý và
+        // chặn sự kiện nổi lên đây, nên không bị nạp hai lần.)
+        window.addEventListener('dragover', e => {
+            e.preventDefault();
+            if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) {
+                const ws = document.querySelector('.workspace');
+                if (ws) ws.classList.add('workspace-dragover');
+            }
+        });
+        window.addEventListener('dragleave', e => {
+            if (!e.relatedTarget) {
+                const ws = document.querySelector('.workspace');
+                if (ws) ws.classList.remove('workspace-dragover');
+            }
+        });
+        window.addEventListener('drop', e => {
+            e.preventDefault();
+            const ws = document.querySelector('.workspace');
+            if (ws) ws.classList.remove('workspace-dragover');
+            const dt = e.dataTransfer;
+            if (!dt) return;
+            const files = Array.from(dt.files || []);
+            if (files.length) { handleDroppedImageFiles(files, 'front'); return; }
+            let uri = '';
+            try { uri = dt.getData('text/uri-list') || dt.getData('text/plain') || ''; } catch (err) {}
+            const urlLine = uri.split(/\r?\n/).map(s => s.trim()).find(s => /^https?:\/\//i.test(s));
+            if (urlLine) setFrontImageFromURL(urlLine);
+        });
 
         // Dán ảnh bằng Ctrl+V vào đích gần nhất (khung trước / khung sau / loạt ảnh chân dung)
         document.addEventListener('paste', e => {
@@ -3230,7 +3372,7 @@
             if (!file || pendingPhotoReplaceIndex == null) return;
             const reader = new FileReader();
             reader.onload = evt => {
-                portraitOverrides[pendingPhotoReplaceIndex] = evt.target.result;
+                portraitOverrides[pendingPhotoReplaceIndex] = fixDataUrlMime(evt.target.result, file.name);
                 pendingPhotoReplaceIndex = null;
                 persistPortraits();
                 renderPages();
@@ -3253,6 +3395,7 @@
         loadPortraits();
         buildFontDropdown();
         syncUIFromState();
+        restoreBgImages();
     </script>
 </body>
 </html>
