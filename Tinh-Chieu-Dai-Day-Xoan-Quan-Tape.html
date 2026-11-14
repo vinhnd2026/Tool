@@ -417,6 +417,15 @@
               <strong id="tw-extra" class="text-blue-700">+20.05 mm (+1.91%)</strong>
             </div>
           </div>
+
+          <!-- Kiểm tra giới hạn bước xoắn theo tỷ số xoắn lambda = P / D ngoài bó -->
+          <div id="tw-lay-box" class="rounded-lg p-3 text-xs border bg-emerald-50 border-emerald-200 text-emerald-900">
+            <div class="flex justify-between">
+              <span>Tỷ số xoắn <i>&lambda;</i> = <i>P</i> / <i>D</i><sub>ngoài bó</sub>:</span>
+              <strong id="tw-lay-ratio">—</strong>
+            </div>
+            <p id="tw-lay-msg" class="mt-1.5 leading-relaxed"></p>
+          </div>
         </div>
 
       </div>
@@ -1269,10 +1278,32 @@
           <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
             <li><strong>Chiều dài cắt dây khi xoắn (Mục 2):</strong> một vòng xoắn khi trải phẳng là cạnh huyền của tam giác có hai cạnh &pi;<i>OD</i> và <i>P</i>, nên chiều dài một vòng = &radic;((&pi;<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>). Trong đó <i>OD</i> là <strong>đường kính vòng qua tâm các dây</strong>, không phải đường kính ngoài của bó. Công thức <i>OD</i> = <i>d</i>/sin(&pi;/<i>N</i>) chỉ đúng khi <i>N</i> dây đều nhau xếp thành <strong>một vòng duy nhất</strong> quanh tâm (ví dụ <i>N</i> = 7 xếp vòng cho <i>D</i><sub>bó</sub> lớn hơn kiểu 1 tâm + 6 vòng quanh); bó nhiều lớp hoặc nhiều cỡ dây phải lấy <i>OD</i> từ mô phỏng mặt cắt ở Mục 5.4.</li>
             <li><strong>Quấn tape tròn (Mục 1):</strong> chiều dài tính theo đường tham chiếu bắt đầu ở bán kính bó <i>r</i>, mỗi vòng bán kính tăng đúng một độ dày tape <i>T</i> nên bán kính ngoài sau <i>n</i> vòng là <i>r</i> + <i>nT</i>. Kết quả không gồm phần tape thừa để cầm/gập mép khi thao tác.</li>
-            <li><strong>Quấn tape chéo (Mục 1 + 2):</strong> bước tiến mỗi vòng <i>h</i> = <i>b</i>(1 &minus; % chồng mí); đoạn chéo được tính trên chiều dài hiệu dụng <i>c</i> &minus; <i>b</i> theo quy ước của tài liệu gốc (phần khóa tròn ở hai đầu chiếm chỗ một bề rộng tape), và đường xoắn tính trên đường kính bó <i>D</i> chưa cộng độ dày tape. Hai đầu khóa tròn tính riêng bằng công thức xoắn ốc 2D với số vòng <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub>.</li>
+            <li><strong>Quấn tape chéo (Mục 1 + 2):</strong> bước tiến mỗi vòng <i>h</i> = <i>b</i>(1 &minus; % chồng mí); đoạn chéo được tính trên chiều dài hiệu dụng <i>c</i> &minus; <i>b</i> theo quy ước của tài liệu gốc (phần khóa tròn ở hai đầu chiếm chỗ một bề rộng tape), và đường xoắn đoạn giữa tính trên <strong>đường kính tâm tape hiệu dụng</strong> đã cộng độ dày tape và số lớp tape chồng nhau do chồng mí (Mục 7.2). Hai đầu khóa tròn tính riêng bằng công thức xoắn ốc 2D với số vòng <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub>.</li>
             <li><strong>Tích phân số (Mục 3):</strong> phần mềm chia đoạn tích phân thành 1.000 bước hình thang; với các hàm trơn như độ dài cung xoắn ốc, sai số ở mức dưới 0,01% — nhỏ hơn nhiều so với sai số do độ tở và dung sai vật liệu, nên không cần tăng thêm bước chia.</li>
             <li><strong>Nguyên tắc chung:</strong> mọi công thức trong phần mềm tính cho dây/tape <em>không co giãn, không trượt</em> và mặt cắt tròn đều. Khi kết quả dùng để đặt vật tư, hãy cộng dự phòng theo Mục 5.6 thay vì dùng thẳng số mô phỏng.</li>
           </ul>
+        </div>
+
+        <!-- MỤC 7: GIỚI HẠN BƯỚC XOẮN & HIỆU CHỈNH CHỒNG MÍ QUẤN CHÉO -->
+        <div class="space-y-3 pt-4 border-t border-slate-200">
+          <h3 class="font-bold text-blue-700 text-base">7. Giới hạn bước xoắn &amp; hiệu chỉnh chồng mí khi quấn chéo</h3>
+          <div class="space-y-2">
+            <p><strong>7.1. Tỷ số xoắn <i>&lambda;</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> — giới hạn bước xoắn theo tiêu chuẩn bện dây.</strong> Trong sản xuất dây cáp, bước xoắn không chọn tùy ý mà bị chặn bởi <strong>tỷ số xoắn</strong> <i>&lambda;</i> = <i>P</i> / <i>D</i><sub>ngoài</sub> (<i>D</i><sub>ngoài</sub> = đường kính ngoài của bó/cáp thành phẩm, KHÔNG phải đường kính vòng tâm <i>OD</i>):</p>
+            <div class="formula-box">8 &le; <i>&lambda;</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> &le; 16&nbsp;&nbsp;&rArr;&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>ngoài</sub>,&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>ngoài</sub></div>
+            <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
+              <li><strong>Nguồn chuẩn:</strong> ASTM B496 và B835 ghi rõ "chiều dài bước xoắn không nhỏ hơn 8 và không lớn hơn 16 lần đường kính ngoài của ruột dẫn hoàn chỉnh"; cùng dải 8–16 áp dụng trong ASTM B8 (đồng trần bện đồng tâm) và tiêu chuẩn quốc gia PNS 1207 cho lớp ngoài. Riêng nhôm trần ASTM B399: lớp AA dùng 10–16, lớp A dùng 8–16. Thực hành sản xuất thường chọn 10–14.</li>
+              <li><strong>Theo từng loại dây:</strong> dây đồng/nhôm trần bện đồng tâm theo dải chuẩn trên. Dây mềm nhiều sợi nhỏ (ruột lớp 5/6) thường chọn <i>&lambda;</i> ở nửa dưới của dải (8–12) để mềm và bền uốn. Dây <strong>bọc cách điện</strong> xoắn đôi/xoắn chùm (làm dây nhánh, harness) càng phải giữ <i>P</i> &ge; 8<i>D</i><sub>ngoài</sub>: xoắn ngắn hơn làm vỏ cách điện bị ép nhăn, biến dạng, có thể nứt ở phía ngoài vòng xoắn.</li>
+              <li><strong>Vì sao không được nhỏ hơn 8:</strong> khi <i>P</i> nhỏ, dây đi đường xoắn dài hơn hẳn (hệ số &radic;(1 + (&pi;<i>OD</i>/<i>P</i>)<sup>2</sup>) — ví dụ xoắn 2 dây ở <i>&lambda;</i> = 8 dây dài thêm &asymp; 1,9%, ở <i>&lambda;</i> = 5 dài thêm &asymp; 4,8% — kéo theo điện trở tăng tương ứng, sợi bị biến dạng dẻo nhiều, dễ đứt khi xoắn và bó bị cứng, khó uốn. Phần mềm tự kiểm tra <i>&lambda;</i> mỗi lần tính và <strong>cảnh báo đỏ kèm <i>P</i><sub>min</sub></strong> khi <i>P</i> &lt; 8<i>D</i><sub>ngoài</sub>; <i>D</i><sub>ngoài</sub> lấy từ đường kính bó đã nhập sang (đã nhân hệ số tở), hoặc = 2<i>OD</i> khi nhập tay theo hình 2 dây.</li>
+              <li><strong>Phía trên 16:</strong> bó xoắn quá lỏng, không giữ form, các sợi dễ tở ra và bung khi uốn cong — phần mềm hiện lưu ý màu hổ phách nhưng không coi là lỗi cứng như phía dưới 8.</li>
+            </ul>
+            <p><strong>7.2. Quấn chéo chồng mí lớn — vì sao phải đổi đường kính tính toán.</strong> Công thức gốc tính đoạn chéo trên đúng đường kính bó <i>D</i>, tức giả thiết tape luôn quấn trên mặt trụ đường kính <i>D</i>. Thực tế khi có chồng mí (<i>h</i> &lt; <i>b</i>), vòng tape sau <strong>nằm đè lên các lớp tape trước</strong>: tại một điểm trên bó có trung bình <i>L</i> = <i>b</i>/<i>h</i> lớp tape chồng nhau, vòng trên cùng tựa trên (<i>L</i> &minus; 1) lớp nên đường kính vòng xoắn của nó lớn hơn hẳn <i>D</i>. Phần mềm đã hiệu chỉnh bằng <strong>đường kính tâm tape hiệu dụng</strong>:</p>
+            <div class="formula-box"><i>L</i> = <i>b</i>/<i>h</i> (số lớp tape hiệu dụng, lấy tối thiểu 1)&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> &minus; 1)</div>
+            <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
+              <li>Kiểm tra các mốc: quấn sát mép/hở (<i>L</i> = 1) cho <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> — đúng tâm tape khi chỉ có 1 lớp; chồng mí 50% (<i>L</i> = 2) cho <i>D</i> + 3<i>T</i>; chồng mí 75% (<i>L</i> = 4) cho <i>D</i> + 7<i>T</i>.</li>
+              <li>Ví dụ theo thông số mặc định của phần mềm (<i>D</i> = 2,5; <i>T</i> = 0,25; <i>b</i> = 19; <i>h</i> = 9,5 &rarr; <i>L</i> = 2): <i>D</i><sub>cl</sub> = 3,25 mm và chiều dài đoạn giữa tăng &asymp; 13% so với công thức cũ — chồng mí càng lớn, tape càng dày hoặc bó càng nhỏ thì độ chênh càng lớn.</li>
+              <li>Giả thiết của hiệu chỉnh: trạng thái chồng lớp ổn định trên toàn đoạn giữa; đoạn chuyển tiếp dài khoảng một bề rộng tape ở hai đầu đoạn giữa (nơi số lớp tăng dần từ 0 lên <i>L</i>) được tính gộp theo trạng thái ổn định nên có sai số nhỏ. Hai đầu khóa tròn không đổi vì vốn đã tính bán kính tăng dần sau mỗi vòng.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
@@ -1633,6 +1664,33 @@
       document.getElementById('tw-turns').textContent = (twistZone / P).toFixed(2) + ' vòng';
       document.getElementById('tw-extra').textContent = `+${extra.toFixed(2)} mm (+${extraPct.toFixed(2)}%)`;
 
+      // Kiểm tra giới hạn bước xoắn theo tỷ số xoắn lambda = P / D_ngoài.
+      // Tiêu chuẩn bện dây (ASTM B8/B496/B835): 8 <= lambda <= 16.
+      // D_ngoài lấy từ bó dây đã nhập (ĐK bó sau khi nhân hệ số tở); khi nhập tay,
+      // hình minh họa là 2 dây nên D_ngoài = OD + d = 2*OD (vì OD = d với 2 dây).
+      const layBox = document.getElementById('tw-lay-box');
+      if (layBox) {
+        const Douter = bundleImportInfo ? bundleImportInfo.outerD * bundleSplayFactor : 2 * OD;
+        const lam = Douter > 0 ? P / Douter : 0;
+        const pMin = 8 * Douter, pMax = 16 * Douter;
+        const ratioEl = document.getElementById('tw-lay-ratio');
+        const msgEl = document.getElementById('tw-lay-msg');
+        if (ratioEl) ratioEl.textContent = `${lam.toFixed(2)} (D ngoài ≈ ${Douter.toFixed(2)} mm)`;
+        let cls, msg;
+        if (lam < 8) {
+          cls = 'bg-red-50 border-red-300 text-red-900';
+          msg = `⚠ <strong>Bước xoắn P = ${formatNumClean(P, 2)} mm NHỎ HƠN giới hạn dưới</strong> của dải chuẩn: P<sub>min</sub> = 8 × D = <strong>${pMin.toFixed(1)} mm</strong>. Xoắn quá chặt dễ đứt dây khi xoắn, biến dạng/nứt vỏ cách điện và tăng điện trở vì dây bị kéo dài thêm nhiều. Nên tăng P lên ít nhất ${pMin.toFixed(1)} mm.`;
+        } else if (lam > 16) {
+          cls = 'bg-amber-50 border-amber-300 text-amber-900';
+          msg = `Bước xoắn dài hơn dải chuẩn 8–16 (P<sub>max</sub> = 16 × D = ${pMax.toFixed(1)} mm): bó xoắn sẽ lỏng, không giữ được form, dây dễ tở/bung khi uốn. Cân nhắc giảm P nếu cần bó chặt.`;
+        } else {
+          cls = 'bg-emerald-50 border-emerald-200 text-emerald-900';
+          msg = `Bước xoắn nằm trong dải chuẩn 8–16 lần đường kính ngoài của bó (ASTM B8/B496/B835) — xoắn chặt vừa phải, bó giữ form tốt.`;
+        }
+        layBox.className = `rounded-lg p-3 text-xs border ${cls}`;
+        if (msgEl) msgEl.innerHTML = msg;
+      }
+
       drawTwistCADCanvas();
     }
 
@@ -1856,7 +1914,14 @@
       const lenEnd2 = integrate2DSpiral(radiusR, T, Math.max(0, n2));
 
       const effectiveSpan = Math.max(0, c - b);
-      const helixFactor = Math.sqrt(Math.pow((Math.PI * D) / h, 2) + 1);
+      // Hiệu chỉnh chồng mí: khi tape chồng lên nhau (h < b), vòng tape trên cùng nằm trên
+      // các lớp tape trước nên đường kính tâm tape ở đoạn giữa lớn hơn ĐK bó D.
+      // Tại một điểm trên bó, số lớp tape trung bình là L = b/h; vòng trên cùng nằm trên
+      // (L - 1) lớp -> đường kính tâm tape hiệu dụng: D_cl = D + T*(2L - 1).
+      // (L = 1 khi quấn sát mép hoặc quấn hở -> D_cl = D + T.)
+      const layerCount = Math.max(1, b / h);
+      const Dcl = D + T * (2 * layerCount - 1);
+      const helixFactor = Math.sqrt(Math.pow((Math.PI * Dcl) / h, 2) + 1);
       const lenMid = effectiveSpan * helixFactor;
       const totalTapeLen = lenEnd1 + lenMid + lenEnd2;
 
@@ -1885,6 +1950,10 @@
           modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300';
           descEl.innerHTML = `Quấn cách quãng hở: khoảng trống giữa 2 vòng liên tiếp là <strong class="text-amber-700">${formatNumClean(h - b, 2)} mm</strong>.`;
         }
+      }
+
+      if (descEl) {
+        descEl.innerHTML += `<br/>Đường kính tâm tape ở đoạn giữa: <strong class="text-slate-700">${formatNumClean(Dcl, 2)} mm</strong> (số lớp tape chồng hiệu dụng L = ${formatNumClean(layerCount, 2)} — chi tiết ở Mục 7 phần Lý thuyết).`;
       }
 
       drawSpiralTapeDiagrams(b, h, n1, n2, D, c);
