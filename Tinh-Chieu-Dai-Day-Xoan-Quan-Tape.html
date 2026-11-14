@@ -1990,6 +1990,29 @@
         return s;
       }
 
+      // Lớp dây của bó ở đoạn giữa, vẽ DƯỚI các dải tape: 5 sợi nhiều màu chạy sóng nhẹ
+      // dọc bó (cùng hàng/màu với dây thò ra ở 2 đầu). Khi quấn kín (h <= b) lớp này bị
+      // tape phủ hết; khi quấn THƯA (h > b, overlap âm) phần hở giữa 2 vòng tape liên tiếp
+      // sẽ nhìn thấy dây — đúng như bó dây thật chưa được quấn kín.
+      function midWiresSvg() {
+        const cyF = (yTop + yBot) / 2;
+        const rows = [-21, -10.5, 0, 10.5, 21];
+        let s = '';
+        rows.forEach((dy, k) => {
+          const col = getTwistWireColorObj(k).fill;
+          const yBase = cyF + dy;
+          const phase = k * 1.7;
+          let dAttr = '';
+          for (let x = xEnd1R - 8; x <= xEnd2L + 8; x += 8) {
+            const y = yBase + 3.5 * Math.sin(((x - xEnd1R) / 92) * Math.PI * 2 + phase);
+            dAttr += (dAttr === '' ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
+          }
+          s += `<path d="${dAttr}" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
+          s += `<path d="${dAttr}" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
+        });
+        return s;
+      }
+
       let spiralStripsSvg = '';
       const xMidStart = xEnd1R;
       const xMidEnd = xEnd2L;
@@ -2077,6 +2100,7 @@
 
         <!-- Các vòng băng keo quấn chéo ở giữa (Clip gọn trong vùng giữa 2 đầu) -->
         <g clip-path="url(#clip-mid-spiral)">
+          ${midWiresSvg()}
           ${spiralStripsSvg}
           ${overlapSvg}
         </g>
