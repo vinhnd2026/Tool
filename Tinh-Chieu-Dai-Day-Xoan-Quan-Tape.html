@@ -300,14 +300,6 @@
             <svg id="svg-twist-diagram" viewBox="0 0 760 250" class="w-full h-auto min-w-[600px] block"></svg>
           </div>
 
-          <!-- Ghi chú theo đúng nguyên bản tài liệu kỹ thuật -->
-          <div class="bg-amber-50/90 border border-amber-200 rounded-lg p-3.5 text-xs text-slate-700 space-y-1.5 leading-relaxed">
-            <div class="font-bold text-amber-900">Quy tắc xác định đường kính vòng tâm xoắn (OD):</div>
-            <p>+ <strong>Trường hợp dây nhỏ, xoắn dây sát nhau:</strong> Khi xoắn 2 dây sát nhau, <i>OD</i> bằng chính đường kính vỏ ngoài của một dây (<i>OD</i> = <i>d</i>).</p>
-            <p>+ <strong>Trường hợp xoắn <i>N</i> dây giống nhau (<i>N</i> &ge; 2) trên 1 lớp:</strong> Đường kính vòng qua tâm các dây là <i>OD</i> = <i>d</i> / sin(&pi; / <i>N</i>), đường kính phủ bì bó dây là <i>D</i><sub>bó</sub> = <i>OD</i> + <i>d</i>.</p>
-            <p>+ <strong>Trường hợp dây to, sau xoắn bị tở nhiều, hoặc xoắn nhiều cỡ dây khác nhau:</strong> <i>OD</i> lấy theo giá trị thực tế hoặc tính tự động từ mục <strong>4. Tính ĐK Bó Dây Tự Động</strong>.</p>
-          </div>
-
           <!-- Khung tính nhanh OD & cập nhật số dây hiển thị khi xoắn nhiều dây -->
           <div class="bg-slate-50 border border-slate-200 rounded-lg p-3.5 space-y-2.5">
             <div class="flex flex-wrap items-center justify-between gap-2">
@@ -1492,10 +1484,9 @@
       const manualCount = parseInt(document.getElementById('twist-wire-count').value) || 2;
       const actualWires = (bundleImportInfo && bundleImportInfo.totalWires >= 2) ? bundleImportInfo.totalWires : manualCount;
       const numWires = Math.max(2, Math.min(12, actualWires));
-      const simNote = actualWires > numWires ? ` — vẽ mô phỏng ${numWires} dây` : '';
 
       const badge = document.getElementById('twist-live-badge');
-      if (badge) badge.textContent = actualWires > numWires ? `${actualWires} dây trong bó (mô phỏng ${numWires} dây)` : `${numWires} dây xoắn`;
+      if (badge) badge.textContent = actualWires > numWires ? `${actualWires} dây trong bó` : `${numWires} dây xoắn`;
 
       // Phần 1 (Trái): Phóng to chi tiết OD
       const zoomY = 112;
@@ -1561,7 +1552,7 @@
 
       svg.innerHTML = `
         <!-- Chi tiết phóng to OD bên trái -->
-        <text x="14" y="22" font-size="11.5" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${actualWires} dây${simNote})</text>
+        <text x="14" y="22" font-size="11.5" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${actualWires} dây)</text>
         ${zoomHelixSvg}
         ${zoomWaveSvg}
         <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="234" y2="${topCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
@@ -1574,7 +1565,7 @@
         <!-- Mặt cắt thu nhỏ vòng tâm OD -->
         ${csWiresSvg}
         <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="3,2"/>
-        <text x="${csX + 26}" y="${csY + 4}" font-size="10.5" font-weight="600" fill="#475569">Mặt cắt vòng tâm OD (${actualWires} sợi${simNote})</text>
+        <text x="${csX + 26}" y="${csY + 4}" font-size="10.5" font-weight="600" fill="#475569">Mặt cắt vòng tâm OD (${actualWires} sợi)</text>
 
         <!-- Bản vẽ tổng thể bên phải -->
         ${straightEndsSvg}
@@ -2885,14 +2876,12 @@
       const rPitch = Math.max(0, pitchOD / 2);
       const scale = 90 / R;
 
-      // Giới hạn số vòng tròn VẼ mô phỏng ở 400 (bó lớn hơn vẽ thưa đều theo bước nhảy)
-      // để hình không nặng/ rối — tổng số sợi thật vẫn được chú thích rõ trên hình.
+      // Giới hạn số vòng tròn VẼ ở 400 (bó lớn hơn vẽ thưa đều theo bước nhảy) để hình
+      // không nặng/rối — không in ghi chú mô phỏng lên hình; số liệu tính theo đúng tổng sợi.
       const MAX_DRAW = 400;
       const drawStep = circles.length > MAX_DRAW ? Math.ceil(circles.length / MAX_DRAW) : 1;
       const drawnCircles = drawStep > 1 ? circles.filter((_, i) => i % drawStep === 0) : circles;
-      const capNoteSvg = drawStep > 1
-        ? `<text x="6" y="15" font-size="9.5" font-weight="600" fill="#64748b">Mô phỏng vẽ ${drawnCircles.length}/${circles.length} sợi (giới hạn hiển thị, số liệu tính theo ${circles.length} sợi)</text>`
-        : '';
+      const capNoteSvg = '';
 
       let wiresSvg = '';
       drawnCircles.forEach(c => {
