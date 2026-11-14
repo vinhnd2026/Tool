@@ -210,6 +210,11 @@
     .msqbracket::before { left: 0; }
     .msqbracket::after { right: 0; }
   </style>
+  <style>
+    /* Chỉ báo "Đang tính / Đang vẽ" của mục Bó Dây — CSS thuần nhúng trong trang, không dùng thư viện ngoài */
+    @keyframes bdspin { to { transform: rotate(360deg); } }
+    .bd-spinner { animation: bdspin 0.8s linear infinite; transform-origin: center; }
+  </style>
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
 
@@ -735,8 +740,12 @@
 
         <!-- Cột phải: Kết quả tính & Mô phỏng mặt cắt bó dây -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3.5">
-          <div class="border-b pb-2.5">
+          <div class="flex items-center justify-between gap-2 border-b pb-2.5">
             <h2 class="font-bold text-slate-800 text-base">Mặt Cắt &amp; Đường Kính Bó Dây</h2>
+            <span id="bd-busy" class="hidden items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-3 py-1 shrink-0">
+              <svg class="bd-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c7d2fe" stroke-width="3.5"/><path d="M21 12a9 9 0 0 0-9-9" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round"/></svg>
+              <span id="bd-busy-text">Đang tính…</span>
+            </span>
           </div>
 
           <div class="flex justify-center bg-slate-50 rounded-lg border border-slate-200 p-2">
@@ -1927,11 +1936,14 @@
       const overlapPx = Math.max(0, bPx - hPx);
       const slant = 28; // Độ nghiêng mép băng keo quấn chéo
 
-      // Tape khóa đầu phủ ra tận mép bó dây (theo yêu cầu): hai đầu KHÔNG còn đoạn bó
-      // trần hở ra ngoài vùng quấn — Đầu 1 bắt đầu đúng mép trái, Đầu 2 kết thúc đúng mép phải.
-      const xEnd1L = xBundleL;
+      // Vùng quấn tape lùi vào trong: chừa 2 đầu KHÔNG quấn để các sợi dây thò ra ngoài
+      // (đúng thực tế quấn tape ngoài hiện trường) — Đầu 1 bắt đầu sau đoạn dây thò trái,
+      // Đầu 2 kết thúc trước đoạn dây thò phải. Bề rộng khối tape đầu = bPx, bằng đúng
+      // bề rộng 1 vòng tape ở đoạn giữa.
+      const stubPx = 30; // chiều dài đoạn dây thò ra mỗi đầu trên hình minh họa
+      const xEnd1L = xBundleL + stubPx;
       const xEnd1R = xEnd1L + bPx;
-      const xEnd2R = xBundleR;
+      const xEnd2R = xBundleR - stubPx;
       const xEnd2L = xEnd2R - bPx;
 
       // Bề dày 1 lớp tape trên hình minh họa (px) — tape khóa đầu quấn n vòng chồng tại chỗ
@@ -1953,22 +1965,29 @@
         return s;
       }
 
-      // Mặt cắt đầu bó vẽ NHƯ THẬT (chỉ minh họa, không theo số liệu nhập): vành tape bao
-      // ngoài + lõi bó dây gồm 7 sợi nhiều màu cắt ngang, đặt tại mép ngoài cùng của bó.
-      function endFace(cxEdge, extra, clipId) {
+      // Các sợi dây THÒ RA ở 2 đầu chưa quấn (minh họa 2D phẳng, không theo số liệu nhập):
+      // 5 sợi nhiều màu ló ra khỏi khối tape khóa đầu, đầu sợi hơi xòe như bó dây thật.
+      function protrudingWires(side) {
         const cyF = (yTop + yBot) / 2;
-        const ryO = bundleH / 2 + extra;
-        const ryI = bundleH / 2 - 1;
-        const wirePos = [[0, 0], [0, -10.5], [6.2, -5.2], [6.2, 5.2], [0, 10.5], [-6.2, 5.2], [-6.2, -5.2]];
-        let wires = '';
-        wirePos.forEach((pos, k) => {
-          wires += `<circle cx="${(cxEdge + pos[0]).toFixed(1)}" cy="${(cyF + pos[1]).toFixed(1)}" r="4.6" fill="${getTwistWireColorObj(k).fill}" stroke="#0f172a" stroke-width="0.8"/>`;
+        const strands = [
+          { dy: -21, len: 25, fan: -5 },
+          { dy: -10.5, len: 29, fan: -2.5 },
+          { dy: 0, len: 26, fan: 0 },
+          { dy: 10.5, len: 29, fan: 2.5 },
+          { dy: 21, len: 25, fan: 5 }
+        ];
+        let s = '';
+        strands.forEach((st, k) => {
+          const col = getTwistWireColorObj(k).fill;
+          let x1, x2;
+          if (side === 'l') { x1 = xEnd1L + 9; x2 = xEnd1L - st.len; }
+          else { x1 = xEnd2R - 9; x2 = xEnd2R + st.len; }
+          const y1 = cyF + st.dy;
+          const y2 = cyF + st.dy + st.fan;
+          s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
+          s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
         });
-        return `
-          <ellipse cx="${cxEdge}" cy="${cyF}" rx="13" ry="${ryO.toFixed(1)}" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
-          <ellipse cx="${cxEdge}" cy="${cyF}" rx="10" ry="${ryI.toFixed(1)}" fill="#dbe4ee" stroke="#0f172a" stroke-width="1.2"/>
-          <g clip-path="url(#${clipId})">${wires}</g>
-        `;
+        return s;
       }
 
       let spiralStripsSvg = '';
@@ -2036,18 +2055,6 @@
           <clipPath id="clip-mid-spiral">
             <rect x="${xEnd1R}" y="${yTop}" width="${xEnd2L - xEnd1R}" height="${bundleH}"/>
           </clipPath>
-          <linearGradient id="tapeShade" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.38"/>
-            <stop offset="35%" stop-color="#ffffff" stop-opacity="0"/>
-            <stop offset="78%" stop-color="#000000" stop-opacity="0"/>
-            <stop offset="100%" stop-color="#000000" stop-opacity="0.14"/>
-          </linearGradient>
-          <clipPath id="clip-face-l">
-            <ellipse cx="${xBundleL}" cy="${(yTop + yBot) / 2}" rx="10" ry="${bundleH / 2 - 1}"/>
-          </clipPath>
-          <clipPath id="clip-face-r">
-            <ellipse cx="${xBundleR}" cy="${(yTop + yBot) / 2}" rx="10" ry="${bundleH / 2 - 1}"/>
-          </clipPath>
         </defs>
 
         <!-- Kích thước đường kính bó dây D bên trái -->
@@ -2060,9 +2067,13 @@
           D = ${formatNumClean(D, 2)}
         </text>
 
-        <!-- Thân bó dây nền xám nhạt để phân biệt rõ với băng keo màu trắng -->
-        <rect x="${xBundleL}" y="${yTop}" width="${xBundleR - xBundleL}" height="${bundleH}"
+        <!-- Thân bó dây nền xám nhạt trong vùng quấn tape (2 đầu chừa trống cho dây thò ra) -->
+        <rect x="${xEnd1L}" y="${yTop}" width="${xEnd2R - xEnd1L}" height="${bundleH}"
               fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
+
+        <!-- Dây thò ra ở 2 đầu chưa quấn (gốc sợi được khối tape khóa đầu che phủ) -->
+        ${protrudingWires('l')}
+        ${protrudingWires('r')}
 
         <!-- Các vòng băng keo quấn chéo ở giữa (Clip gọn trong vùng giữa 2 đầu) -->
         <g clip-path="url(#clip-mid-spiral)">
@@ -2070,12 +2081,9 @@
           ${overlapSvg}
         </g>
 
-        <!-- Bóng trụ phủ lên đoạn đã quấn: sáng ở trên, tối dần xuống dưới cho giống bó tròn thật -->
-        <rect x="${xBundleL}" y="${yTop - 8}" width="${xBundleR - xBundleL}" height="${bundleH + 17}" fill="url(#tapeShade)" pointer-events="none"/>
-
         <!-- Viền trên & dưới của thân bó dây -->
-        <line x1="${xBundleL}" y1="${yTop}" x2="${xBundleR}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
-        <line x1="${xBundleL}" y1="${yBot}" x2="${xBundleR}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="${xEnd1L}" y1="${yTop}" x2="${xEnd2R}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="${xEnd1L}" y1="${yBot}" x2="${xEnd2R}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
 
         <!-- Quấn tròn khóa Đầu 1 -->
         <text x="${xEnd1L + 4}" y="${yTop - 12}" text-anchor="start" font-size="12.5" font-weight="bold" fill="#dc2626">
@@ -2093,9 +2101,6 @@
               fill="#fca5a5" stroke="#dc2626" stroke-width="1.6"/>
         ${layerLines(xEnd2L, xEnd2R, extra2, n2)}
 
-        <!-- Mặt cắt 2 đầu bó vẽ như thật (minh họa): vành tape + lõi các sợi dây -->
-        ${endFace(xBundleL, extra1, 'clip-face-l')}
-        ${endFace(xBundleR, extra2, 'clip-face-r')}
 
         <!-- Kích thước bước tiến h (gióng từ góc trên trái vòng 1 đến góc trên trái vòng 2 = đúng bề rộng phần trắng) -->
         <line x1="${hMeasureX1}" y1="22" x2="${hMeasureX1}" y2="${yTop}" stroke="#dc2626" stroke-width="1.2"/>
@@ -2414,10 +2419,11 @@
         tbody.appendChild(tr);
       });
 
-      computeBundleGeometry();
+      runBundleComputeAsync();
     }
 
     function addWireGroupRow() {
+      bundleDirty = true;
       const nextIdx = wireGroups.length;
       wireGroups.push({
         name: `Dây đơn chuẩn ${nextIdx + 1}`,
@@ -2430,6 +2436,7 @@
 
     function removeWireGroup(idx) {
       if (wireGroups.length <= 1) return;
+      bundleDirty = true;
       wireGroups.splice(idx, 1);
       renderBundleTable();
     }
@@ -2730,14 +2737,63 @@
     // tránh mô phỏng xếp hình (vốn nặng với bó nhiều sợi) chạy lại sau từng ký tự.
     let bundleComputeTimer = null;
     function scheduleBundleGeometry() {
+      bundleDirty = true;
       if (bundleComputeTimer) clearTimeout(bundleComputeTimer);
       bundleComputeTimer = setTimeout(() => {
         bundleComputeTimer = null;
-        computeBundleGeometry();
+        runBundleComputeAsync();
       }, 280);
     }
 
-    function computeBundleGeometry() {
+    // Chỉ báo trạng thái cho người dùng biết trang đang tính hay đang vẽ (mục Bó Dây).
+    // Thuần JS + SVG/CSS nhúng sẵn trong trang — không tải thêm thư viện/API nào từ bên ngoài.
+    function setBundleBusy(show, text) {
+      const el = document.getElementById('bd-busy');
+      const tx = document.getElementById('bd-busy-text');
+      if (!el) return;
+      if (text && tx) tx.textContent = text;
+      el.classList.toggle('hidden', !show);
+      el.classList.toggle('inline-flex', show);
+    }
+
+    function nextFrame() {
+      return new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 20)));
+    }
+
+    let bundleBusyRunning = false;
+    let bundleBusyPending = false;
+    async function runBundleComputeAsync() {
+      if (bundleBusyRunning) { bundleBusyPending = true; return; }
+      // Chưa có gì thay đổi kể từ lần tính trước: dùng lại kết quả, không tính/vẽ lại
+      if (!bundleDirty && bundleCache) return;
+      bundleBusyRunning = true;
+      try {
+        setBundleBusy(true, 'Đang tính đường kính bó dây…');
+        await nextFrame(); // nhường trình duyệt vẽ chỉ báo trước khi bắt đầu tính nặng
+        const res = computeBundleGeometry({ deferDraw: true });
+        setBundleBusy(true, 'Đang vẽ mặt cắt…');
+        await nextFrame();
+        drawBundleCrossSection(res.circles, res.outerD, res.pitchOD);
+      } finally {
+        setBundleBusy(false);
+        bundleBusyRunning = false;
+        if (bundleBusyPending) {
+          bundleBusyPending = false;
+          runBundleComputeAsync();
+        }
+      }
+    }
+
+    // Cache kết quả bó dây gần nhất: các nút "Áp dụng sang..." dùng lại ngay nếu dữ liệu
+    // chưa đổi (khỏi tính lại từ đầu). bundleDirty = true mỗi khi thông số nhóm dây thay đổi.
+    let bundleCache = null;
+    let bundleDirty = true;
+    function getBundleGeometry() {
+      if (!bundleDirty && bundleCache) return bundleCache;
+      return computeBundleGeometry();
+    }
+
+    function computeBundleGeometry(opts = {}) {
       let totalWires = 0;
       let totalArea = 0;
       const items = [];
@@ -2783,8 +2839,14 @@
       if (sbD) sbD.textContent = outerD.toFixed(2) + ' mm';
       if (sbOD) sbOD.textContent = pitchOD.toFixed(2) + ' mm';
 
-      drawBundleCrossSection(packed.circles, outerD, pitchOD);
-      return { outerD, radiusA, pitchOD, circles: packed.circles };
+      const result = { outerD, radiusA, pitchOD, circles: packed.circles };
+      bundleCache = result;
+      bundleDirty = false;
+      // opts.deferDraw: hoãn vẽ mặt cắt để luồng bất đồng bộ kịp hiện chữ "Đang vẽ mặt cắt…"
+      if (!opts.deferDraw) {
+        drawBundleCrossSection(packed.circles, outerD, pitchOD);
+      }
+      return result;
     }
 
     function drawBundleCrossSection(circles, outerD, pitchOD) {
@@ -2870,7 +2932,7 @@
 
     // Các hàm áp dụng nhanh kết quả từ Bó Dây sang các Tab tính toán
     function applyBundleToTwist() {
-      const { pitchOD, outerD, circles } = computeBundleGeometry();
+      const { pitchOD, outerD, circles } = getBundleGeometry();
       document.getElementById('tw-OD').value = parseFloat(pitchOD.toFixed(4));
       const totalWires = circles ? circles.length : 0;
       if (totalWires >= 2) {
@@ -2888,7 +2950,7 @@
     }
 
     function applyBundleToCircleTape() {
-      const { outerD, radiusA } = computeBundleGeometry();
+      const { outerD, radiusA } = getBundleGeometry();
       document.getElementById('ct-D').value = parseFloat(outerD.toFixed(4));
       document.getElementById('ct-a').value = parseFloat(radiusA.toFixed(4));
       calculateCircleTape();
@@ -2896,21 +2958,21 @@
     }
 
     function applyBundleToSpiralTape() {
-      const { outerD } = computeBundleGeometry();
+      const { outerD } = getBundleGeometry();
       document.getElementById('st-D').value = parseFloat(outerD.toFixed(4));
       calculateSpiralTape();
       switchTab('spiral-tape');
     }
 
     function useBundleForCircleTape() {
-      const { outerD, radiusA } = computeBundleGeometry();
+      const { outerD, radiusA } = getBundleGeometry();
       document.getElementById('ct-D').value = parseFloat(outerD.toFixed(4));
       document.getElementById('ct-a').value = parseFloat(radiusA.toFixed(4));
       calculateCircleTape();
     }
 
     function useBundleForSpiralTape() {
-      const { outerD } = computeBundleGeometry();
+      const { outerD } = getBundleGeometry();
       document.getElementById('st-D').value = parseFloat(outerD.toFixed(4));
       calculateSpiralTape();
     }
