@@ -1342,7 +1342,7 @@
     }
 
     // Hàm tạo chuỗi SVG cho đường kích thước 2 đầu mũi tên chuẩn CAD
-    function buildSVGDimension(x1, y1, x2, y2, labelText, color = '#0f172a', textOffset = -8, fontSize = 12) {
+    function buildSVGDimension(x1, y1, x2, y2, labelText, color = '#0f172a', textOffset = -8, fontSize = 12, labelNoBg = false) {
       const ang = Math.atan2(y2 - y1, x2 - x1);
       const headLen = 7;
       const headAng = 0.42;
@@ -1361,11 +1361,15 @@
       if (labelText) {
         const mx = (x1 + x2) / 2;
         const my = (y1 + y2) / 2 + textOffset;
+        // labelNoBg = true (đang dùng ở hình Xoắn Dây theo yêu cầu): nhãn KHÔNG vẽ nền
+        // để không che đường kích thước và đầu mũi tên; các hình khác giữ nền mờ mặc định.
         const estW = labelText.length * (fontSize * 0.56) + 8;
-        labelSvg = `
+        const bgRect = labelNoBg ? '' : `
           <rect x="${(mx - estW / 2).toFixed(2)}" y="${(my - fontSize * 0.65).toFixed(2)}"
                 width="${estW.toFixed(2)}" height="${(fontSize + 4).toFixed(2)}"
-                rx="2" fill="#f8fafc" fill-opacity="0.92"/>
+                rx="2" fill="#f8fafc" fill-opacity="0.92"/>`;
+        labelSvg = `
+          ${bgRect}
           <text x="${mx.toFixed(2)}" y="${(my + fontSize * 0.28).toFixed(2)}"
                 text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="${color}">
             ${labelText}
@@ -1573,10 +1577,10 @@
         <line x1="${pX1.toFixed(2)}" y1="${mainY + 12}" x2="${pX1.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
         <line x1="${pX2.toFixed(2)}" y1="${mainY + 12}" x2="${pX2.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
 
-        ${buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13)}
-        ${buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12)}
-        ${buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12)}
-        ${buildSVGDimension(pX1, 172, pX2, 172, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 12.5)}
+        ${buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13, true)}
+        ${buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12, true)}
+        ${buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12, true)}
+        ${buildSVGDimension(pX1, 172, pX2, 172, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 12.5, true)}
       `;
     }
 
@@ -1876,8 +1880,9 @@
         stripPositions.push(x);
       }
 
-      stripPositions.forEach((xL, idx) => {
-        // Hình bình hành của vòng băng keo thứ idx:
+      // GIAI ĐOẠN 1: vẽ toàn bộ các vòng tape (nền trắng + nét đứt mặt khuất phía sau bó)
+      stripPositions.forEach((xL) => {
+        // Hình bình hành của vòng băng keo:
         // Đỉnh trên: từ xL + slant đến xL + slant + bPx
         // Đỉnh dưới: từ xL đến xL + bPx
         const topL = xL + slant;
@@ -1885,7 +1890,6 @@
         const botL = xL;
         const botR = botL + bPx;
 
-        // Phần nền trắng của vòng băng keo
         spiralStripsSvg += `
           <polygon points="${botL},${yBot} ${topL},${yTop} ${topR},${yTop} ${botR},${yBot}"
                    fill="#ffffff" stroke="#dc2626" stroke-width="1.35"/>
@@ -1896,20 +1900,30 @@
           <line x1="${topL}" y1="${yTop}" x2="${botR}" y2="${yBot}"
                 stroke="#fca5a5" stroke-width="1" stroke-dasharray="4,3"/>
         `;
-
-        // Nếu có chồng mí (overlapPx > 0) và có vòng kế tiếp đè lên phía bên phải của vòng này:
-        // Dải chồng mí nằm từ (topR - overlapPx) đến topR (tức là bắt đầu đúng từ vị trí xL + hPx của vòng kế tiếp!)
-        if (overlapPx > 0.5 && idx < stripPositions.length - 1) {
-          const ovTopL = topL + hPx;
-          const ovTopR = topR;
-          const ovBotL = botL + hPx;
-          const ovBotR = botR;
-          spiralStripsSvg += `
-            <polygon points="${ovBotL},${yBot} ${ovTopL},${yTop} ${ovTopR},${yTop} ${ovBotR},${yBot}"
-                     fill="#ef4444" fill-opacity="0.88" stroke="#dc2626" stroke-width="1.2"/>
-          `;
-        }
       });
+
+      // GIAI ĐOẠN 2: mô phỏng tape ĐÈ LÊN NHAU — vùng chồng mí của từng vòng được phủ lớp
+      // tape của vòng kế tiếp SAU CÙNG (vẽ sau nên nằm trên), tô đỏ trong mờ để thấy rõ
+      // phần 2 lớp tape chồng nhau, kèm mép dẫn đậm của vòng nằm trên.
+      // (Bản cũ vẽ vùng chồng mí ngay trong vòng lặp nên bị vòng kế tiếp tô trắng đè mất.)
+      let overlapSvg = '';
+      if (overlapPx > 0.5) {
+        stripPositions.forEach((xL, idx) => {
+          if (idx >= stripPositions.length - 1) return;
+          const topL = xL + slant;
+          const topR = topL + bPx;
+          const botL = xL;
+          const botR = botL + bPx;
+          const ovTopL = topL + hPx;
+          const ovBotL = botL + hPx;
+          overlapSvg += `
+            <polygon points="${ovBotL},${yBot} ${ovTopL},${yTop} ${topR},${yTop} ${botR},${yBot}"
+                     fill="#ef4444" fill-opacity="0.42"/>
+            <line x1="${ovTopL}" y1="${yTop}" x2="${ovBotL}" y2="${yBot}"
+                  stroke="#b91c1c" stroke-width="1.8"/>
+          `;
+        });
+      }
 
       // Chọn vòng tiêu biểu ở giữa để gióng kích thước bước tiến h (từ mép trái vòng i đến mép trái vòng i+1)
       const MeasureIdx = stripPositions.length > 2 ? 1 : 0;
@@ -1946,6 +1960,7 @@
         <!-- Các vòng băng keo quấn chéo ở giữa (Clip gọn trong vùng giữa 2 đầu) -->
         <g clip-path="url(#clip-mid-spiral)">
           ${spiralStripsSvg}
+          ${overlapSvg}
         </g>
 
         <!-- Viền trên & dưới của thân bó dây -->
