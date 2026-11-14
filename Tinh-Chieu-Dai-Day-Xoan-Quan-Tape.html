@@ -1933,9 +1933,13 @@
       // bề rộng 1 vòng tape ở đoạn giữa.
       const stubPx = 30; // chiều dài đoạn dây thò ra mỗi đầu trên hình minh họa
       const xEnd1L = xBundleL + stubPx;
-      const xEnd1R = xEnd1L + bPx;
       const xEnd2R = xBundleR - stubPx;
-      const xEnd2L = xEnd2R - bPx;
+      // Số vòng khóa = 0 thì đầu đó KHÔNG có khối tape quấn tròn: bề rộng khối = 0,
+      // đoạn quấn chéo bắt đầu ngay từ mép vùng quấn.
+      const blockW1 = n1 > 0 ? bPx : 0;
+      const blockW2 = n2 > 0 ? bPx : 0;
+      const xEnd1R = xEnd1L + blockW1;
+      const xEnd2L = xEnd2R - blockW2;
 
       // Bề dày 1 lớp tape trên hình minh họa (px) — tape khóa đầu quấn n vòng chồng tại chỗ
       // nên khối đầu dày thêm n lớp mỗi phía, cùng tỷ lệ/màu với tape ở đoạn giữa.
@@ -1950,22 +1954,20 @@
         for (let i = 1; i < layers; i++) {
           const yT = yTop - extra + i * tPx;
           const yB = yBot + extra - i * tPx;
-          if (yT < yTop - 0.5) s += `<line x1="${xL + 1}" y1="${yT.toFixed(1)}" x2="${xR - 1}" y2="${yT.toFixed(1)}" stroke="#dc2626" stroke-width="0.9" stroke-opacity="0.55"/>`;
-          if (yB > yBot + 0.5) s += `<line x1="${xL + 1}" y1="${yB.toFixed(1)}" x2="${xR - 1}" y2="${yB.toFixed(1)}" stroke="#dc2626" stroke-width="0.9" stroke-opacity="0.55"/>`;
+          if (yT < yTop - 0.5) s += `<line x1="${xL + 1}" y1="${yT.toFixed(1)}" x2="${xR - 1}" y2="${yT.toFixed(1)}" stroke="#0284c7" stroke-width="0.9" stroke-opacity="0.55"/>`;
+          if (yB > yBot + 0.5) s += `<line x1="${xL + 1}" y1="${yB.toFixed(1)}" x2="${xR - 1}" y2="${yB.toFixed(1)}" stroke="#0284c7" stroke-width="0.9" stroke-opacity="0.55"/>`;
         }
         return s;
       }
 
       // Các sợi dây THÒ RA ở 2 đầu chưa quấn (minh họa 2D phẳng, không theo số liệu nhập):
-      // 5 sợi nhiều màu ló ra khỏi khối tape khóa đầu, đầu sợi hơi xòe như bó dây thật.
+      // 7 sợi nhiều màu THẲNG ló ra khỏi vùng tape, cùng hàng/màu với dây trong bó.
       function protrudingWires(side) {
         const cyF = (yTop + yBot) / 2;
         const strands = [
-          { dy: -21, len: 25, fan: -5 },
-          { dy: -10.5, len: 29, fan: -2.5 },
-          { dy: 0, len: 26, fan: 0 },
-          { dy: 10.5, len: 29, fan: 2.5 },
-          { dy: 21, len: 25, fan: 5 }
+          { dy: -24, len: 24 }, { dy: -16, len: 28 }, { dy: -8, len: 25 },
+          { dy: 0, len: 29 },
+          { dy: 8, len: 25 }, { dy: 16, len: 28 }, { dy: 24, len: 24 }
         ];
         let s = '';
         strands.forEach((st, k) => {
@@ -1973,33 +1975,26 @@
           let x1, x2;
           if (side === 'l') { x1 = xEnd1L + 9; x2 = xEnd1L - st.len; }
           else { x1 = xEnd2R - 9; x2 = xEnd2R + st.len; }
-          const y1 = cyF + st.dy;
-          const y2 = cyF + st.dy + st.fan;
-          s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
-          s += `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
+          const y = cyF + st.dy;
+          s += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
+          s += `<line x1="${x1}" y1="${y}" x2="${x2}" y2="${y}" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
         });
         return s;
       }
 
-      // Lớp dây của bó ở đoạn giữa, vẽ DƯỚI các dải tape: 5 sợi nhiều màu chạy sóng nhẹ
-      // dọc bó (cùng hàng/màu với dây thò ra ở 2 đầu). Khi quấn kín (h <= b) lớp này bị
-      // tape phủ hết; khi quấn THƯA (h > b, overlap âm) phần hở giữa 2 vòng tape liên tiếp
+      // Lớp dây của bó ở đoạn giữa, vẽ DƯỚI các dải tape: 7 sợi nhiều màu THẲNG chạy dọc
+      // bó (cùng hàng/màu với dây thò ra ở 2 đầu). Khi quấn kín (h <= b) lớp này bị tape
+      // phủ hết; khi quấn THƯA (h > b, overlap âm) phần hở giữa 2 vòng tape liên tiếp
       // sẽ nhìn thấy dây — đúng như bó dây thật chưa được quấn kín.
       function midWiresSvg() {
         const cyF = (yTop + yBot) / 2;
-        const rows = [-21, -10.5, 0, 10.5, 21];
+        const rows = [-24, -16, -8, 0, 8, 16, 24];
         let s = '';
         rows.forEach((dy, k) => {
           const col = getTwistWireColorObj(k).fill;
-          const yBase = cyF + dy;
-          const phase = k * 1.7;
-          let dAttr = '';
-          for (let x = xEnd1R - 8; x <= xEnd2L + 8; x += 8) {
-            const y = yBase + 3.5 * Math.sin(((x - xEnd1R) / 92) * Math.PI * 2 + phase);
-            dAttr += (dAttr === '' ? 'M ' : ' L ') + x.toFixed(1) + ' ' + y.toFixed(1);
-          }
-          s += `<path d="${dAttr}" fill="none" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
-          s += `<path d="${dAttr}" fill="none" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
+          const y = cyF + dy;
+          s += `<line x1="${xEnd1R - 8}" y1="${y}" x2="${xEnd2L + 8}" y2="${y}" stroke="#0f172a" stroke-width="7" stroke-linecap="round"/>`;
+          s += `<line x1="${xEnd1R - 8}" y1="${y}" x2="${xEnd2L + 8}" y2="${y}" stroke="${col}" stroke-width="5" stroke-linecap="round"/>`;
         });
         return s;
       }
@@ -2026,13 +2021,13 @@
 
         spiralStripsSvg += `
           <polygon points="${botL},${yBot} ${topL},${yTop} ${topR},${yTop} ${botR},${yBot}"
-                   fill="#ffffff" stroke="#dc2626" stroke-width="1.35"/>
+                   fill="#bae6fd" stroke="#0284c7" stroke-width="1.35"/>
         `;
 
         // Nét đứt mặt khuất phía sau bó dây
         spiralStripsSvg += `
           <line x1="${topL}" y1="${yTop}" x2="${botR}" y2="${yBot}"
-                stroke="#fca5a5" stroke-width="1" stroke-dasharray="4,3"/>
+                stroke="#7dd3fc" stroke-width="1" stroke-dasharray="4,3"/>
         `;
       });
 
@@ -2083,7 +2078,7 @@
 
         <!-- Thân bó dây nền xám nhạt trong vùng quấn tape (2 đầu chừa trống cho dây thò ra) -->
         <rect x="${xEnd1L}" y="${yTop}" width="${xEnd2R - xEnd1L}" height="${bundleH}"
-              fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
+              fill="#e2e8f0"/>
 
         <!-- Dây thò ra ở 2 đầu chưa quấn (gốc sợi được khối tape khóa đầu che phủ) -->
         ${protrudingWires('l')}
@@ -2096,25 +2091,25 @@
           ${overlapSvg}
         </g>
 
-        <!-- Viền trên & dưới của thân bó dây -->
-        <line x1="${xEnd1L}" y1="${yTop}" x2="${xEnd2R}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
-        <line x1="${xEnd1L}" y1="${yBot}" x2="${xEnd2R}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
-
-        <!-- Quấn tròn khóa Đầu 1 -->
+        <!-- Quấn tròn khóa Đầu 1 (số vòng = 0 thì không vẽ khối tape đầu này) -->
+        ${n1 > 0 ? `
         <text x="${xEnd1L + 4}" y="${yTop - 12}" text-anchor="start" font-size="12.5" font-weight="bold" fill="#dc2626">
           Đầu 1 (${formatNumClean(n1, 1)} vòng)
         </text>
-        <rect x="${xEnd1L}" y="${yTop - extra1}" width="${bPx}" height="${bundleH + 2 * extra1}"
-              fill="#fca5a5" stroke="#dc2626" stroke-width="1.6"/>
+        <rect x="${xEnd1L}" y="${yTop - extra1}" width="${blockW1}" height="${bundleH + 2 * extra1}"
+              fill="#bae6fd" stroke="#0284c7" stroke-width="1.6"/>
         ${layerLines(xEnd1L, xEnd1R, extra1, n1)}
+        ` : ''}
 
-        <!-- Quấn tròn khóa Đầu 2 -->
+        <!-- Quấn tròn khóa Đầu 2 (số vòng = 0 thì không vẽ khối tape đầu này) -->
+        ${n2 > 0 ? `
         <text x="${(xEnd2L + xEnd2R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
           Đầu 2 (${formatNumClean(n2, 1)} vòng)
         </text>
-        <rect x="${xEnd2L}" y="${yTop - extra2}" width="${bPx}" height="${bundleH + 2 * extra2}"
-              fill="#fca5a5" stroke="#dc2626" stroke-width="1.6"/>
+        <rect x="${xEnd2L}" y="${yTop - extra2}" width="${blockW2}" height="${bundleH + 2 * extra2}"
+              fill="#bae6fd" stroke="#0284c7" stroke-width="1.6"/>
         ${layerLines(xEnd2L, xEnd2R, extra2, n2)}
+        ` : ''}
 
 
         <!-- Kích thước bước tiến h (gióng từ góc trên trái vòng 1 đến góc trên trái vòng 2 = đúng bề rộng phần trắng) -->
@@ -2127,7 +2122,8 @@
           h = ${formatNumClean(h, 2)} mm
         </text>
 
-        <!-- Kích thước bề rộng tape b ở Đầu 1 -->
+        <!-- Kích thước bề rộng tape b ở Đầu 1 (chỉ hiện khi có khối Đầu 1) -->
+        ${n1 > 0 ? `
         <line x1="${xEnd1L}" y1="${yBot + extra1 + 2}" x2="${xEnd1L}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
         <line x1="${xEnd1R}" y1="${yBot + extra1 + 2}" x2="${xEnd1R}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
         <line x1="${xEnd1L - 14}" y1="166" x2="${xEnd1R + 14}" y2="166" stroke="#dc2626" stroke-width="1.4"/>
@@ -2136,6 +2132,7 @@
         <text x="${(xEnd1L + xEnd1R) / 2}" y="159" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">
           b = ${formatNumClean(b, 1)}
         </text>
+        ` : ''}
 
         <!-- Kích thước tổng chiều dài sau quấn c -->
         <line x1="${xEnd1L}" y1="176" x2="${xEnd1L}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
@@ -2186,11 +2183,11 @@
       svgOverlap.innerHTML = `
         <!-- Vòng băng keo 1 (Bên trái - phần không bị đè có nền trắng) -->
         <polygon points="${s1BotL},${ovBotY} ${s1TopL},${ovTopY} ${s1TopR},${ovTopY} ${s1BotR},${ovBotY}"
-                 fill="#ffffff" stroke="#334155" stroke-width="1.35"/>
+                 fill="#bae6fd" stroke="#334155" stroke-width="1.35"/>
 
         <!-- Vòng băng keo 2 (Dịch sang phải một đoạn đúng bằng h) -->
         <polygon points="${s2BotL},${ovBotY} ${s2TopL},${ovTopY} ${s2TopR},${ovTopY} ${s2BotR},${ovBotY}"
-                 fill="#fff1f2" fill-opacity="0.55" stroke="#dc2626" stroke-width="1.35"/>
+                 fill="#bae6fd" fill-opacity="0.55" stroke="#0284c7" stroke-width="1.35"/>
 
         <!-- Phần diện tích chồng mí màu đỏ (nằm giữa s2Left và s1Right) -->
         ${intersectionSvg}
