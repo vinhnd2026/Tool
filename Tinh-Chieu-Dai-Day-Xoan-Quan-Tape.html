@@ -1865,9 +1865,11 @@
       const overlapPx = Math.max(0, bPx - hPx);
       const slant = 28; // Độ nghiêng mép băng keo quấn chéo
 
-      const xEnd1L = 112;
+      // Tape khóa đầu phủ ra tận mép bó dây (theo yêu cầu): hai đầu KHÔNG còn đoạn bó
+      // trần hở ra ngoài vùng quấn — Đầu 1 bắt đầu đúng mép trái, Đầu 2 kết thúc đúng mép phải.
+      const xEnd1L = xBundleL;
       const xEnd1R = xEnd1L + bPx;
-      const xEnd2R = 568;
+      const xEnd2R = xBundleR;
       const xEnd2L = xEnd2R - bPx;
 
       let spiralStripsSvg = '';
@@ -1951,12 +1953,6 @@
         <rect x="${xBundleL}" y="${yTop}" width="${xBundleR - xBundleL}" height="${bundleH}"
               fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
 
-        <!-- Ký hiệu cắt sóng 2 đầu bó dây -->
-        <path d="M ${xBundleL} ${yTop} Q ${xBundleL - 9} ${yTop + bundleH * 0.25} ${xBundleL} ${yTop + bundleH * 0.5} Q ${xBundleL + 9} ${yTop + bundleH * 0.75} ${xBundleL} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
-        <path d="M ${xBundleR} ${yTop} Q ${xBundleR - 9} ${yTop + bundleH * 0.25} ${xBundleR} ${yTop + bundleH * 0.5} Q ${xBundleR + 9} ${yTop + bundleH * 0.75} ${xBundleR} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
-
         <!-- Các vòng băng keo quấn chéo ở giữa (Clip gọn trong vùng giữa 2 đầu) -->
         <g clip-path="url(#clip-mid-spiral)">
           ${spiralStripsSvg}
@@ -1968,7 +1964,7 @@
         <line x1="${xBundleL}" y1="${yBot}" x2="${xBundleR}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
 
         <!-- Quấn tròn khóa Đầu 1 -->
-        <text x="${(xEnd1L + xEnd1R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
+        <text x="${xEnd1L + 4}" y="${yTop - 12}" text-anchor="start" font-size="12.5" font-weight="bold" fill="#dc2626">
           Đầu 1 (${formatNumClean(n1, 1)} vòng)
         </text>
         <rect x="${xEnd1L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
@@ -1980,6 +1976,12 @@
         </text>
         <rect x="${xEnd2L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
               fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+
+        <!-- Ký hiệu cắt sóng ở 2 mép ngoài cùng (vẽ sau tape: bó và tape cùng bị cắt tại đây) -->
+        <path d="M ${xBundleL} ${yTop} Q ${xBundleL - 9} ${yTop + bundleH * 0.25} ${xBundleL} ${yTop + bundleH * 0.5} Q ${xBundleL + 9} ${yTop + bundleH * 0.75} ${xBundleL} ${yBot}"
+              fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <path d="M ${xBundleR} ${yTop} Q ${xBundleR - 9} ${yTop + bundleH * 0.25} ${xBundleR} ${yTop + bundleH * 0.5} Q ${xBundleR + 9} ${yTop + bundleH * 0.75} ${xBundleR} ${yBot}"
+              fill="none" stroke="#0f172a" stroke-width="1.6"/>
 
         <!-- Kích thước bước tiến h (gióng từ góc trên trái vòng 1 đến góc trên trái vòng 2 = đúng bề rộng phần trắng) -->
         <line x1="${hMeasureX1}" y1="22" x2="${hMeasureX1}" y2="${yTop}" stroke="#dc2626" stroke-width="1.2"/>
