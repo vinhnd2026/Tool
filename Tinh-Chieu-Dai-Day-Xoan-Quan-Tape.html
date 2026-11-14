@@ -766,55 +766,16 @@
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-md mx-auto">
         <h2 class="font-bold text-slate-800 text-base border-b pb-2.5">Đổi AWG &harr; mm &harr; mm<sup>2</sup></h2>
         <div class="space-y-3.5 mt-4 text-sm">
-          <div>
+          <div id="awg-field-wrap" class="relative">
             <label class="block font-medium text-slate-600 mb-1" for="awg-gauge">Cỡ dây (AWG #) — gõ hoặc chọn:</label>
-            <input type="text" id="awg-gauge" list="awg-options" value="24" oninput="awgFromGaugeInput()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
-            <datalist id="awg-options">
-              <option value="0000"></option>
-              <option value="000"></option>
-              <option value="00"></option>
-              <option value="0"></option>
-              <option value="1"></option>
-              <option value="2"></option>
-              <option value="3"></option>
-              <option value="4"></option>
-              <option value="5"></option>
-              <option value="6"></option>
-              <option value="7"></option>
-              <option value="8"></option>
-              <option value="9"></option>
-              <option value="10"></option>
-              <option value="11"></option>
-              <option value="12"></option>
-              <option value="13"></option>
-              <option value="14"></option>
-              <option value="15"></option>
-              <option value="16"></option>
-              <option value="17"></option>
-              <option value="18"></option>
-              <option value="19"></option>
-              <option value="20"></option>
-              <option value="21"></option>
-              <option value="22"></option>
-              <option value="23"></option>
-              <option value="24"></option>
-              <option value="25"></option>
-              <option value="26"></option>
-              <option value="27"></option>
-              <option value="28"></option>
-              <option value="29"></option>
-              <option value="30"></option>
-              <option value="31"></option>
-              <option value="32"></option>
-              <option value="33"></option>
-              <option value="34"></option>
-              <option value="35"></option>
-              <option value="36"></option>
-              <option value="37"></option>
-              <option value="38"></option>
-              <option value="39"></option>
-              <option value="40"></option>
-            </datalist>
+            <div class="relative">
+              <input type="text" id="awg-gauge" value="24" oninput="awgFromGaugeInput()" onfocus="awgOpenPanel()" class="w-full px-3 py-2 pr-11 border border-slate-300 rounded font-bold bg-white"/>
+              <button type="button" onclick="awgTogglePanel(event)" aria-label="Mở bảng chọn cỡ AWG" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md bg-sky-100 hover:bg-sky-200 text-sky-700 text-base font-black transition">&#9662;</button>
+            </div>
+            <div id="awg-panel" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border-2 border-sky-200 rounded-xl shadow-2xl p-2.5">
+              <div class="text-[11px] font-bold text-slate-500 uppercase px-0.5 pb-1.5">Chọn cỡ AWG — luôn hiện đủ 44 cỡ</div>
+              <div id="awg-chips" class="grid grid-cols-6 gap-1.5 max-h-60 overflow-y-auto pr-0.5"></div>
+            </div>
           </div>
           <div>
             <label class="block font-medium text-slate-600 mb-1" for="awg-mm">Đường kính (mm):</label>
@@ -3167,6 +3128,7 @@
           ? `Đúng cỡ chuẩn AWG ${awgLabel(gRound)}`
           : `Không đúng cỡ chuẩn — cỡ AWG gần nhất: ${awgLabel(gRound)}`;
       }
+      awgMarkSelected();
     }
 
     function awgFromGaugeInput() {
@@ -3193,8 +3155,70 @@
       awgFromGaugeInput();
     }
 
+    // Bảng chọn cỡ AWG tự dựng (thay datalist mặc định vốn lọc bớt mục theo chữ đã gõ):
+    // luôn hiện ĐỦ 44 cỡ kể cả khi ô đã có sẵn dữ liệu. Cỡ đang chọn tô xanh dương đậm,
+    // 3 cỡ đặc biệt 0000/000/00 tô tím để dễ phân biệt.
+    function awgChipValue(lab) { return lab === '0000' ? -3 : lab === '000' ? -2 : lab === '00' ? -1 : parseInt(lab); }
+
+    function awgBuildChips() {
+      const wrap = document.getElementById('awg-chips');
+      if (!wrap) return;
+      const labels = ['0000', '000', '00'];
+      for (let i = 0; i <= 40; i++) labels.push(String(i));
+      wrap.innerHTML = labels.map(lab => {
+        const special = lab === '0000' || lab === '000' || lab === '00';
+        const base = special
+          ? 'bg-violet-100 border-violet-300 text-violet-900 hover:bg-violet-200'
+          : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-sky-100 hover:border-sky-300';
+        return `<button type="button" data-awg="${lab}" onclick="awgPick('${lab}')" class="awg-chip px-1 py-1.5 text-sm font-bold rounded-lg border ${base} transition">${lab}</button>`;
+      }).join('');
+      awgMarkSelected();
+    }
+
+    function awgMarkSelected() {
+      const el = document.getElementById('awg-gauge');
+      const g = el ? awgParseGauge(el.value) : null;
+      document.querySelectorAll('.awg-chip').forEach(ch => {
+        const on = g !== null && awgChipValue(ch.getAttribute('data-awg')) === g;
+        ch.classList.toggle('bg-blue-600', on);
+        ch.classList.toggle('text-white', on);
+        ch.classList.toggle('border-blue-600', on);
+        ch.classList.toggle('shadow-md', on);
+      });
+    }
+
+    function awgOpenPanel() {
+      const panel = document.getElementById('awg-panel');
+      if (panel) { panel.classList.remove('hidden'); awgMarkSelected(); }
+    }
+
+    function awgClosePanel() {
+      const panel = document.getElementById('awg-panel');
+      if (panel) panel.classList.add('hidden');
+    }
+
+    function awgTogglePanel(ev) {
+      if (ev) ev.stopPropagation();
+      const panel = document.getElementById('awg-panel');
+      if (panel && panel.classList.contains('hidden')) awgOpenPanel(); else awgClosePanel();
+    }
+
+    function awgPick(lab) {
+      const el = document.getElementById('awg-gauge');
+      if (el) el.value = lab;
+      awgFromGaugeInput();
+      awgClosePanel();
+    }
+
+    // Bấm ra ngoài vùng chọn thì đóng bảng chọn
+    document.addEventListener('click', (e) => {
+      const wrap = document.getElementById('awg-field-wrap');
+      if (wrap && !wrap.contains(e.target)) awgClosePanel();
+    });
+
     window.addEventListener('DOMContentLoaded', () => {
       resetDefaults();
+      awgBuildChips();
       awgFromGaugeInput();
     });
     window.addEventListener('resize', () => {
