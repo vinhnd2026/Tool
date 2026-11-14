@@ -297,7 +297,7 @@
 
           <!-- BẢN VẼ VECTOR SVG CHUẨN CAD (XOẮN ĐỀU, DÂY TRÊN CHE KHUẤT DÂY DƯỚI, HỖ TRỢ N DÂY) -->
           <div class="bg-slate-50 rounded-lg border border-slate-200 p-2 overflow-x-auto">
-            <svg id="svg-twist-diagram" viewBox="0 0 760 250" class="w-full h-auto min-w-[600px] block"></svg>
+            <svg id="svg-twist-diagram" viewBox="0 0 760 470" class="w-full h-auto min-w-[600px] block"></svg>
           </div>
 
           <!-- Ghi chú cảnh báo ngay tại phần minh họa, chỉ hiện khi OD được nhập từ mục Tính ĐK Bó Dây:
@@ -663,6 +663,77 @@
     <!-- TAB 4: TỰ ĐỘNG TÍNH ĐƯỜNG KÍNH BÓ DÂY (TANGENT PACKING + MEC)       -->
     <!-- =================================================================== -->
     <section id="tab-bundle" class="tab-panel hidden space-y-4 max-w-6xl mx-auto">
+      <!-- Đổi AWG <-> mm <-> mm2 (theo chuẩn AWG, giống RapidTables) -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2.5">
+        <div class="flex flex-wrap items-end gap-x-5 gap-y-3">
+          <span class="font-bold text-slate-800 text-sm pb-1">Đổi AWG &harr; mm &harr; mm<sup>2</sup></span>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Cỡ dây (AWG #):</label>
+            <select id="awg-gauge" onchange="awgFromGauge()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-28">
+                <option value="-3">0000</option>
+                <option value="-2">000</option>
+                <option value="-1">00</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+                <option value="6">6</option>
+                <option value="7">7</option>
+                <option value="8">8</option>
+                <option value="9">9</option>
+                <option value="10">10</option>
+                <option value="11">11</option>
+                <option value="12">12</option>
+                <option value="13">13</option>
+                <option value="14">14</option>
+                <option value="15">15</option>
+                <option value="16">16</option>
+                <option value="17">17</option>
+                <option value="18">18</option>
+                <option value="19">19</option>
+                <option value="20">20</option>
+                <option value="21">21</option>
+                <option value="22">22</option>
+                <option value="23">23</option>
+                <option value="24" selected>24</option>
+                <option value="25">25</option>
+                <option value="26">26</option>
+                <option value="27">27</option>
+                <option value="28">28</option>
+                <option value="29">29</option>
+                <option value="30">30</option>
+                <option value="31">31</option>
+                <option value="32">32</option>
+                <option value="33">33</option>
+                <option value="34">34</option>
+                <option value="35">35</option>
+                <option value="36">36</option>
+                <option value="37">37</option>
+                <option value="38">38</option>
+                <option value="39">39</option>
+                <option value="40">40</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Đường kính (mm):</label>
+            <input type="number" id="awg-mm" step="0.0001" min="0" oninput="awgFromMm()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-32"/>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1">Tiết diện (mm<sup>2</sup>):</label>
+            <input type="number" id="awg-mm2" step="0.0001" min="0" oninput="awgFromMm2()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-32"/>
+          </div>
+          <span id="awg-equiv" class="text-xs text-slate-500 pb-1.5"></span>
+          <button onclick="awgReset()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded transition mb-0.5">&times; Đặt lại</button>
+        </div>
+        <div class="flex flex-wrap items-center gap-2 text-xs border-t border-slate-100 pt-2.5">
+          <span class="text-slate-600 font-medium">Đưa đường kính này vào:</span>
+          <select id="awg-group" onfocus="awgRefreshGroups()" class="px-2 py-1.5 border border-slate-300 rounded font-semibold bg-white"></select>
+          <button onclick="awgApplyToGroup()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition shadow-sm">Áp dụng Ø</button>
+          <span class="text-slate-400">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</span>
+        </div>
+      </div>
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
         <!-- Cột trái: Nhập danh sách các loại dây trong bó -->
@@ -744,13 +815,6 @@
             <strong id="bd-pitch-od" class="text-base font-extrabold text-indigo-700">2.704 mm</strong>
           </div>
 
-          <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-xs flex items-center justify-between">
-            <span class="font-bold text-amber-900">Hệ số lấp đầy (<i>&eta;</i> = &Sigma;<i>d<sub>i</sub></i><sup>2</sup> / <i>D</i><sup>2</sup>):</span>
-            <strong id="bd-fill-factor" class="text-base font-extrabold text-amber-700">—</strong>
-          </div>
-          <p class="text-[11px] text-slate-500 leading-snug">
-            <i>&eta;</i> cho biết mặt cắt bó dây &ldquo;chặt&rdquo; đến đâu: xếp lục giác lý tưởng &eta; &asymp; 0,907 là giới hạn hình học cao nhất; bó dây thật thường 0,65&ndash;0,80. Xem Mục 5 ở tab Lý Thuyết &amp; Công Thức.
-          </p>
         </div>
 
       </div>
@@ -1464,23 +1528,23 @@
       const badge = document.getElementById('twist-live-badge');
       if (badge) badge.textContent = actualWires > numWires ? `${actualWires} dây trong bó` : `${numWires} dây xoắn`;
 
-      // Phần 1 (Trái): Phóng to chi tiết OD
-      const zoomY = 112;
-      const zoomXStart = 28;
-      const zoomXEnd = 186;
-      const zoomPitch = 88;
-      const zoomAmp = 14;
-      const zoomWireW = numWires <= 3 ? 11.5 : Math.max(6.5, 24 / numWires);
+      // Hàng 2 (Dưới): Phóng to chi tiết OD (trái) + Mặt cắt vòng tâm (phải) — vẽ TO
+      const zoomY = 352;
+      const zoomXStart = 30;
+      const zoomXEnd = 262;
+      const zoomPitch = 112;
+      const zoomAmp = 20;
+      const zoomWireW = numWires <= 3 ? 16 : Math.max(9, 34 / numWires);
       const topCenterY = zoomY - zoomAmp;
       const botCenterY = zoomY + zoomAmp;
-      const odDimX = 222;
+      const odDimX = 322;
 
       const zoomHelixSvg = build3DHelixBundleSVG(zoomXStart, zoomXEnd, zoomY, zoomPitch, zoomAmp, zoomWireW, numWires);
-      const zoomWaveSvg = buildSVGWaveBreak(zoomXStart + 2, zoomY, 32, 5);
+      const zoomWaveSvg = buildSVGWaveBreak(zoomXStart + 2, zoomY, 46, 6);
 
-      // Mặt cắt thu nhỏ góc dưới trái
-      const csX = 56, csY = 198, csR = 14;
-      const wireR = Math.min(7.5, csR * Math.sin(Math.PI / numWires));
+      // Mặt cắt vòng tâm OD — hàng 2 bên phải, vẽ TO
+      const csX = 545, csY = 348, csR = 32;
+      const wireR = Math.min(17, csR * Math.sin(Math.PI / numWires));
       let csWiresSvg = '';
       for (let k = 0; k < numWires; k++) {
         const ang = (2 * Math.PI * k) / numWires - Math.PI / 2;
@@ -1489,25 +1553,25 @@
         csWiresSvg += `<circle cx="${wx.toFixed(2)}" cy="${wy.toFixed(2)}" r="${wireR.toFixed(2)}" fill="${getTwistWireColorObj(k).fill}" stroke="#0f172a" stroke-width="1.1"/>`;
       }
 
-      // Phần 2 (Phải): Bản vẽ tổng thể L, a, b, P, h1, h2
-      const mainY = 115;
-      const xH1 = 305;
-      const xTwistStart = 375;
-      const xTwistEnd = 643;
-      const xH2 = 713;
+      // Hàng 1 (Trên): Bản vẽ tổng thể L, a, b, P, h1, h2 — trải rộng toàn bề ngang cho hình TO
+      const mainY = 118;
+      const xH1 = 66;
+      const xTwistStart = 152;
+      const xTwistEnd = 638;
+      const xH2 = 712;
       const mainPitch = 53.6;
-      const mainAmp = 6.2;
-      const mainWireW = numWires <= 3 ? 5.2 : Math.max(3.4, 11 / numWires);
+      const mainAmp = 9;
+      const mainWireW = numWires <= 3 ? 7 : Math.max(4.2, 15 / numWires);
 
       let straightEndsSvg = '';
       for (let k = 0; k < numWires; k++) {
         const phi = (2 * Math.PI * k) / numWires;
         const yLeftEnd = mainY - mainAmp * Math.cos(phi);
-        const yLeftStart = mainY + ((k / (numWires - 1)) - 0.5) * 16;
+        const yLeftStart = mainY + ((k / (numWires - 1)) - 0.5) * 22;
 
         const phaseEnd = ((2 * Math.PI) / mainPitch) * (xTwistEnd - xTwistStart) + phi;
         const yRightStart = mainY - mainAmp * Math.cos(phaseEnd);
-        const yRightEnd = mainY + ((k / (numWires - 1)) - 0.5) * 16;
+        const yRightEnd = mainY + ((k / (numWires - 1)) - 0.5) * 22;
 
         const cObj = getTwistWireColorObj(k);
         straightEndsSvg += `
@@ -1522,28 +1586,12 @@
       const midBreakX = 0.5 * (xTwistStart + xTwistEnd);
       const mainWaveSvg = buildSVGWaveBreak(midBreakX, mainY, 18, 5);
 
-      const housingW = 24, housingH = 54;
+      const housingW = 24, housingH = 64;
       const pX1 = xTwistStart + mainPitch * 0.5;
       const pX2 = pX1 + mainPitch;
 
       svg.innerHTML = `
-        <!-- Chi tiết phóng to OD bên trái -->
-        <text x="14" y="22" font-size="11.5" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${actualWires} dây)</text>
-        ${zoomHelixSvg}
-        ${zoomWaveSvg}
-        <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="234" y2="${topCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
-        <line x1="${zoomXStart + 35}" y1="${botCenterY}" x2="234" y2="${botCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
-        <line x1="${odDimX}" y1="${topCenterY - 22}" x2="${odDimX}" y2="${botCenterY + 22}" stroke="#dc2626" stroke-width="1.3"/>
-        <polygon points="${odDimX},${topCenterY} ${odDimX - 3.5},${topCenterY - 8} ${odDimX + 3.5},${topCenterY - 8}" fill="#dc2626"/>
-        <polygon points="${odDimX},${botCenterY} ${odDimX - 3.5},${botCenterY + 8} ${odDimX + 3.5},${botCenterY + 8}" fill="#dc2626"/>
-        <text x="${odDimX - 18}" y="${botCenterY + 38}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">OD = ${formatNumClean(OD, 3)} mm</text>
-
-        <!-- Mặt cắt thu nhỏ vòng tâm OD -->
-        ${csWiresSvg}
-        <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="3,2"/>
-        <text x="${csX + 26}" y="${csY + 4}" font-size="10.5" font-weight="600" fill="#475569">Mặt cắt vòng tâm OD (${actualWires} sợi)</text>
-
-        <!-- Bản vẽ tổng thể bên phải -->
+        <!-- HÀNG 1: Bản vẽ tổng thể -->
         ${straightEndsSvg}
         ${mainHelixSvg}
         ${mainWaveSvg}
@@ -1552,25 +1600,45 @@
         <rect x="${xH1 - housingW}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
         <line x1="${xH1 - 14}" y1="${mainY - 8}" x2="${xH1}" y2="${mainY - 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
         <line x1="${xH1 - 14}" y1="${mainY + 8}" x2="${xH1}" y2="${mainY + 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
-        <text x="${xH1 - housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">h1=${formatNumClean(h1)}</text>
+        <text x="${xH1 - housingW / 2}" y="${mainY + housingH / 2 + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="#1d4ed8">h1=${formatNumClean(h1)}</text>
 
         <rect x="${xH2}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
         <line x1="${xH2}" y1="${mainY - 8}" x2="${xH2 + 14}" y2="${mainY - 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
         <line x1="${xH2}" y1="${mainY + 8}" x2="${xH2 + 14}" y2="${mainY + 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
-        <text x="${xH2 + housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">h2=${formatNumClean(h2)}</text>
+        <text x="${xH2 + housingW / 2}" y="${mainY + housingH / 2 + 14}" text-anchor="middle" font-size="11" font-weight="bold" fill="#1d4ed8">h2=${formatNumClean(h2)}</text>
 
         <!-- Đường gióng kích thước L, a, b, P -->
         <line x1="${xH1}" y1="22" x2="${xH1}" y2="${mainY - housingH / 2}" stroke="#475569" stroke-width="1"/>
         <line x1="${xH2}" y1="22" x2="${xH2}" y2="${mainY - housingH / 2}" stroke="#475569" stroke-width="1"/>
         <line x1="${xTwistStart}" y1="56" x2="${xTwistStart}" y2="${mainY - 12}" stroke="#475569" stroke-width="1"/>
         <line x1="${xTwistEnd}" y1="56" x2="${xTwistEnd}" y2="${mainY - 12}" stroke="#475569" stroke-width="1"/>
-        <line x1="${pX1.toFixed(2)}" y1="${mainY + 12}" x2="${pX1.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
-        <line x1="${pX2.toFixed(2)}" y1="${mainY + 12}" x2="${pX2.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
+        <line x1="${pX1.toFixed(2)}" y1="${mainY + 12}" x2="${pX1.toFixed(2)}" y2="192" stroke="#475569" stroke-width="1"/>
+        <line x1="${pX2.toFixed(2)}" y1="${mainY + 12}" x2="${pX2.toFixed(2)}" y2="192" stroke="#475569" stroke-width="1"/>
 
-        ${buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13, true)}
-        ${buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12, true)}
-        ${buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12, true)}
-        ${buildSVGDimension(pX1, 172, pX2, 172, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 12.5, true)}
+        ${buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13.5, true)}
+        ${buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12.5, true)}
+        ${buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12.5, true)}
+        ${buildSVGDimension(pX1, 182, pX2, 182, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 13, true)}
+
+        <!-- Đường phân cách 2 hàng -->
+        <line x1="12" y1="228" x2="748" y2="228" stroke="#e2e8f0" stroke-width="1.5"/>
+
+        <!-- HÀNG 2 TRÁI: Chi tiết phóng to OD -->
+        <text x="14" y="262" font-size="13" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${actualWires} dây)</text>
+        ${zoomHelixSvg}
+        ${zoomWaveSvg}
+        <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="336" y2="${topCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
+        <line x1="${zoomXStart + 35}" y1="${botCenterY}" x2="336" y2="${botCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
+        <line x1="${odDimX}" y1="${topCenterY - 26}" x2="${odDimX}" y2="${botCenterY + 26}" stroke="#dc2626" stroke-width="1.3"/>
+        <polygon points="${odDimX},${topCenterY} ${odDimX - 3.5},${topCenterY - 8} ${odDimX + 3.5},${topCenterY - 8}" fill="#dc2626"/>
+        <polygon points="${odDimX},${botCenterY} ${odDimX - 3.5},${botCenterY + 8} ${odDimX + 3.5},${botCenterY + 8}" fill="#dc2626"/>
+        <text x="${odDimX}" y="${botCenterY + 44}" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">OD = ${formatNumClean(OD, 3)} mm</text>
+
+        <!-- HÀNG 2 PHẢI: Mặt cắt vòng tâm OD -->
+        <text x="${csX}" y="262" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">Mặt cắt vòng tâm OD (${actualWires} sợi)</text>
+        ${csWiresSvg}
+        <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="4,3"/>
+        <text x="${csX}" y="${csY + csR + 24}" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">Vòng tròn qua tâm các dây — đường kính OD</text>
       `;
     }
 
@@ -2786,10 +2854,7 @@
       });
       const pitchOD = packed.circles.length === 1 ? packed.circles[0].d : maxCenterDist * 2;
 
-      const fillFactor = outerD > 0 ? (totalArea / (Math.PI * Math.pow(outerD / 2, 2))) : 0;
       document.getElementById('bd-total-wires').textContent = totalWires + ' sợi';
-      const ffEl = document.getElementById('bd-fill-factor');
-      if (ffEl) ffEl.textContent = fillFactor.toFixed(3);
       document.getElementById('bd-total-area').textContent = totalArea.toFixed(2);
       document.getElementById('bd-outer-d').textContent = outerD.toFixed(3) + ' mm';
       document.getElementById('bd-radius-a').textContent = radiusA.toFixed(4) + ' mm';
@@ -2963,8 +3028,84 @@
       renderTheorySVGs();
     }
 
+    // =========================================================================
+    // ĐỔI AWG <-> mm <-> mm2 (chuẩn AWG như RapidTables)
+    // d(mm) = 0.127 * 92^((36 - AWG)/39); A(mm2) = pi * d^2 / 4
+    // Cỡ 0000 gán số -3, 000 = -2, 00 = -1 trong công thức.
+    // =========================================================================
+    function awgGaugeToMm(g) { return 0.127 * Math.pow(92, (36 - g) / 39); }
+    function awgMmToGauge(d) { return 36 - 39 * (Math.log(d / 0.127) / Math.log(92)); }
+    function awgLabel(g) { return g === -3 ? '0000' : g === -2 ? '000' : g === -1 ? '00' : String(g); }
+
+    function awgShow(d, fromGauge) {
+      const mmEl = document.getElementById('awg-mm');
+      const mm2El = document.getElementById('awg-mm2');
+      const eqEl = document.getElementById('awg-equiv');
+      if (!mmEl || !mm2El) return;
+      mmEl.value = parseFloat(d.toFixed(4));
+      mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
+      if (eqEl) {
+        if (fromGauge) { eqEl.textContent = ''; }
+        else {
+          const gExact = awgMmToGauge(d);
+          const gRound = Math.round(gExact);
+          eqEl.textContent = `≈ AWG ${awgLabel(gRound)} (chính xác ${gExact.toFixed(1)})`;
+        }
+      }
+    }
+
+    function awgFromGauge() {
+      const sel = document.getElementById('awg-gauge');
+      if (!sel) return;
+      awgShow(awgGaugeToMm(parseFloat(sel.value)), true);
+    }
+
+    function awgFromMm() {
+      const d = parseFloat(document.getElementById('awg-mm').value) || 0;
+      if (d <= 0) return;
+      const mm2El = document.getElementById('awg-mm2');
+      const eqEl = document.getElementById('awg-equiv');
+      if (mm2El) mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
+      if (eqEl) {
+        const gExact = awgMmToGauge(d);
+        eqEl.textContent = `≈ AWG ${awgLabel(Math.round(gExact))} (chính xác ${gExact.toFixed(1)})`;
+      }
+    }
+
+    function awgFromMm2() {
+      const a = parseFloat(document.getElementById('awg-mm2').value) || 0;
+      if (a <= 0) return;
+      awgShow(Math.sqrt(4 * a / Math.PI), false);
+    }
+
+    function awgReset() {
+      const sel = document.getElementById('awg-gauge');
+      if (sel) sel.value = '24';
+      awgFromGauge();
+    }
+
+    function awgRefreshGroups() {
+      const sel = document.getElementById('awg-group');
+      if (!sel || typeof wireGroups === 'undefined') return;
+      const cur = sel.value;
+      sel.innerHTML = wireGroups.map((g, i) => `<option value="${i}">${g.name || ('Nhóm ' + (i + 1))} — Ø ${g.d} mm</option>`).join('');
+      if (cur !== '' && parseInt(cur) < wireGroups.length) sel.value = cur;
+    }
+
+    function awgApplyToGroup() {
+      const d = parseFloat(document.getElementById('awg-mm').value) || 0;
+      const sel = document.getElementById('awg-group');
+      if (d <= 0 || !sel || sel.value === '') return;
+      updateWireGroup(parseInt(sel.value), 'd', d);
+      renderBundleTable();
+      scheduleBundleGeometry();
+      awgRefreshGroups();
+    }
+
     window.addEventListener('DOMContentLoaded', () => {
       resetDefaults();
+      awgFromGauge();
+      awgRefreshGroups();
     });
     window.addEventListener('resize', () => {
       drawTwistCADCanvas();
