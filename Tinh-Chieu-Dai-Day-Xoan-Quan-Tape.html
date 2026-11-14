@@ -825,12 +825,7 @@
           <span id="awg-equiv" class="text-xs text-slate-500 pb-1.5"></span>
           <button onclick="awgReset()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded transition mb-0.5">&times; Đặt lại</button>
         </div>
-        <div class="flex flex-wrap items-center gap-2 text-xs border-t border-slate-100 pt-2.5">
-          <span class="text-slate-600 font-medium">Đưa đường kính này vào:</span>
-          <select id="awg-group" onfocus="awgRefreshGroups()" class="px-2 py-1.5 border border-slate-300 rounded font-semibold bg-white"></select>
-          <button onclick="awgApplyToGroup()" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded transition shadow-sm">Áp dụng Ø</button>
-          <span class="text-slate-400">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</span>
-        </div>
+        <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</p>
       </div>
     </section>
 
@@ -1379,7 +1374,6 @@
       if (tabId === 'circle-tape') calculateCircleTape();
       if (tabId === 'spiral-tape') calculateSpiralTape();
       if (tabId === 'bundle') renderBundleTable();
-      if (tabId === 'awg') awgRefreshGroups();
       if (tabId === 'theory') renderTheorySVGs();
     }
 
@@ -3188,29 +3182,9 @@
       awgFromGauge();
     }
 
-    function awgRefreshGroups() {
-      const sel = document.getElementById('awg-group');
-      if (!sel || typeof wireGroups === 'undefined') return;
-      const cur = sel.value;
-      sel.innerHTML = wireGroups.map((g, i) => `<option value="${i}">${g.name || ('Nhóm ' + (i + 1))} — Ø ${g.d} mm</option>`).join('');
-      if (cur !== '' && parseInt(cur) < wireGroups.length) sel.value = cur;
-    }
-
-    function awgApplyToGroup() {
-      const d = parseFloat(document.getElementById('awg-mm').value) || 0;
-      const sel = document.getElementById('awg-group');
-      if (d <= 0 || !sel || sel.value === '') return;
-      updateWireGroup(parseInt(sel.value), 'd', d);
-      renderBundleTable();
-      scheduleBundleGeometry();
-      awgRefreshGroups();
-      switchTab('bundle');
-    }
-
     window.addEventListener('DOMContentLoaded', () => {
       resetDefaults();
       awgFromGauge();
-      awgRefreshGroups();
     });
     window.addEventListener('resize', () => {
       drawTwistCADCanvas();
