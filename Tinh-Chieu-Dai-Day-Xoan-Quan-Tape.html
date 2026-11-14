@@ -1934,6 +1934,43 @@
       const xEnd2R = xBundleR;
       const xEnd2L = xEnd2R - bPx;
 
+      // Bề dày 1 lớp tape trên hình minh họa (px) — tape khóa đầu quấn n vòng chồng tại chỗ
+      // nên khối đầu dày thêm n lớp mỗi phía, cùng tỷ lệ/màu với tape ở đoạn giữa.
+      const tPx = 2.5;
+      const extra1 = Math.min(8, tPx * Math.max(1, n1));
+      const extra2 = Math.min(8, tPx * Math.max(1, n2));
+
+      // Vạch phân lớp tape ở mép trên/dưới của khối khóa đầu (mỗi vòng khóa = 1 lớp dày tPx)
+      function layerLines(xL, xR, extra, n) {
+        let s = '';
+        const layers = Math.max(1, Math.round(n));
+        for (let i = 1; i < layers; i++) {
+          const yT = yTop - extra + i * tPx;
+          const yB = yBot + extra - i * tPx;
+          if (yT < yTop - 0.5) s += `<line x1="${xL + 1}" y1="${yT.toFixed(1)}" x2="${xR - 1}" y2="${yT.toFixed(1)}" stroke="#dc2626" stroke-width="0.9" stroke-opacity="0.55"/>`;
+          if (yB > yBot + 0.5) s += `<line x1="${xL + 1}" y1="${yB.toFixed(1)}" x2="${xR - 1}" y2="${yB.toFixed(1)}" stroke="#dc2626" stroke-width="0.9" stroke-opacity="0.55"/>`;
+        }
+        return s;
+      }
+
+      // Mặt cắt đầu bó vẽ NHƯ THẬT (chỉ minh họa, không theo số liệu nhập): vành tape bao
+      // ngoài + lõi bó dây gồm 7 sợi nhiều màu cắt ngang, đặt tại mép ngoài cùng của bó.
+      function endFace(cxEdge, extra, clipId) {
+        const cyF = (yTop + yBot) / 2;
+        const ryO = bundleH / 2 + extra;
+        const ryI = bundleH / 2 - 1;
+        const wirePos = [[0, 0], [0, -10.5], [6.2, -5.2], [6.2, 5.2], [0, 10.5], [-6.2, 5.2], [-6.2, -5.2]];
+        let wires = '';
+        wirePos.forEach((pos, k) => {
+          wires += `<circle cx="${(cxEdge + pos[0]).toFixed(1)}" cy="${(cyF + pos[1]).toFixed(1)}" r="4.6" fill="${getTwistWireColorObj(k).fill}" stroke="#0f172a" stroke-width="0.8"/>`;
+        });
+        return `
+          <ellipse cx="${cxEdge}" cy="${cyF}" rx="13" ry="${ryO.toFixed(1)}" fill="#fca5a5" stroke="#dc2626" stroke-width="1.5"/>
+          <ellipse cx="${cxEdge}" cy="${cyF}" rx="10" ry="${ryI.toFixed(1)}" fill="#dbe4ee" stroke="#0f172a" stroke-width="1.2"/>
+          <g clip-path="url(#${clipId})">${wires}</g>
+        `;
+      }
+
       let spiralStripsSvg = '';
       const xMidStart = xEnd1R;
       const xMidEnd = xEnd2L;
@@ -1999,6 +2036,18 @@
           <clipPath id="clip-mid-spiral">
             <rect x="${xEnd1R}" y="${yTop}" width="${xEnd2L - xEnd1R}" height="${bundleH}"/>
           </clipPath>
+          <linearGradient id="tapeShade" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#ffffff" stop-opacity="0.38"/>
+            <stop offset="35%" stop-color="#ffffff" stop-opacity="0"/>
+            <stop offset="78%" stop-color="#000000" stop-opacity="0"/>
+            <stop offset="100%" stop-color="#000000" stop-opacity="0.14"/>
+          </linearGradient>
+          <clipPath id="clip-face-l">
+            <ellipse cx="${xBundleL}" cy="${(yTop + yBot) / 2}" rx="10" ry="${bundleH / 2 - 1}"/>
+          </clipPath>
+          <clipPath id="clip-face-r">
+            <ellipse cx="${xBundleR}" cy="${(yTop + yBot) / 2}" rx="10" ry="${bundleH / 2 - 1}"/>
+          </clipPath>
         </defs>
 
         <!-- Kích thước đường kính bó dây D bên trái -->
@@ -2021,6 +2070,9 @@
           ${overlapSvg}
         </g>
 
+        <!-- Bóng trụ phủ lên đoạn đã quấn: sáng ở trên, tối dần xuống dưới cho giống bó tròn thật -->
+        <rect x="${xBundleL}" y="${yTop - 8}" width="${xBundleR - xBundleL}" height="${bundleH + 17}" fill="url(#tapeShade)" pointer-events="none"/>
+
         <!-- Viền trên & dưới của thân bó dây -->
         <line x1="${xBundleL}" y1="${yTop}" x2="${xBundleR}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
         <line x1="${xBundleL}" y1="${yBot}" x2="${xBundleR}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
@@ -2029,21 +2081,21 @@
         <text x="${xEnd1L + 4}" y="${yTop - 12}" text-anchor="start" font-size="12.5" font-weight="bold" fill="#dc2626">
           Đầu 1 (${formatNumClean(n1, 1)} vòng)
         </text>
-        <rect x="${xEnd1L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
-              fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+        <rect x="${xEnd1L}" y="${yTop - extra1}" width="${bPx}" height="${bundleH + 2 * extra1}"
+              fill="#fca5a5" stroke="#dc2626" stroke-width="1.6"/>
+        ${layerLines(xEnd1L, xEnd1R, extra1, n1)}
 
         <!-- Quấn tròn khóa Đầu 2 -->
         <text x="${(xEnd2L + xEnd2R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
           Đầu 2 (${formatNumClean(n2, 1)} vòng)
         </text>
-        <rect x="${xEnd2L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
-              fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+        <rect x="${xEnd2L}" y="${yTop - extra2}" width="${bPx}" height="${bundleH + 2 * extra2}"
+              fill="#fca5a5" stroke="#dc2626" stroke-width="1.6"/>
+        ${layerLines(xEnd2L, xEnd2R, extra2, n2)}
 
-        <!-- Ký hiệu cắt sóng ở 2 mép ngoài cùng (vẽ sau tape: bó và tape cùng bị cắt tại đây) -->
-        <path d="M ${xBundleL} ${yTop} Q ${xBundleL - 9} ${yTop + bundleH * 0.25} ${xBundleL} ${yTop + bundleH * 0.5} Q ${xBundleL + 9} ${yTop + bundleH * 0.75} ${xBundleL} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
-        <path d="M ${xBundleR} ${yTop} Q ${xBundleR - 9} ${yTop + bundleH * 0.25} ${xBundleR} ${yTop + bundleH * 0.5} Q ${xBundleR + 9} ${yTop + bundleH * 0.75} ${xBundleR} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <!-- Mặt cắt 2 đầu bó vẽ như thật (minh họa): vành tape + lõi các sợi dây -->
+        ${endFace(xBundleL, extra1, 'clip-face-l')}
+        ${endFace(xBundleR, extra2, 'clip-face-r')}
 
         <!-- Kích thước bước tiến h (gióng từ góc trên trái vòng 1 đến góc trên trái vòng 2 = đúng bề rộng phần trắng) -->
         <line x1="${hMeasureX1}" y1="22" x2="${hMeasureX1}" y2="${yTop}" stroke="#dc2626" stroke-width="1.2"/>
@@ -2056,8 +2108,8 @@
         </text>
 
         <!-- Kích thước bề rộng tape b ở Đầu 1 -->
-        <line x1="${xEnd1L}" y1="${yBot + 3}" x2="${xEnd1L}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
-        <line x1="${xEnd1R}" y1="${yBot + 3}" x2="${xEnd1R}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd1L}" y1="${yBot + extra1 + 2}" x2="${xEnd1L}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd1R}" y1="${yBot + extra1 + 2}" x2="${xEnd1R}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
         <line x1="${xEnd1L - 14}" y1="166" x2="${xEnd1R + 14}" y2="166" stroke="#dc2626" stroke-width="1.4"/>
         <polygon points="${xEnd1L},166 ${xEnd1L - 7},162.8 ${xEnd1L - 7},169.2" fill="#dc2626"/>
         <polygon points="${xEnd1R},166 ${xEnd1R + 7},162.8 ${xEnd1R + 7},169.2" fill="#dc2626"/>
@@ -2067,7 +2119,7 @@
 
         <!-- Kích thước tổng chiều dài sau quấn c -->
         <line x1="${xEnd1L}" y1="176" x2="${xEnd1L}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
-        <line x1="${xEnd2R}" y1="${yBot + 3}" x2="${xEnd2R}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd2R}" y1="${yBot + extra2 + 2}" x2="${xEnd2R}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
         <line x1="${xEnd1L}" y1="205" x2="${xEnd2R}" y2="205" stroke="#dc2626" stroke-width="1.5"/>
         <polygon points="${xEnd1L},205 ${xEnd1L + 8},201.8 ${xEnd1L + 8},208.2" fill="#dc2626"/>
         <polygon points="${xEnd2R},205 ${xEnd2R - 8},201.8 ${xEnd2R - 8},208.2" fill="#dc2626"/>
