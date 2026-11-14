@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Công Cụ So Sánh Dữ Liệu Excel Chuyên Nghiệp</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root, [data-theme="light"] {
+            --bg-app: #f1f5f9;
+            --bg-surface: #ffffff;
+            --bg-subtle: #f8fafc;
+            --bg-muted: #e2e8f0;
+            --border-color: #cbd5e1;
+            --border-subtle: #e2e8f0;
+            --text-main: #0f172a;
+            --text-secondary: #475569;
+            --text-muted: #64748b;
+            --accent: #059669;
+            --accent-hover: #047857;
+            
+            /* Diff Colors - Light */
+            --row-mod-bg: rgba(254, 243, 199, 0.35);
+            --cell-mod-bg: #fef3c7;
+            --cell-mod-border: #fcd34d;
+            --row-add-bg: rgba(209, 250, 229, 0.55);
+            --row-del-bg: rgba(254, 226, 226, 0.55);
+            --old-bg: #fee2e2;
+            --old-text: #b91c1c;
+            --new-bg: #dcfce7;
+            --new-text: #15803d;
+            --sticky-shadow: rgba(15, 23, 42, 0.06);
+        }
+
+        [data-theme="dark"] {
+            --bg-app: #090d16;
+            --bg-surface: #111827;
+            --bg-subtle: #1e293b;
+            --bg-muted: #334155;
+            --border-color: #334155;
+            --border-subtle: #1e293b;
+            --text-main: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --accent: #10b981;
+            --accent-hover: #059669;
+
+            /* Diff Colors - Dark */
+            --row-mod-bg: rgba(120, 53, 15, 0.18);
+            --cell-mod-bg: rgba(180, 83, 9, 0.32);
+            --cell-mod-border: #78350f;
+            --row-add-bg: rgba(6, 78, 59, 0.35);
+            --row-del-bg: rgba(127, 29, 29, 0.35);
+            --old-bg: rgba(153, 27, 27, 0.45);
+            --old-text: #fca5a5;
+            --new-bg: rgba(22, 101, 52, 0.5);
+            --new-text: #86efac;
+            --sticky-shadow: rgba(0, 0, 0, 0.35);
+        }
+
+        [data-theme="sepia"] {
+            --bg-app: #ebe5d8;
+            --bg-surface: #f7f3eb;
+            --bg-subtle: #efeadd;
+            --bg-muted: #dfd7c6;
+            --border-color: #cfc5b1;
+            --border-subtle: #e2dac9;
+            --text-main: #2c251d;
+            --text-secondary: #5c5245;
+            --text-muted: #7d7163;
+            --accent: #0d9488;
+            --accent-hover: #0f766e;
+
+            /* Diff Colors - Sepia */
+            --row-mod-bg: rgba(245, 158, 11, 0.14);
+            --cell-mod-bg: #f5e1b9;
+            --cell-mod-border: #d9b675;
+            --row-add-bg: rgba(16, 185, 129, 0.16);
+            --row-del-bg: rgba(239, 68, 68, 0.15);
+            --old-bg: #f3cfc9;
+            --old-text: #991b1b;
+            --new-bg: #c6e6d3;
+            --new-text: #166534;
+            --sticky-shadow: rgba(44, 37, 29, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-app);
+            color: var(--text-main);
+            transition: background-color 0.15s ease, color 0.15s ease;
+        }
+
+        .font-mono-num {
+            font-family: 'JetBrains Mono', monospace;
+            font-variant-numeric: tabular-nums;
+        }
+
+        /* Theme utility classes */
+        .t-surface { background-color: var(--bg-surface); }
+        .t-subtle { background-color: var(--bg-subtle); }
+        .t-muted { background-color: var(--bg-muted); }
+        .t-border { border-color: var(--border-color); }
+        .t-border-subtle { border-color: var(--border-subtle); }
+        .t-text-main { color: var(--text-main); }
+        .t-text-sec { color: var(--text-secondary); }
+        .t-text-muted { color: var(--text-muted); }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-subtle);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .tab-textarea {
+            tab-size: 12;
+            -moz-tab-size: 12;
+            white-space: pre;
+            overflow-wrap: normal;
+            overflow-x: auto;
+            background-color: var(--bg-subtle);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+        .tab-textarea:focus {
+            background-color: var(--bg-surface);
+        }
+
+        /* Diff Pill Styling */
+        .diff-old {
+            text-decoration: line-through;
+            color: var(--old-text);
+            background-color: var(--old-bg);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+        .diff-new {
+            color: var(--new-text);
+            background-color: var(--new-bg);
+            padding: 1px 5px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        /* Table Sticky Columns & Headers */
+        .sticky-header th {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background-color: var(--bg-subtle);
+            box-shadow: 0 1px 0 var(--border-color);
+        }
+        .sticky-col-1 {
+            position: sticky;
+            left: 0;
+            z-index: 15;
+            background-color: var(--bg-surface);
+        }
+        .sticky-col-2 {
+            position: sticky;
+            left: 88px;
+            z-index: 15;
+            background-color: var(--bg-surface);
+            box-shadow: 3px 0 5px -2px var(--sticky-shadow);
+        }
+        .sticky-header .sticky-col-1,
+        .sticky-header .sticky-col-2 {
+            z-index: 30;
+            background-color: var(--bg-subtle);
+        }
+
+        /* Row Diff Highlights */
+        .row-modified { background-color: var(--row-mod-bg); }
+        .row-added { background-color: var(--row-add-bg); }
+        .row-deleted { background-color: var(--row-del-bg); }
+        .cell-modified {
+            background-color: var(--cell-mod-bg);
+            border-color: var(--cell-mod-border);
+        }
+        
+        /* Keep sticky columns tinted appropriately when row has status */
+        tr:hover td {
+            filter: brightness(0.97);
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col select-none sm:select-auto">
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-xl border border-slate-700 flex items-center space-x-2.5">
+            <svg class="w-4 h-4 text-emerald-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toast-msg" class="text-xs sm:text-sm font-medium">Thông báo</span>
+        </div>
+    </div>
+
+    <!-- 1. COMPACT TOP TOOLBAR -->
+    <header class="t-surface border-b t-border px-3 py-2 shrink-0 z-30 shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+            
+            <!-- Left: Brand & Drawer Toggle -->
+            <div class="flex items-center space-x-2.5">
+                <div class="flex items-center space-x-2">
+                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-sm">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="text-sm sm:text-base font-bold t-text-main leading-tight">Excel Diff Pro</h1>
+                        <p class="text-[11px] t-text-muted hidden xl:block leading-none">Đối chiếu 2 vùng dữ liệu trực tiếp</p>
+                    </div>
+                </div>
+
+                <div class="h-5 w-[1px] t-muted mx-1 hidden sm:block"></div>
+
+                <!-- Toggle Input Panel Button -->
+                <button id="btnToggleInput" onclick="toggleInputDrawer()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border t-border t-subtle hover:opacity-90 transition flex items-center space-x-1.5">
+                    <svg id="drawerChevron" class="w-4 h-4 text-emerald-600 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
+                    </svg>
+                    <span id="drawerBtnText">Thu gọn vùng nhập</span>
+                    <span id="drawerSummaryBadges" class="hidden md:inline-flex items-center space-x-1 pl-1 text-[11px] font-mono-num t-text-muted">
+                        (<span id="miniBadge1">0×0</span> vs <span id="miniBadge2">0×0</span>)
+                    </span>
+                </button>
+            </div>
+
+            <!-- Center: Compare Configuration Inline -->
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+                <!-- Mode Segmented Control -->
+                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
+                    <label class="cursor-pointer">
+                        <input type="radio" name="compareMode" value="cell" class="sr-only peer" checked onchange="handleModeChange()">
+                        <span class="px-2.5 py-1 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition">
+                            Từng ô (Vị trí)
+                        </span>
+                    </label>
+                    <label class="cursor-pointer">
+                        <input type="radio" name="compareMode" value="key" class="sr-only peer" onchange="handleModeChange()">
+                        <span class="px-2.5 py-1 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition">
+                            Theo Cột Khóa (ID)
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Key Column Selector -->
+                <div id="keyColumnContainer" class="hidden flex items-center space-x-1.5">
+                    <span class="t-text-muted font-medium">Khóa:</span>
+                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-2 py-1 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500">
+                        <option value="0">Cột A</option>
+                    </select>
+                </div>
+
+                <div class="h-4 w-[1px] t-muted hidden lg:block"></div>
+
+                <!-- Quick Checkboxes -->
+                <div class="flex items-center space-x-3 px-1">
+                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
+                        <input type="checkbox" id="optHeader" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Có tiêu đề</span>
+                    </label>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
+                        <input type="checkbox" id="optTrim" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Bỏ khoảng trắng</span>
+                    </label>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
+                        <input type="checkbox" id="optCase" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Hoa/thường</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Right: Quick Actions & Theme Switcher -->
+            <div class="flex items-center space-x-1.5">
+                <button onclick="loadSampleData()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
+                    <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    <span class="hidden sm:inline">Mẫu</span>
+                </button>
+                <button onclick="swapInputs()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu Vùng A và Vùng B">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
+                    <span class="hidden md:inline">Đảo A⇄B</span>
+                </button>
+                <button onclick="clearAll()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    <span class="hidden md:inline">Xóa</span>
+                </button>
+
+                <!-- Theme Switcher Group -->
+                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border ml-1" title="Chế độ màu nền">
+                    <button onclick="setTheme('light')" id="themeBtn-light" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Sáng (Light)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    </button>
+                    <button onclick="setTheme('sepia')" id="themeBtn-sepia" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Dịu mắt (Sepia)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                    </button>
+                    <button onclick="setTheme('dark')" id="themeBtn-dark" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Tối (Dark)">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- 2. COLLAPSIBLE INPUT DRAWER -->
+    <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2.5 shrink-0 transition-all duration-200">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+            <!-- Vùng A -->
+            <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
+                <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                        <label for="input1" class="font-semibold text-xs t-text-main">Vùng A (Bản gốc)</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="badge1" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
+                        <button onclick="pasteFromClipboard(1)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
+                        <button onclick="clearSingle(1)" class="t-text-muted hover:text-rose-500 transition p-0.5" title="Xóa vùng A">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="input1" rows="5" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                    placeholder="Copy vùng dữ liệu từ Excel và nhấn Ctrl+V vào đây..."></textarea>
+            </div>
+
+            <!-- Vùng B -->
+            <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
+                <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
+                    <div class="flex items-center space-x-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <label for="input2" class="font-semibold text-xs t-text-main">Vùng B (Bản mới / Cần đối chiếu)</label>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <span id="badge2" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
+                        <button onclick="pasteFromClipboard(2)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
+                        <button onclick="clearSingle(2)" class="t-text-muted hover:text-rose-500 transition p-0.5" title="Xóa vùng B">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <textarea id="input2" rows="5" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                    placeholder="Copy vùng dữ liệu thứ 2 từ Excel và nhấn Ctrl+V vào đây..."></textarea>
+            </div>
+        </div>
+
+        <!-- Drawer Bottom Action Bar -->
+        <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
+            <label class="flex items-center space-x-1.5 text-xs t-text-muted cursor-pointer select-none">
+                <input type="checkbox" id="optAutoCollapse" checked class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                <span>Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả</span>
+            </label>
+
+            <button onclick="compareData(true)" class="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 text-xs sm:text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                <span>So Sánh Dữ Liệu</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- 3. MAIN WORKSPACE (RESULTS & INTERACTIVE CONTROLS) -->
+    <main class="flex-1 flex flex-col min-h-0 overflow-hidden px-3 py-2 gap-2">
+
+        <!-- Empty Initial State (Before Comparison) -->
+        <div id="welcomeState" class="flex-1 t-surface rounded-xl border t-border flex flex-col items-center justify-center p-6 text-center">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center mb-3">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                </svg>
+            </div>
+            <h2 class="text-sm sm:text-base font-bold t-text-main">Sẵn sàng đối chiếu dữ liệu Excel</h2>
+            <p class="text-xs t-text-muted max-w-md mt-1">
+                Dán 2 bảng dữ liệu từ Excel vào <b>Vùng A</b> và <b>Vùng B</b> phía trên rồi nhấn <b>So Sánh Dữ Liệu</b>, hoặc bấm nút <b>Mẫu</b> trên thanh công cụ để xem thử nghiệm ngay.
+            </p>
+            <button onclick="loadSampleData()" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
+                Tải dữ liệu mẫu &amp; So sánh ngay
+            </button>
+        </div>
+
+        <!-- Results Workspace -->
+        <div id="resultsSection" class="hidden flex-1 flex flex-col min-h-0 gap-2">
+
+            <!-- Unified Filter Pills + Search + View Switcher Bar -->
+            <div class="t-surface rounded-xl border t-border px-3 py-2 shrink-0 flex flex-wrap items-center justify-between gap-2 shadow-sm">
+                
+                <!-- Interactive Stat Filter Pills -->
+                <div class="flex flex-wrap items-center gap-1.5" id="statFilterPills">
+                    <button onclick="setFilter('all')" data-filter="all" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span>Tất cả</span>
+                        <span id="statTotalRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-slate-500/15">0</span>
+                    </button>
+                    <button onclick="setFilter('diff')" data-filter="diff" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+                        <span>Có khác biệt</span>
+                        <span id="statTotalDiffRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-indigo-500/15 text-indigo-600 dark:text-indigo-300">0</span>
+                    </button>
+                    <button onclick="setFilter('modified')" data-filter="modified" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        <span>Đã sửa</span>
+                        <span id="statModifiedRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-amber-500/15 text-amber-600 dark:text-amber-300">0</span>
+                    </button>
+                    <button onclick="setFilter('added')" data-filter="added" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                        <span>Mới thêm</span>
+                        <span id="statAddedRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-emerald-500/15 text-emerald-600 dark:text-emerald-300">0</span>
+                    </button>
+                    <button onclick="setFilter('deleted')" data-filter="deleted" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+                        <span>Đã xóa</span>
+                        <span id="statDeletedRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-rose-500/15 text-rose-600 dark:text-rose-300">0</span>
+                    </button>
+                    <button onclick="setFilter('same')" data-filter="same" class="filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border transition flex items-center space-x-1.5">
+                        <span>Giống nhau</span>
+                        <span id="statSameRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-slate-500/15">0</span>
+                    </button>
+                    <span class="text-[11px] t-text-muted pl-1 hidden xl:inline">
+                        (<strong id="statDiffCells" class="font-mono-num text-indigo-500">0</strong> ô khác biệt)
+                    </span>
+                </div>
+
+                <!-- Right Controls: Search, View Mode & Export -->
+                <div class="flex flex-wrap items-center gap-2">
+                    <!-- Quick Search Box -->
+                    <div class="relative">
+                        <svg class="w-3.5 h-3.5 t-text-muted absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                        <input type="text" id="searchInput" oninput="renderComparisonTable()" placeholder="Lọc nhanh từ khóa..." 
+                            class="pl-8 pr-6 py-1 text-xs rounded-lg t-subtle border t-border t-text-main outline-none focus:ring-1 focus:ring-emerald-500 w-40 sm:w-48">
+                        <button id="clearSearchBtn" onclick="clearSearch()" class="hidden absolute right-1.5 top-1/2 -translate-y-1/2 t-text-muted hover:text-rose-500">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        </button>
+                    </div>
+
+                    <!-- View Switcher: Merged vs Split -->
+                    <div class="inline-flex p-0.5 t-subtle border t-border rounded-lg">
+                        <button id="btnViewMerged" onclick="setViewMode('merged')" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white transition">
+                            Bảng gộp (Cũ → Mới)
+                        </button>
+                        <button id="btnViewSplit" onclick="setViewMode('split')" class="px-2.5 py-1 text-xs font-semibold rounded-md t-text-sec hover:opacity-80 transition">
+                            Song song (2 bảng)
+                        </button>
+                    </div>
+
+                    <!-- Export Actions -->
+                    <button onclick="copyResultToClipboard()" class="px-2.5 py-1 t-subtle hover:opacity-80 t-text-main border t-border text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Copy kết quả hiện tại để dán vào Excel">
+                        <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+                        <span class="hidden sm:inline">Copy TSV</span>
+                    </button>
+                    <button onclick="exportToCSV()" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1" title="Tải xuống file CSV chuẩn UTF-8 mở trực tiếp bằng Excel">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden sm:inline">Xuất CSV</span>
+                    </button>
+                </div>
+
+            </div>
+
+            <!-- Main Data Table Viewport (Takes all remaining screen height) -->
+            <div class="flex-1 t-surface rounded-xl border t-border overflow-hidden flex flex-col min-h-0 shadow-sm relative">
+                
+                <!-- Merged / Single Table Container -->
+                <div id="tableWrapper" class="flex-1 overflow-auto w-full h-full"></div>
+
+                <!-- Synchronized Split View Container -->
+                <div id="splitTableWrapper" class="hidden flex-1 grid grid-cols-2 divide-x t-border min-h-0 h-full overflow-hidden">
+                    <div id="splitPaneLeft" class="overflow-auto h-full"></div>
+                    <div id="splitPaneRight" class="overflow-auto h-full"></div>
+                </div>
+
+                <!-- Empty Filter State -->
+                <div id="emptyFilterState" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+                    <svg class="w-10 h-10 t-text-muted mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <p class="t-text-sec font-medium text-xs sm:text-sm">Không có dòng dữ liệu nào khớp với bộ lọc hiện tại.</p>
+                    <button onclick="resetFilters()" class="mt-2 text-xs text-emerald-600 font-semibold hover:underline">Hiển thị tất cả các dòng</button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        // Application State
+        let hasCompared = false;
+        let isDrawerOpen = true;
+        let currentFilter = 'all';
+        let currentViewMode = 'merged'; // 'merged' | 'split'
+        let isSyncingLeft = false;
+        let isSyncingRight = false;
+
+        let currentComparison = {
+            headers: [],
+            colDiffCounts: [],
+            rows: [],
+            mode: 'cell',
+            keyColIndex: 0,
+            stats: {
+                totalRows: 0,
+                sameRows: 0,
+                modifiedRows: 0,
+                addedRows: 0,
+                deletedRows: 0,
+                diffCells: 0
+            }
+        };
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', () => {
+            // Load saved theme
+            const savedTheme = localStorage.getItem('excel_diff_theme') || 'light';
+            setTheme(savedTheme);
+
+            const input1 = document.getElementById('input1');
+            const input2 = document.getElementById('input2');
+
+            [input1, input2].forEach(textarea => {
+                textarea.addEventListener('input', updateDimensionsAndDropdown);
+                textarea.addEventListener('keydown', function(e) {
+                    if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const start = this.selectionStart;
+                        const end = this.selectionEnd;
+                        this.value = this.value.substring(0, start) + "\t" + this.value.substring(end);
+                        this.selectionStart = this.selectionEnd = start + 1;
+                        updateDimensionsAndDropdown();
+                    }
+                });
+            });
+
+            // Setup Synchronized Scrolling for Split View
+            const leftPane = document.getElementById('splitPaneLeft');
+            const rightPane = document.getElementById('splitPaneRight');
+
+            leftPane.addEventListener('scroll', () => {
+                if (!isSyncingLeft) {
+                    isSyncingRight = true;
+                    rightPane.scrollTop = leftPane.scrollTop;
+                    rightPane.scrollLeft = leftPane.scrollLeft;
+                }
+                isSyncingLeft = false;
+            });
+
+            rightPane.addEventListener('scroll', () => {
+                if (!isSyncingRight) {
+                    isSyncingLeft = true;
+                    leftPane.scrollTop = rightPane.scrollTop;
+                    leftPane.scrollLeft = rightPane.scrollLeft;
+                }
+                isSyncingRight = false;
+            });
+
+            updateFilterPillStyles();
+        });
+
+        // Theme Management
+        function setTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('excel_diff_theme', themeName);
+
+            ['light', 'sepia', 'dark'].forEach(t => {
+                const btn = document.getElementById(`themeBtn-${t}`);
+                if (!btn) return;
+                if (t === themeName) {
+                    btn.className = "p-1.5 rounded-md text-xs font-medium bg-emerald-600 text-white shadow-sm transition flex items-center space-x-1";
+                } else {
+                    btn.className = "p-1.5 rounded-md text-xs font-medium t-text-sec hover:opacity-80 transition flex items-center space-x-1";
+                }
+            });
+        }
+
+        // Toggle Collapsible Input Drawer
+        function toggleInputDrawer(forceState) {
+            const drawer = document.getElementById('inputDrawer');
+            const chevron = document.getElementById('drawerChevron');
+            const btnText = document.getElementById('drawerBtnText');
+
+            isDrawerOpen = typeof forceState === 'boolean' ? forceState : !isDrawerOpen;
+
+            if (isDrawerOpen) {
+                drawer.classList.remove('hidden');
+                chevron.classList.remove('rotate-180');
+                btnText.textContent = 'Thu gọn vùng nhập';
+            } else {
+                drawer.classList.add('hidden');
+                chevron.classList.add('rotate-180');
+                btnText.textContent = 'Mở vùng nhập dữ liệu';
+            }
+        }
+
+        // Toast Helper
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toast-msg');
+            toastMsg.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2600);
+        }
+
+        // Paste helper button
+        async function pasteFromClipboard(num) {
+            const el = document.getElementById(`input${num}`);
+            el.focus();
+            if (navigator.clipboard && navigator.clipboard.readText) {
+                try {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        el.value = text;
+                        updateDimensionsAndDropdown();
+                        showToast(`Đã dán dữ liệu vào Vùng ${num === 1 ? 'A' : 'B'}`);
+                        return;
+                    }
+                } catch (_) {
+                    // Fallback to manual Ctrl+V prompt if iframe blocks clipboard read
+                }
+            }
+            showToast('Hãy nhấn tổ hợp phím Ctrl+V vào ô nhập liệu');
+        }
+
+        // Parse pasted Excel text
+        function parseExcelText(rawText) {
+            if (!rawText || !rawText.trim()) return [];
+            const cleanedText = rawText.replace(/\r\n/g, '\n').replace(/\r/g, '\n').replace(/\n+$/, '');
+            if (!cleanedText) return [];
+            const lines = cleanedText.split('\n');
+            return lines.map(line => line.split('\t'));
+        }
+
+        // Convert column index to Excel letter
+        function getExcelColName(index) {
+            let name = '';
+            while (index >= 0) {
+                name = String.fromCharCode((index % 26) + 65) + name;
+                index = Math.floor(index / 26) - 1;
+            }
+            return name;
+        }
+
+        // Update dimensions badges & key column selector
+        function updateDimensionsAndDropdown() {
+            const raw1 = document.getElementById('input1').value;
+            const raw2 = document.getElementById('input2').value;
+            const data1 = parseExcelText(raw1);
+            const data2 = parseExcelText(raw2);
+
+            const cols1 = data1.reduce((max, r) => Math.max(max, r.length), 0);
+            const cols2 = data2.reduce((max, r) => Math.max(max, r.length), 0);
+
+            document.getElementById('badge1').textContent = `${data1.length} dòng × ${cols1} cột`;
+            document.getElementById('badge2').textContent = `${data2.length} dòng × ${cols2} cột`;
+            document.getElementById('miniBadge1').textContent = `${data1.length}×${cols1}`;
+            document.getElementById('miniBadge2').textContent = `${data2.length}×${cols2}`;
+
+            const maxCols = Math.max(cols1, cols2);
+            const hasHeader = document.getElementById('optHeader').checked;
+            const select = document.getElementById('keyColumnSelect');
+            const previousVal = select.value;
+
+            select.innerHTML = '';
+            const count = Math.max(1, maxCols);
+
+            for (let i = 0; i < count; i++) {
+                const colLetter = getExcelColName(i);
+                let headerLabel = `Cột ${colLetter}`;
+                if (hasHeader) {
+                    const h1 = (data1[0] && data1[0][i]) ? data1[0][i].trim() : '';
+                    const h2 = (data2[0] && data2[0][i]) ? data2[0][i].trim() : '';
+                    const title = h1 || h2;
+                    if (title) headerLabel = `${colLetter}: ${title}`;
+                }
+                const opt = document.createElement('option');
+                opt.value = i;
+                opt.textContent = headerLabel;
+                select.appendChild(opt);
+            }
+
+            if (previousVal && parseInt(previousVal) < count) {
+                select.value = previousVal;
+            }
+        }
+
+        function handleModeChange() {
+            const mode = document.querySelector('input[name="compareMode"]:checked').value;
+            const keyContainer = document.getElementById('keyColumnContainer');
+            if (mode === 'key') {
+                keyContainer.classList.remove('hidden');
+            } else {
+                keyContainer.classList.add('hidden');
+            }
+            if (hasCompared) compareData(false);
+        }
+
+        function normalizeValue(val, trimOpt, caseOpt) {
+            let s = (val === undefined || val === null) ? '' : String(val);
+            if (trimOpt) s = s.trim();
+            if (!caseOpt) s = s.toLowerCase();
+            return s;
+        }
+
+        function displayValue(val, trimOpt) {
+            let s = (val === undefined || val === null) ? '' : String(val);
+            return trimOpt ? s.trim() : s;
+        }
+
+        function escapeHTML(str) {
+            if (str === undefined || str === null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        // Core Comparison Function
+        function compareData(allowAutoCollapse = false) {
+            const raw1 = document.getElementById('input1').value;
+            const raw2 = document.getElementById('input2').value;
+
+            const grid1 = parseExcelText(raw1);
+            const grid2 = parseExcelText(raw2);
+
+            if (grid1.length === 0 && grid2.length === 0) {
+                showToast('Vui lòng dán dữ liệu vào Vùng A hoặc Vùng B trước khi so sánh!');
+                toggleInputDrawer(true);
+                return;
+            }
+
+            const hasHeader = document.getElementById('optHeader').checked;
+            const trimOpt = document.getElementById('optTrim').checked;
+            const caseOpt = document.getElementById('optCase').checked;
+            const mode = document.querySelector('input[name="compareMode"]:checked').value;
+            const keyColIndex = parseInt(document.getElementById('keyColumnSelect').value) || 0;
+
+            const maxCols = Math.max(
+                grid1.reduce((m, r) => Math.max(m, r.length), 0),
+                grid2.reduce((m, r) => Math.max(m, r.length), 0),
+                1
+            );
+
+            // Build Headers
+            const headers = [];
+            const colDiffCounts = new Array(maxCols).fill(0);
+
+            for (let c = 0; c < maxCols; c++) {
+                const colLetter = getExcelColName(c);
+                if (hasHeader) {
+                    const h1 = grid1[0] && grid1[0][c] !== undefined ? grid1[0][c].trim() : '';
+                    const h2 = grid2[0] && grid2[0][c] !== undefined ? grid2[0][c].trim() : '';
+                    let title = h1 || h2 || `Cột ${colLetter}`;
+                    if (h1 && h2 && normalizeValue(h1, trimOpt, caseOpt) !== normalizeValue(h2, trimOpt, caseOpt)) {
+                        title = `${h1} / ${h2}`;
+                    }
+                    headers.push({ letter: colLetter, title: title });
+                } else {
+                    headers.push({ letter: colLetter, title: `Cột ${colLetter}` });
+                }
+            }
+
+            const rows1 = hasHeader ? grid1.slice(1) : grid1;
+            const rows2 = hasHeader ? grid2.slice(1) : grid2;
+
+            const resultRows = [];
+            let stats = {
+                totalRows: 0,
+                sameRows: 0,
+                modifiedRows: 0,
+                addedRows: 0,
+                deletedRows: 0,
+                diffCells: 0
+            };
+
+            if (mode === 'cell') {
+                const maxRows = Math.max(rows1.length, rows2.length);
+                for (let r = 0; r < maxRows; r++) {
+                    const r1 = rows1[r];
+                    const r2 = rows2[r];
+                    const rowIndexLabel = hasHeader ? r + 2 : r + 1;
+
+                    if (r1 !== undefined && r2 !== undefined) {
+                        let hasDiff = false;
+                        const cells = [];
+                        for (let c = 0; c < maxCols; c++) {
+                            const v1 = displayValue(r1[c], trimOpt);
+                            const v2 = displayValue(r2[c], trimOpt);
+                            const norm1 = normalizeValue(r1[c], trimOpt, caseOpt);
+                            const norm2 = normalizeValue(r2[c], trimOpt, caseOpt);
+
+                            if (norm1 === norm2) {
+                                cells.push({ status: 'same', val1: v1, val2: v2 });
+                            } else {
+                                hasDiff = true;
+                                stats.diffCells++;
+                                colDiffCounts[c]++;
+                                cells.push({ status: 'modified', val1: v1, val2: v2 });
+                            }
+                        }
+                        if (hasDiff) stats.modifiedRows++;
+                        else stats.sameRows++;
+
+                        resultRows.push({
+                            rowLabel: `#${rowIndexLabel}`,
+                            status: hasDiff ? 'modified' : 'same',
+                            cells
+                        });
+                    } else if (r1 === undefined && r2 !== undefined) {
+                        stats.addedRows++;
+                        stats.diffCells += maxCols;
+                        const cells = [];
+                        for (let c = 0; c < maxCols; c++) {
+                            colDiffCounts[c]++;
+                            cells.push({ status: 'added', val1: '', val2: displayValue(r2[c], trimOpt) });
+                        }
+                        resultRows.push({
+                            rowLabel: `#${rowIndexLabel}`,
+                            status: 'added',
+                            cells
+                        });
+                    } else if (r1 !== undefined && r2 === undefined) {
+                        stats.deletedRows++;
+                        stats.diffCells += maxCols;
+                        const cells = [];
+                        for (let c = 0; c < maxCols; c++) {
+                            colDiffCounts[c]++;
+                            cells.push({ status: 'deleted', val1: displayValue(r1[c], trimOpt), val2: '' });
+                        }
+                        resultRows.push({
+                            rowLabel: `#${rowIndexLabel}`,
+                            status: 'deleted',
+                            cells
+                        });
+                    }
+                }
+            } else {
+                // Key Column Matching
+                const map2 = new Map();
+                rows2.forEach((r2, idx) => {
+                    const normKey = normalizeValue(r2[keyColIndex], trimOpt, caseOpt);
+                    if (!map2.has(normKey)) map2.set(normKey, []);
+                    map2.get(normKey).push({ row: r2, index: idx, matched: false });
+                });
+
+                rows1.forEach((r1, idx1) => {
+                    const normKey = normalizeValue(r1[keyColIndex], trimOpt, caseOpt);
+                    const candidates = map2.get(normKey);
+                    const matchObj = candidates ? candidates.find(item => !item.matched) : null;
+                    const rowNum1 = hasHeader ? idx1 + 2 : idx1 + 1;
+
+                    if (matchObj) {
+                        matchObj.matched = true;
+                        const r2 = matchObj.row;
+                        const rowNum2 = hasHeader ? matchObj.index + 2 : matchObj.index + 1;
+                        let hasDiff = false;
+                        const cells = [];
+
+                        for (let c = 0; c < maxCols; c++) {
+                            const v1 = displayValue(r1[c], trimOpt);
+                            const v2 = displayValue(r2[c], trimOpt);
+                            const norm1 = normalizeValue(r1[c], trimOpt, caseOpt);
+                            const norm2 = normalizeValue(r2[c], trimOpt, caseOpt);
+
+                            if (norm1 === norm2) {
+                                cells.push({ status: 'same', val1: v1, val2: v2 });
+                            } else {
+                                hasDiff = true;
+                                stats.diffCells++;
+                                colDiffCounts[c]++;
+                                cells.push({ status: 'modified', val1: v1, val2: v2 });
+                            }
+                        }
+
+                        if (hasDiff) stats.modifiedRows++;
+                        else stats.sameRows++;
+
+                        const label = rowNum1 === rowNum2 ? `#${rowNum1}` : `A${rowNum1}→B${rowNum2}`;
+                        resultRows.push({
+                            rowLabel: label,
+                            status: hasDiff ? 'modified' : 'same',
+                            cells
+                        });
+                    } else {
+                        stats.deletedRows++;
+                        stats.diffCells += maxCols;
+                        const cells = [];
+                        for (let c = 0; c < maxCols; c++) {
+                            colDiffCounts[c]++;
+                            cells.push({ status: 'deleted', val1: displayValue(r1[c], trimOpt), val2: '' });
+                        }
+                        resultRows.push({
+                            rowLabel: `A#${rowNum1}`,
+                            status: 'deleted',
+                            cells
+                        });
+                    }
+                });
+
+                rows2.forEach((r2, idx2) => {
+                    const normKey = normalizeValue(r2[keyColIndex], trimOpt, caseOpt);
+                    const candidates = map2.get(normKey) || [];
+                    const item = candidates.find(c => c.index === idx2);
+                    if (item && !item.matched) {
+                        item.matched = true;
+                        stats.addedRows++;
+                        stats.diffCells += maxCols;
+                        const rowNum2 = hasHeader ? idx2 + 2 : idx2 + 1;
+                        const cells = [];
+                        for (let c = 0; c < maxCols; c++) {
+                            colDiffCounts[c]++;
+                            cells.push({ status: 'added', val1: '', val2: displayValue(r2[c], trimOpt) });
+                        }
+                        resultRows.push({
+                            rowLabel: `B#${rowNum2}`,
+                            status: 'added',
+                            cells
+                        });
+                    }
+                });
+            }
+
+            stats.totalRows = resultRows.length;
+            const totalDiffRows = stats.modifiedRows + stats.addedRows + stats.deletedRows;
+
+            currentComparison = {
+                headers,
+                colDiffCounts,
+                rows: resultRows,
+                mode,
+                keyColIndex,
+                stats
+            };
+
+            hasCompared = true;
+
+            // Update Stats UI
+            document.getElementById('statTotalRows').textContent = stats.totalRows;
+            document.getElementById('statTotalDiffRows').textContent = totalDiffRows;
+            document.getElementById('statSameRows').textContent = stats.sameRows;
+            document.getElementById('statModifiedRows').textContent = stats.modifiedRows;
+            document.getElementById('statAddedRows').textContent = stats.addedRows;
+            document.getElementById('statDeletedRows').textContent = stats.deletedRows;
+            document.getElementById('statDiffCells').textContent = stats.diffCells;
+
+            document.getElementById('welcomeState').classList.add('hidden');
+            document.getElementById('resultsSection').classList.remove('hidden');
+
+            // Auto-collapse drawer if option enabled
+            if (allowAutoCollapse && document.getElementById('optAutoCollapse').checked) {
+                toggleInputDrawer(false);
+            }
+
+            renderComparisonTable();
+        }
+
+        // Filter Pill Click Handler
+        function setFilter(filterVal) {
+            currentFilter = filterVal;
+            updateFilterPillStyles();
+            renderComparisonTable();
+        }
+
+        function resetFilters() {
+            currentFilter = 'all';
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            updateFilterPillStyles();
+            renderComparisonTable();
+        }
+
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('clearSearchBtn').classList.add('hidden');
+            renderComparisonTable();
+        }
+
+        function updateFilterPillStyles() {
+            const pills = document.querySelectorAll('.filter-pill');
+            pills.forEach(btn => {
+                const f = btn.getAttribute('data-filter');
+                if (f === currentFilter) {
+                    btn.className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-semibold border border-emerald-600 bg-emerald-600/10 text-emerald-600 dark:text-emerald-400 transition flex items-center space-x-1.5 shadow-sm";
+                } else {
+                    btn.className = "filter-pill px-2.5 py-1 rounded-lg text-xs font-medium border t-border t-subtle t-text-sec hover:opacity-80 transition flex items-center space-x-1.5";
+                }
+            });
+        }
+
+        // View Mode Switcher (Merged vs Split)
+        function setViewMode(mode) {
+            currentViewMode = mode;
+            const btnMerged = document.getElementById('btnViewMerged');
+            const btnSplit = document.getElementById('btnViewSplit');
+
+            if (mode === 'merged') {
+                btnMerged.className = "px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white transition";
+                btnSplit.className = "px-2.5 py-1 text-xs font-semibold rounded-md t-text-sec hover:opacity-80 transition";
+            } else {
+                btnSplit.className = "px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white transition";
+                btnMerged.className = "px-2.5 py-1 text-xs font-semibold rounded-md t-text-sec hover:opacity-80 transition";
+            }
+            renderComparisonTable();
+        }
+
+        // Filter Rows by Status & Search Keyword
+        function getFilteredRows() {
+            const query = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+            const clearBtn = document.getElementById('clearSearchBtn');
+            if (query) clearBtn.classList.remove('hidden');
+            else clearBtn.classList.add('hidden');
+
+            return currentComparison.rows.filter(r => {
+                // Status filter
+                if (currentFilter === 'diff' && r.status === 'same') return false;
+                if (currentFilter !== 'all' && currentFilter !== 'diff' && r.status !== currentFilter) return false;
+
+                // Search query filter
+                if (query) {
+                    if (r.rowLabel.toLowerCase().includes(query)) return true;
+                    return r.cells.some(c => 
+                        (c.val1 && c.val1.toLowerCase().includes(query)) ||
+                        (c.val2 && c.val2.toLowerCase().includes(query))
+                    );
+                }
+                return true;
+            });
+        }
+
+        function getStatusBadgeHTML(status) {
+            switch (status) {
+                case 'same':
+                    return '<span class="px-1.5 py-0.5 text-[10px] font-medium t-subtle t-text-muted border t-border rounded">Khớp</span>';
+                case 'modified':
+                    return '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30 rounded">Đã sửa</span>';
+                case 'added':
+                    return '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 rounded">+ Mới</span>';
+                case 'deleted':
+                    return '<span class="px-1.5 py-0.5 text-[10px] font-bold bg-rose-500/20 text-rose-700 dark:text-rose-300 border border-rose-500/30 rounded">- Xóa</span>';
+                default:
+                    return '';
+            }
+        }
+
+        // Render Comparison Table (Merged or Synchronized Split)
+        function renderComparisonTable() {
+            const mergedWrapper = document.getElementById('tableWrapper');
+            const splitWrapper = document.getElementById('splitTableWrapper');
+            const leftPane = document.getElementById('splitPaneLeft');
+            const rightPane = document.getElementById('splitPaneRight');
+            const emptyState = document.getElementById('emptyFilterState');
+
+            const filteredRows = getFilteredRows();
+
+            if (filteredRows.length === 0) {
+                mergedWrapper.classList.add('hidden');
+                splitWrapper.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+            emptyState.classList.add('hidden');
+
+            const { headers, colDiffCounts, mode, keyColIndex } = currentComparison;
+
+            if (currentViewMode === 'merged') {
+                splitWrapper.classList.add('hidden');
+                mergedWrapper.classList.remove('hidden');
+
+                let html = `<table class="w-full text-left border-collapse text-xs">`;
+                html += `<thead class="sticky-header"><tr>`;
+                html += `<th class="sticky-col-1 py-2.5 px-2.5 font-semibold border-r border-b t-border w-[88px] min-w-[88px] t-text-sec">Dòng</th>`;
+                html += `<th class="sticky-col-2 py-2.5 px-2.5 font-semibold border-r border-b t-border w-[86px] min-w-[86px] t-text-sec">Trạng thái</th>`;
+
+                headers.forEach((h, idx) => {
+                    const isKey = (mode === 'key' && idx === keyColIndex);
+                    const diffCount = colDiffCounts[idx];
+                    html += `<th class="py-2 px-3 font-semibold border-r border-b t-border min-w-[140px] ${isKey ? 'bg-indigo-500/10' : ''}">
+                        <div class="flex items-center justify-between gap-1.5">
+                            <div class="flex items-center space-x-1 truncate">
+                                <span class="px-1 py-0.2 text-[10px] font-mono-num rounded t-muted t-text-sec">${h.letter}</span>
+                                ${isKey ? '<span class="text-indigo-500" title="Cột khóa ID">🔑</span>' : ''}
+                                <span class="t-text-main truncate" title="${escapeHTML(h.title)}">${escapeHTML(h.title)}</span>
+                            </div>
+                            ${diffCount > 0 ? `<span class="px-1.5 py-0.2 text-[10px] font-mono-num rounded-full bg-amber-500/20 text-amber-600 dark:text-amber-300 shrink-0" title="${diffCount} dòng khác biệt ở cột này">${diffCount}≠</span>` : ''}
+                        </div>
+                    </th>`;
+                });
+                html += `</tr></thead><tbody class="divide-y t-border-subtle">`;
+
+                filteredRows.forEach(row => {
+                    let rowClass = '';
+                    if (row.status === 'modified') rowClass = 'row-modified';
+                    else if (row.status === 'added') rowClass = 'row-added';
+                    else if (row.status === 'deleted') rowClass = 'row-deleted';
+
+                    html += `<tr class="${rowClass} transition-colors">`;
+                    html += `<td class="sticky-col-1 py-2 px-2.5 font-mono-num text-[11px] t-text-muted border-r t-border-subtle whitespace-nowrap">${escapeHTML(row.rowLabel)}</td>`;
+                    html += `<td class="sticky-col-2 py-2 px-2.5 border-r t-border whitespace-nowrap">${getStatusBadgeHTML(row.status)}</td>`;
+
+                    row.cells.forEach(cell => {
+                        if (cell.status === 'same') {
+                            html += `<td class="py-2 px-3 border-r t-border-subtle t-text-main font-mono-num">${escapeHTML(cell.val2)}</td>`;
+                        } else if (cell.status === 'modified') {
+                            const oldVal = cell.val1 !== '' ? escapeHTML(cell.val1) : '<i class="opacity-60">(Trống)</i>';
+                            const newVal = cell.val2 !== '' ? escapeHTML(cell.val2) : '<i class="opacity-60">(Trống)</i>';
+                            html += `<td class="py-2 px-3 border-r cell-modified font-mono-num">
+                                <div class="flex flex-wrap items-center gap-1">
+                                    <span class="diff-old">${oldVal}</span>
+                                    <span class="text-amber-600 dark:text-amber-400 font-bold text-[11px]">→</span>
+                                    <span class="diff-new">${newVal}</span>
+                                </div>
+                            </td>`;
+                        } else if (cell.status === 'added') {
+                            html += `<td class="py-2 px-3 border-r t-border-subtle font-mono-num font-medium" style="color: var(--new-text)">${escapeHTML(cell.val2)}</td>`;
+                        } else if (cell.status === 'deleted') {
+                            html += `<td class="py-2 px-3 border-r t-border-subtle font-mono-num line-through opacity-80" style="color: var(--old-text)">${escapeHTML(cell.val1)}</td>`;
+                        }
+                    });
+
+                    html += `</tr>`;
+                });
+
+                html += `</tbody></table>`;
+                mergedWrapper.innerHTML = html;
+
+            } else {
+                // Synchronized Split View (2 Panes Side-by-Side)
+                mergedWrapper.classList.add('hidden');
+                splitWrapper.classList.remove('hidden');
+
+                const buildPaneTable = (side) => {
+                    const isLeft = side === 'left';
+                    const bannerTitle = isLeft ? 'VÙNG A (BẢN GỐC)' : 'VÙNG B (BẢN MỚI / SO SÁNH)';
+                    const bannerColor = isLeft ? 'bg-blue-500/10 text-blue-600 dark:text-blue-400' : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400';
+
+                    let t = `<table class="w-full text-left border-collapse text-xs">`;
+                    t += `<thead class="sticky-header">`;
+                    t += `<tr><th colspan="${headers.length + 2}" class="py-1.5 px-3 text-[11px] font-bold tracking-wider uppercase border-b t-border ${bannerColor}">${bannerTitle}</th></tr>`;
+                    t += `<tr>`;
+                    t += `<th class="sticky-col-1 py-2 px-2 font-semibold border-r border-b t-border w-[88px] min-w-[88px] t-text-sec">Dòng</th>`;
+                    t += `<th class="sticky-col-2 py-2 px-2 font-semibold border-r border-b t-border w-[86px] min-w-[86px] t-text-sec">Trạng thái</th>`;
+                    headers.forEach(h => {
+                        t += `<th class="py-2 px-2.5 font-semibold border-r border-b t-border min-w-[125px] t-text-main">
+                            <span class="px-1 py-0.2 text-[10px] font-mono-num rounded t-muted t-text-sec mr-1">${h.letter}</span>${escapeHTML(h.title)}
+                        </th>`;
+                    });
+                    t += `</tr></thead><tbody class="divide-y t-border-subtle">`;
+
+                    filteredRows.forEach(row => {
+                        let rowClass = '';
+                        if (row.status === 'modified') rowClass = 'row-modified';
+                        else if (row.status === 'added') rowClass = 'row-added';
+                        else if (row.status === 'deleted') rowClass = 'row-deleted';
+
+                        t += `<tr class="${rowClass}">`;
+                        t += `<td class="sticky-col-1 py-2 px-2 font-mono-num text-[11px] t-text-muted border-r t-border-subtle whitespace-nowrap">${escapeHTML(row.rowLabel)}</td>`;
+                        t += `<td class="sticky-col-2 py-2 px-2 border-r t-border whitespace-nowrap">${getStatusBadgeHTML(row.status)}</td>`;
+
+                        row.cells.forEach(cell => {
+                            const val = isLeft ? cell.val1 : cell.val2;
+                            let cellStyle = 't-text-main';
+                            if (cell.status === 'modified') {
+                                cellStyle = isLeft
+                                    ? 'cell-modified line-through opacity-85'
+                                    : 'cell-modified font-semibold';
+                            } else if (cell.status === 'deleted') {
+                                cellStyle = isLeft ? 'line-through opacity-85' : 'opacity-30';
+                            } else if (cell.status === 'added') {
+                                cellStyle = isLeft ? 'opacity-30' : 'font-semibold';
+                            }
+                            t += `<td class="py-2 px-2.5 border-r t-border-subtle font-mono-num whitespace-nowrap ${cellStyle}">${escapeHTML(val)}</td>`;
+                        });
+
+                        t += `</tr>`;
+                    });
+
+                    t += `</tbody></table>`;
+                    return t;
+                };
+
+                leftPane.innerHTML = buildPaneTable('left');
+                rightPane.innerHTML = buildPaneTable('right');
+            }
+        }
+
+        // Load realistic Vietnamese sample Excel data
+        function loadSampleData() {
+            const sample1 = [
+                ["Mã SP", "Tên Sản Phẩm", "Danh Mục", "Tồn Kho", "Đơn Giá (VNĐ)", "Nhà Cung Cấp"],
+                ["SP001", "Laptop Dell XPS 13", "Máy tính", "25", "32,500,000", "FPT Trading"],
+                ["SP002", "Màn hình LG UltraFine 27\"", "Màn hình", "40", "9,800,000", "LG Electronics"],
+                ["SP003", "Bàn phím cơ Keychron K8", "Phụ kiện", "110", "2,150,000", "SiliconZ"],
+                ["SP004", "Chuột Logitech MX Master 3S", "Phụ kiện", "65", "2,490,000", "Digiworld"],
+                ["SP005", "Tai nghe Sony WH-1000XM5", "Âm thanh", "18", "7,990,000", "Sony VN"],
+                ["SP006", "Ổ cứng SSD Samsung 990 Pro 1TB", "Linh kiện", "50", "3,100,000", "AMC"],
+                ["SP007", "Ghế công thái học Sihoo M57", "Nội thất", "12", "4,200,000", "Manson"]
+            ].map(r => r.join('\t')).join('\n');
+
+            const sample2 = [
+                ["Mã SP", "Tên Sản Phẩm", "Danh Mục", "Tồn Kho", "Đơn Giá (VNĐ)", "Nhà Cung Cấp"],
+                ["SP001", "Laptop Dell XPS 13", "Máy tính", "22", "31,900,000", "FPT Trading"],
+                ["SP002", "Màn hình LG UltraFine 27\"", "Màn hình", "40", "9,800,000", "LG Electronics"],
+                ["SP003", "Bàn phím cơ Keychron K8 Pro", "Phụ kiện", "95", "2,450,000", "SiliconZ"],
+                ["SP004", "Chuột Logitech MX Master 3S", "Phụ kiện", "65", "2,490,000", "Digiworld"],
+                ["SP006", "Ổ cứng SSD Samsung 990 Pro 1TB", "Linh kiện", "80", "2,950,000", "AMC"],
+                ["SP007", "Ghế công thái học Sihoo M57", "Nội thất", "12", "4,200,000", "Manson"],
+                ["SP008", "MacBook Air M3 13 inch 16GB", "Máy tính", "30", "27,990,000", "Apple VN"]
+            ].map(r => r.join('\t')).join('\n');
+
+            document.getElementById('input1').value = sample1;
+            document.getElementById('input2').value = sample2;
+            document.getElementById('optHeader').checked = true;
+
+            document.querySelector('input[name="compareMode"][value="key"]').checked = true;
+            handleModeChange();
+            updateDimensionsAndDropdown();
+            compareData(true);
+            showToast('Đã tải dữ liệu mẫu và tự động thu gọn vùng nhập!');
+        }
+
+        function swapInputs() {
+            const input1 = document.getElementById('input1');
+            const input2 = document.getElementById('input2');
+            const temp = input1.value;
+            input1.value = input2.value;
+            input2.value = temp;
+            updateDimensionsAndDropdown();
+            if (hasCompared) compareData(false);
+            showToast('Đã đảo chiều dữ liệu Vùng A ⇄ Vùng B');
+        }
+
+        function clearSingle(num) {
+            document.getElementById(`input${num}`).value = '';
+            updateDimensionsAndDropdown();
+        }
+
+        function clearAll() {
+            document.getElementById('input1').value = '';
+            document.getElementById('input2').value = '';
+            hasCompared = false;
+            updateDimensionsAndDropdown();
+            document.getElementById('resultsSection').classList.add('hidden');
+            document.getElementById('welcomeState').classList.remove('hidden');
+            toggleInputDrawer(true);
+            showToast('Đã xóa trắng toàn bộ dữ liệu!');
+        }
+
+        function getStatusText(status) {
+            if (status === 'same') return 'Giống nhau';
+            if (status === 'modified') return 'Đã sửa';
+            if (status === 'added') return 'Mới thêm';
+            if (status === 'deleted') return 'Đã xóa';
+            return '';
+        }
+
+        function copyResultToClipboard() {
+            const filteredRows = getFilteredRows();
+            if (filteredRows.length === 0) {
+                showToast('Không có dữ liệu để copy!');
+                return;
+            }
+
+            const lines = [];
+            const headerTitles = currentComparison.headers.map(h => `${h.letter} - ${h.title}`);
+            lines.push(['Dòng', 'Trạng thái', ...headerTitles].join('\t'));
+
+            filteredRows.forEach(row => {
+                const rowCells = row.cells.map(c => {
+                    if (c.status === 'modified') return `${c.val1} -> ${c.val2}`;
+                    if (c.status === 'deleted') return c.val1;
+                    return c.val2;
+                });
+                lines.push([row.rowLabel, getStatusText(row.status), ...rowCells].join('\t'));
+            });
+
+            const tempTextarea = document.createElement('textarea');
+            tempTextarea.value = lines.join('\n');
+            document.body.appendChild(tempTextarea);
+            tempTextarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Đã copy kết quả (TSV)! Hãy nhấn Ctrl+V trực tiếp vào Excel.');
+            } catch (_) {
+                showToast('Không thể copy tự động, vui lòng bấm Xuất CSV.');
+            }
+            document.body.removeChild(tempTextarea);
+        }
+
+        function exportToCSV() {
+            const filteredRows = getFilteredRows();
+            if (filteredRows.length === 0) {
+                showToast('Không có dữ liệu để xuất file!');
+                return;
+            }
+
+            const escapeCSV = (val) => {
+                const str = String(val ?? '');
+                if (str.includes('"') || str.includes(',') || str.includes('\n')) {
+                    return `"${str.replace(/"/g, '""')}"`;
+                }
+                return str;
+            };
+
+            const lines = [];
+            const headerTitles = currentComparison.headers.map(h => `${h.letter} - ${h.title}`);
+            lines.push(['Dòng', 'Trạng thái', ...headerTitles].map(escapeCSV).join(','));
+
+            filteredRows.forEach(row => {
+                const rowCells = row.cells.map(c => {
+                    if (c.status === 'modified') return `${c.val1} -> ${c.val2}`;
+                    if (c.status === 'deleted') return c.val1;
+                    return c.val2;
+                });
+                lines.push([row.rowLabel, getStatusText(row.status), ...rowCells].map(escapeCSV).join(','));
+            });
+
+            const csvContent = '\uFEFF' + lines.join('\r\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            const timestamp = new Date().toISOString().slice(0, 10);
+            link.setAttribute('download', `So_Sanh_Excel_${timestamp}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast('Đã xuất file CSV chuẩn tiếng Việt thành công!');
+        }
+    </script>
+</body>
+</html>
