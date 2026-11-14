@@ -8,3 +8,4 @@
 | Hán Văn Studio | Sổ tay viết tiếng Trung thông minh | [Mở công cụ](https://vinhnd2026.github.io/Tool/Writing.html) |
 | Công cụ soạn kịch bản song ngữ | Soạn kịch bản song ngữ từ Excel, phân vai lời dẫn từng câu (MC Nam/Nữ/Cả 2/tên riêng nhiều màu, ẩn được số thứ tự, menu chuột phải gom nhóm, xoá được bộ nhớ đã lưu), xuất bản in phân trang có mục lục và số trang | [Mở công cụ](https://vinhnd2026.github.io/Tool/Soan-Kich-Ban-Song-Ngu.html) |
 | Tính Chiều Dài Dây Xoắn & Quấn Tape | Tính chiều dài dây xoắn (2/nhiều dây), quấn tape tròn 2D và quấn tape chéo 3D, tính đường kính bó dây tự động, kèm lý thuyết & công thức | [Mở công cụ](https://vinhnd2026.github.io/Tool/Tinh-Chieu-Dai-Day-Xoan-Quan-Tape.html) |
+| So Sánh Dữ Liệu Excel (Excel Diff Pro) | So sánh 2 file/bảng dữ liệu Excel, làm nổi bật dòng thêm/xoá/sửa và ô thay đổi (giá trị cũ → mới), xuất CSV kết quả | [Mở công cụ](https://vinhnd2026.github.io/Tool/So-Sanh-Excel.html) |
