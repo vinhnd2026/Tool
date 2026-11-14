@@ -767,57 +767,54 @@
         <h2 class="font-bold text-slate-800 text-base border-b pb-2.5">Đổi AWG &harr; mm &harr; mm<sup>2</sup></h2>
         <div class="space-y-3.5 mt-4 text-sm">
           <div>
-            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge">Chọn cỡ dây (AWG #):</label>
-            <select id="awg-gauge" onchange="awgFromGauge()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white">
-                <option value="-3">0000</option>
-                <option value="-2">000</option>
-                <option value="-1">00</option>
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-                <option value="6">6</option>
-                <option value="7">7</option>
-                <option value="8">8</option>
-                <option value="9">9</option>
-                <option value="10">10</option>
-                <option value="11">11</option>
-                <option value="12">12</option>
-                <option value="13">13</option>
-                <option value="14">14</option>
-                <option value="15">15</option>
-                <option value="16">16</option>
-                <option value="17">17</option>
-                <option value="18">18</option>
-                <option value="19">19</option>
-                <option value="20">20</option>
-                <option value="21">21</option>
-                <option value="22">22</option>
-                <option value="23">23</option>
-                <option value="24" selected>24</option>
-                <option value="25">25</option>
-                <option value="26">26</option>
-                <option value="27">27</option>
-                <option value="28">28</option>
-                <option value="29">29</option>
-                <option value="30">30</option>
-                <option value="31">31</option>
-                <option value="32">32</option>
-                <option value="33">33</option>
-                <option value="34">34</option>
-                <option value="35">35</option>
-                <option value="36">36</option>
-                <option value="37">37</option>
-                <option value="38">38</option>
-                <option value="39">39</option>
-                <option value="40">40</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge-num">Cỡ AWG (nhập tay — số lẻ cũng được):</label>
-            <input type="number" id="awg-gauge-num" step="0.1" oninput="awgFromGaugeNum()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge">Cỡ dây (AWG #) — gõ hoặc chọn:</label>
+            <input type="text" id="awg-gauge" list="awg-options" value="24" oninput="awgFromGaugeInput()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
+            <datalist id="awg-options">
+              <option value="0000"></option>
+              <option value="000"></option>
+              <option value="00"></option>
+              <option value="0"></option>
+              <option value="1"></option>
+              <option value="2"></option>
+              <option value="3"></option>
+              <option value="4"></option>
+              <option value="5"></option>
+              <option value="6"></option>
+              <option value="7"></option>
+              <option value="8"></option>
+              <option value="9"></option>
+              <option value="10"></option>
+              <option value="11"></option>
+              <option value="12"></option>
+              <option value="13"></option>
+              <option value="14"></option>
+              <option value="15"></option>
+              <option value="16"></option>
+              <option value="17"></option>
+              <option value="18"></option>
+              <option value="19"></option>
+              <option value="20"></option>
+              <option value="21"></option>
+              <option value="22"></option>
+              <option value="23"></option>
+              <option value="24"></option>
+              <option value="25"></option>
+              <option value="26"></option>
+              <option value="27"></option>
+              <option value="28"></option>
+              <option value="29"></option>
+              <option value="30"></option>
+              <option value="31"></option>
+              <option value="32"></option>
+              <option value="33"></option>
+              <option value="34"></option>
+              <option value="35"></option>
+              <option value="36"></option>
+              <option value="37"></option>
+              <option value="38"></option>
+              <option value="39"></option>
+              <option value="40"></option>
+            </datalist>
           </div>
           <div>
             <label class="block font-medium text-slate-600 mb-1" for="awg-mm">Đường kính (mm):</label>
@@ -3140,42 +3137,44 @@
     function awgMmToGauge(d) { return 36 - 39 * (Math.log(d / 0.127) / Math.log(92)); }
     function awgLabel(g) { return g === -3 ? '0000' : g === -2 ? '000' : g === -1 ? '00' : String(g); }
 
-    // Đồng bộ tất cả các ô từ đường kính d. source = ô người dùng đang gõ — không ghi đè ô đó
-    // để không làm phiền thao tác gõ; mọi ô CÒN LẠI cập nhật ngay khi nhập.
+    // AWG chỉ có cỡ NGUYÊN (0000/000/00 và 0..40) — không có số sau dấu phẩy.
+    // Đọc cỡ từ ô AWG (gõ tay hay chọn trong danh sách đều về cùng 1 ô này).
+    function awgParseGauge(text) {
+      const t = String(text).trim();
+      if (t === '0000') return -3;
+      if (t === '000') return -2;
+      if (t === '00') return -1;
+      const v = parseFloat(t);
+      if (!isFinite(v)) return null;
+      return Math.min(40, Math.max(-3, Math.round(v)));
+    }
+
+    // Đồng bộ tất cả các ô từ đường kính d. source = ô người dùng đang gõ — không ghi đè ô đó;
+    // mọi ô CÒN LẠI tự cập nhật ngay theo dữ liệu phụ thuộc. Ô AWG luôn hiện cỡ chuẩn gần nhất.
     function awgSync(d, source) {
-      const sel = document.getElementById('awg-gauge');
-      const num = document.getElementById('awg-gauge-num');
+      const gaugeEl = document.getElementById('awg-gauge');
       const mmEl = document.getElementById('awg-mm');
       const mm2El = document.getElementById('awg-mm2');
       const eqEl = document.getElementById('awg-equiv');
       if (!mmEl || !mm2El || !(d > 0)) return;
       const gExact = awgMmToGauge(d);
-      const gRound = Math.round(gExact);
+      const gRound = Math.min(40, Math.max(-3, Math.round(gExact)));
       if (source !== 'mm') mmEl.value = parseFloat(d.toFixed(4));
       if (source !== 'mm2') mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
-      if (source !== 'num' && num) num.value = parseFloat(gExact.toFixed(1));
-      if (source !== 'select' && sel && gRound >= -3 && gRound <= 40) sel.value = String(gRound);
+      if (source !== 'gauge' && gaugeEl) gaugeEl.value = awgLabel(gRound);
       if (eqEl) {
         eqEl.textContent = (Math.abs(gExact - gRound) < 0.05)
           ? `Đúng cỡ chuẩn AWG ${awgLabel(gRound)}`
-          : `Giữa hai cỡ chuẩn — gần nhất AWG ${awgLabel(gRound)} (chính xác ${gExact.toFixed(1)})`;
+          : `Không đúng cỡ chuẩn — cỡ AWG gần nhất: ${awgLabel(gRound)}`;
       }
     }
 
-    function awgFromGauge() {
-      const sel = document.getElementById('awg-gauge');
-      const num = document.getElementById('awg-gauge-num');
-      if (!sel) return;
-      if (num) num.value = sel.value;
-      awgSync(awgGaugeToMm(parseFloat(sel.value)), 'select');
-    }
-
-    function awgFromGaugeNum() {
-      const num = document.getElementById('awg-gauge-num');
-      if (!num || num.value === '') return;
-      const g = parseFloat(num.value);
-      if (!isFinite(g)) return;
-      awgSync(awgGaugeToMm(g), 'num');
+    function awgFromGaugeInput() {
+      const el = document.getElementById('awg-gauge');
+      if (!el || el.value.trim() === '') return;
+      const g = awgParseGauge(el.value);
+      if (g === null) return;
+      awgSync(awgGaugeToMm(g), 'gauge');
     }
 
     function awgFromMm() {
@@ -3189,14 +3188,14 @@
     }
 
     function awgReset() {
-      const sel = document.getElementById('awg-gauge');
-      if (sel) sel.value = '24';
-      awgFromGauge();
+      const el = document.getElementById('awg-gauge');
+      if (el) el.value = '24';
+      awgFromGaugeInput();
     }
 
     window.addEventListener('DOMContentLoaded', () => {
       resetDefaults();
-      awgFromGauge();
+      awgFromGaugeInput();
     });
     window.addEventListener('resize', () => {
       drawTwistCADCanvas();
