@@ -270,15 +270,15 @@
                 <!-- Quick Checkboxes -->
                 <div class="flex items-center space-x-3 px-1">
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
-                        <input type="checkbox" id="optHeader" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Có tiêu đề</span>
                     </label>
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
-                        <input type="checkbox" id="optTrim" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Bỏ khoảng trắng</span>
                     </label>
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
-                        <input type="checkbox" id="optCase" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Hoa/thường</span>
                     </label>
                 </div>
