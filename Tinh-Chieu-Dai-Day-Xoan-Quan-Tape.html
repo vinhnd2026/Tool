@@ -557,7 +557,7 @@
             </div>
             <div class="flex flex-wrap items-center justify-between gap-4">
               <!-- Hình vẽ minh họa chồng mí động theo đúng tỷ lệ thực tế của b, h và % overlapped -->
-              <svg id="svg-overlap-dynamic" viewBox="0 0 360 135" width="360" height="135" class="w-64 sm:w-80 h-auto shrink-0 bg-white rounded-lg border border-amber-200 p-1 shadow-sm block"></svg>
+              <svg id="svg-overlap-dynamic" viewBox="0 0 300 135" width="300" height="135" class="w-64 sm:w-72 h-auto shrink-0 bg-white rounded-lg border border-amber-200 p-1 shadow-sm block"></svg>
 
               <div class="flex-1 min-w-[180px] space-y-2 text-sm">
                 <div class="flex items-center gap-2">
@@ -1135,10 +1135,8 @@
       { name: 'Dây đơn chuẩn 2', d: 2.30, qty: 2, color: '#ef4444' }
     ];
 
-    // Mảng màu tuỳ chỉnh khi áp dụng từ Bó Dây sang Xoắn Dây
     let customTwistWireColors = null;
 
-    // Hàm chuyển mã HEX sang RGBA để tô nền đồng bộ trong bảng khai báo
     function hexToRgba(hex, alpha = 0.12) {
       const clean = (hex || '#3b82f6').replace('#', '');
       const bigint = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
@@ -1148,7 +1146,6 @@
       return `rgba(${r}, ${g}, ${b}, ${alpha})`;
     }
 
-    // Tạo màu sáng hơn cho dải phản quang 3D trên thân dây
     function lightenHex(hex, ratio = 0.55) {
       const clean = (hex || '#3b82f6').replace('#', '');
       const bigint = parseInt(clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean, 16);
@@ -1156,6 +1153,11 @@
       const g = Math.min(255, Math.round(((bigint >> 8) & 255) + (255 - ((bigint >> 8) & 255)) * ratio));
       const b = Math.min(255, Math.round((bigint & 255) + (255 - (bigint & 255)) * ratio));
       return `rgb(${r}, ${g}, ${b})`;
+    }
+
+    function formatNumClean(val, maxDec = 2) {
+      if (!isFinite(val)) return '0';
+      return Number(val.toFixed(maxDec)).toString();
     }
 
     // Chuyển đổi qua lại giữa các Tab
@@ -1174,9 +1176,7 @@
       if (tabId === 'theory') renderTheorySVGs();
     }
 
-    // =========================================================================
-    // TÍCH PHÂN HÌNH THANG CHO ĐƯỜNG XOẮN ỐC 2D (MỤC 1 & MỤC 3)
-    // =========================================================================
+    // Tích phân hình thang cho đường xoắn ốc 2D (Mục 1 & Mục 3)
     function integrate2DSpiral(a, T, nTurns) {
       if (nTurns <= 0) return 0;
       const thetaMax = 2 * Math.PI * nTurns;
@@ -1196,8 +1196,58 @@
       return sum * h;
     }
 
+    // Hàm tạo chuỗi SVG cho đường kích thước 2 đầu mũi tên chuẩn CAD
+    function buildSVGDimension(x1, y1, x2, y2, labelText, color = '#0f172a', textOffset = -8, fontSize = 12) {
+      const ang = Math.atan2(y2 - y1, x2 - x1);
+      const headLen = 7;
+      const headAng = 0.42;
+
+      const p1aX = x1 + headLen * Math.cos(ang - headAng);
+      const p1aY = y1 + headLen * Math.sin(ang - headAng);
+      const p1bX = x1 + headLen * Math.cos(ang + headAng);
+      const p1bY = y1 + headLen * Math.sin(ang + headAng);
+
+      const p2aX = x2 - headLen * Math.cos(ang - headAng);
+      const p2aY = y2 - headLen * Math.sin(ang - headAng);
+      const p2bX = x2 - headLen * Math.cos(ang + headAng);
+      const p2bY = y2 - headLen * Math.sin(ang + headAng);
+
+      let labelSvg = '';
+      if (labelText) {
+        const mx = (x1 + x2) / 2;
+        const my = (y1 + y2) / 2 + textOffset;
+        const estW = labelText.length * (fontSize * 0.56) + 8;
+        labelSvg = `
+          <rect x="${(mx - estW / 2).toFixed(2)}" y="${(my - fontSize * 0.65).toFixed(2)}"
+                width="${estW.toFixed(2)}" height="${(fontSize + 4).toFixed(2)}"
+                rx="2" fill="#f8fafc" fill-opacity="0.92"/>
+          <text x="${mx.toFixed(2)}" y="${(my + fontSize * 0.28).toFixed(2)}"
+                text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="${color}">
+            ${labelText}
+          </text>
+        `;
+      }
+
+      return `
+        <line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}"
+              stroke="${color}" stroke-width="1.3"/>
+        <polygon points="${x1.toFixed(2)},${y1.toFixed(2)} ${p1aX.toFixed(2)},${p1aY.toFixed(2)} ${p1bX.toFixed(2)},${p1bY.toFixed(2)}" fill="${color}"/>
+        <polygon points="${x2.toFixed(2)},${y2.toFixed(2)} ${p2aX.toFixed(2)},${p2aY.toFixed(2)} ${p2bX.toFixed(2)},${p2bY.toFixed(2)}" fill="${color}"/>
+        ${labelSvg}
+      `;
+    }
+
+    function buildSVGWaveBreak(cx, cy, halfHeight, gap = 6) {
+      let paths = `<rect x="${(cx - gap / 2 - 2).toFixed(2)}" y="${(cy - halfHeight).toFixed(2)}" width="${(gap + 4).toFixed(2)}" height="${(halfHeight * 2).toFixed(2)}" fill="#f8fafc"/>`;
+      [-gap / 2, gap / 2].forEach(dx => {
+        const x = cx + dx;
+        paths += `<path d="M ${x.toFixed(2)} ${(cy - halfHeight).toFixed(2)} Q ${(x - 5).toFixed(2)} ${(cy - halfHeight / 2).toFixed(2)} ${x.toFixed(2)} ${cy.toFixed(2)} Q ${(x + 5).toFixed(2)} ${(cy + halfHeight / 2).toFixed(2)} ${x.toFixed(2)} ${(cy + halfHeight).toFixed(2)}" fill="none" stroke="#0f172a" stroke-width="1.5"/>`;
+      });
+      return paths;
+    }
+
     // =========================================================================
-    // 1. TÍNH CHIỀU DÀI CẮT DÂY KHI XOẮN & BỘ VẼ 3D OCCLUSION CHUẨN CAD
+    // 1. TÍNH CHIỀU DÀI CẮT DÂY KHI XOẮN & BỘ VẼ VECTOR SVG 3D OCCLUSION
     // =========================================================================
     const WIRE_PALETTE = [
       { fill: '#93c5fd', hi: '#dbeafe', name: 'Xanh dương' },
@@ -1218,149 +1268,47 @@
       return WIRE_PALETTE[k % WIRE_PALETTE.length];
     }
 
-    function formatNumClean(val, maxDec = 2) {
-      if (!isFinite(val)) return '0';
-      return Number(val.toFixed(maxDec)).toString();
-    }
-
-    // Tạo đường kích thước có 2 đầu mũi tên chuẩn CAD bằng SVG
-    function buildSVGDimension(x1, y1, x2, y2, labelText, color = '#0f172a', textOffset = -8, fontSize = 12) {
-      const ang = Math.atan2(y2 - y1, x2 - x1);
-      const headLen = 7.5;
-      const headAng = 0.42;
-
-      const p1x = (x1 + headLen * Math.cos(ang - headAng)).toFixed(2);
-      const p1y = (y1 + headLen * Math.sin(ang - headAng)).toFixed(2);
-      const p2x = (x1 + headLen * Math.cos(ang + headAng)).toFixed(2);
-      const p2y = (y1 + headLen * Math.sin(ang + headAng)).toFixed(2);
-
-      const q1x = (x2 - headLen * Math.cos(ang - headAng)).toFixed(2);
-      const q1y = (y2 - headLen * Math.sin(ang - headAng)).toFixed(2);
-      const q2x = (x2 - headLen * Math.cos(ang + headAng)).toFixed(2);
-      const q2y = (y2 - headLen * Math.sin(ang + headAng)).toFixed(2);
-
-      let labelSvg = '';
-      if (labelText) {
-        const mx = (x1 + x2) / 2;
-        const my = (y1 + y2) / 2 + textOffset;
-        const estW = labelText.length * (fontSize * 0.58) + 10;
-        const estH = fontSize + 5;
-        labelSvg = `
-          <rect x="${(mx - estW / 2).toFixed(2)}" y="${(my - estH / 2).toFixed(2)}"
-                width="${estW.toFixed(2)}" height="${estH.toFixed(2)}" rx="2"
-                fill="#f8fafc" fill-opacity="0.94"/>
-          <text x="${mx.toFixed(2)}" y="${(my + fontSize * 0.34).toFixed(2)}"
-                text-anchor="middle" font-size="${fontSize}" font-weight="bold" fill="${color}">
-            ${labelText}
-          </text>
-        `;
-      }
-
-      return `
-        <g>
-          <line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}"
-                stroke="${color}" stroke-width="1.3"/>
-          <polygon points="${x1.toFixed(2)},${y1.toFixed(2)} ${p1x},${p1y} ${p2x},${p2y}" fill="${color}"/>
-          <polygon points="${x2.toFixed(2)},${y2.toFixed(2)} ${q1x},${q1y} ${q2x},${q2y}" fill="${color}"/>
-          ${labelSvg}
-        </g>
-      `;
-    }
-
-    // Tạo ký hiệu nét cắt sóng kỹ thuật (Wave Break) bằng SVG
-    function buildSVGWaveBreak(cx, cy, halfHeight, gap = 6) {
-      const topY = cy - halfHeight;
-      const midTopY = cy - halfHeight / 2;
-      const midBotY = cy + halfHeight / 2;
-      const botY = cy + halfHeight;
-      const xL = cx - gap / 2;
-      const xR = cx + gap / 2;
-
-      return `
-        <g>
-          <rect x="${(xL - 2).toFixed(2)}" y="${topY.toFixed(2)}" width="${(gap + 4).toFixed(2)}" height="${(halfHeight * 2).toFixed(2)}" fill="#f8fafc"/>
-          <path d="M ${xL.toFixed(2)} ${topY.toFixed(2)} Q ${(xL - 5).toFixed(2)} ${midTopY.toFixed(2)} ${xL.toFixed(2)} ${cy.toFixed(2)} Q ${(xL + 5).toFixed(2)} ${midBotY.toFixed(2)} ${xL.toFixed(2)} ${botY.toFixed(2)}"
-                fill="none" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M ${xR.toFixed(2)} ${topY.toFixed(2)} Q ${(xR - 5).toFixed(2)} ${midTopY.toFixed(2)} ${xR.toFixed(2)} ${cy.toFixed(2)} Q ${(xR + 5).toFixed(2)} ${midBotY.toFixed(2)} ${xR.toFixed(2)} ${botY.toFixed(2)}"
-                fill="none" stroke="#0f172a" stroke-width="1.5" stroke-linecap="round"/>
-        </g>
-      `;
-    }
-
-    /**
-     * Bộ dựng Vector SVG 3D Helix Occlusion cho N sợi dây xoắn:
-     * 1. Lớp nền (Base layer): Vẽ đường cong liên tục cho từng sợi dây từ xStart đến xEnd.
-     * 2. Lớp vòm phía trước (Front-hemisphere occlusion arches): Các đoạn vòm có chiều sâu z = sin(phase) > 0
-     *    được sắp xếp theo độ sâu z tăng dần, vẽ viền ngoài với stroke-linecap="butt" và ruột màu bên trong
-     *    với stroke-linecap="round", giúp dây nằm trên che khuất hoàn toàn dây nằm dưới mà không có bất kỳ vết nối nào!
-     */
-    function buildSVG3DHelixBundle(xStart, xEnd, yCenter, pitchPx, amplitudePx, wireThickPx, numWires) {
+    // Dựng bó dây xoắn 3D bằng Vector SVG với thứ tự che khuất chuẩn xác (dây trên đè kín dây dưới)
+    function build3DHelixBundleSVG(xStart, xEnd, yCenter, pitchPx, amplitudePx, wireThickPx, numWires) {
       const N = Math.max(2, Math.min(12, numWires));
       const omega = (2 * Math.PI) / pitchPx;
-      const borderW = (wireThickPx + 2.6).toFixed(2);
-      const fillW = wireThickPx.toFixed(2);
-      const hiW = (wireThickPx * 0.34).toFixed(2);
+      // Chia thành các đoạn nửa bước xoắn theo từng sợi để sắp xếp độ sâu z từ sau ra trước
+      const segLen = pitchPx / (N * 2.5);
+      const segments = [];
 
-      function buildCurvePath(k, xa, xb) {
-        const phi = (2 * Math.PI * k) / N;
-        const step = 1.6;
-        let d = '';
-        for (let x = xa; x <= xb + 0.01; x += step) {
-          const xc = Math.min(xb, x);
-          const y = yCenter - amplitudePx * Math.cos(omega * (xc - xStart) + phi);
-          d += (d === '' ? 'M ' : ' L ') + xc.toFixed(2) + ' ' + y.toFixed(2);
-          if (xc >= xb) break;
-        }
-        return d;
-      }
+      for (let x0 = xStart; x0 < xEnd; x0 += segLen) {
+        const x1 = Math.max(xStart, x0 - 0.8);
+        const x2 = Math.min(xEnd, x0 + segLen + 0.8);
+        const xm = 0.5 * (x1 + x2);
 
-      let svgOut = '';
-
-      // 1. Lớp nền liên tục của cả N sợi dây
-      for (let k = 0; k < N; k++) {
-        const dFull = buildCurvePath(k, xStart, xEnd);
-        const cObj = getTwistWireColorObj(k);
-        svgOut += `
-          <path d="${dFull}" fill="none" stroke="#0f172a" stroke-width="${borderW}" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="${dFull}" fill="none" stroke="${cObj.fill}" stroke-width="${fillW}" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="${dFull}" fill="none" stroke="${cObj.hi}" stroke-width="${hiW}" stroke-linecap="round" stroke-linejoin="round"/>
-        `;
-      }
-
-      // 2. Lớp vòm phía trước (z > -0.05) được chia thành các cung mượt và sắp xếp theo chiều sâu z
-      const archStep = Math.max(4.5, pitchPx / (N * 3));
-      const frontArches = [];
-
-      for (let x = xStart; x < xEnd; x += archStep) {
-        const xa = x;
-        const xb = Math.min(xEnd, x + archStep);
-        const xm = 0.5 * (xa + xb);
         for (let k = 0; k < N; k++) {
           const phi = (2 * Math.PI * k) / N;
-          const phaseMid = omega * (xm - xStart) + phi;
-          const zMid = Math.sin(phaseMid);
-          if (zMid > -0.08) {
-            frontArches.push({ k, xa, xb, zMid });
+          const zMid = Math.sin(omega * (xm - xStart) + phi);
+          const steps = 10;
+          let dPath = '';
+          for (let s = 0; s <= steps; s++) {
+            const x = x1 + (s / steps) * (x2 - x1);
+            const y = yCenter - amplitudePx * Math.cos(omega * (x - xStart) + phi);
+            dPath += (s === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
           }
+          segments.push({ k, z: zMid, dPath });
         }
       }
 
-      frontArches.sort((a, b) => a.zMid - b.zMid);
+      segments.sort((a, b) => a.z - b.z);
 
-      for (const arch of frontArches) {
-        const dArch = buildCurvePath(arch.k, arch.xa, arch.xb);
-        const cObj = getTwistWireColorObj(arch.k);
+      let svgOut = '';
+      segments.forEach(seg => {
+        const cObj = getTwistWireColorObj(seg.k);
         svgOut += `
-          <path d="${dArch}" fill="none" stroke="#0f172a" stroke-width="${borderW}" stroke-linecap="butt" stroke-linejoin="round"/>
-          <path d="${dArch}" fill="none" stroke="${cObj.fill}" stroke-width="${fillW}" stroke-linecap="round" stroke-linejoin="round"/>
-          <path d="${dArch}" fill="none" stroke="${cObj.hi}" stroke-width="${hiW}" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="${seg.dPath}" fill="none" stroke="#0f172a" stroke-width="${(wireThickPx + 2.6).toFixed(2)}" stroke-linecap="butt" stroke-linejoin="round"/>
+          <path d="${seg.dPath}" fill="none" stroke="${cObj.fill}" stroke-width="${wireThickPx.toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="${seg.dPath}" fill="none" stroke="${cObj.hi}" stroke-width="${(wireThickPx * 0.32).toFixed(2)}" stroke-linecap="round" stroke-linejoin="round"/>
         `;
-      }
-
-      return `<g>${svgOut}</g>`;
+      });
+      return svgOut;
     }
 
-    // Vẽ toàn bộ Bản vẽ Kỹ thuật Xoắn Dây bằng Vector SVG (#svg-twist-diagram)
     function drawTwistCADCanvas() {
       const svg = document.getElementById('svg-twist-diagram');
       if (!svg) return;
@@ -1377,54 +1325,37 @@
       const badge = document.getElementById('twist-live-badge');
       if (badge) badge.textContent = `${numWires} dây xoắn`;
 
-      // =====================================================================
-      // PHẦN 1 (BÊN TRÁI): PHÓNG TO CHI TIẾT ĐƯỜNG KÍNH VÒNG TÂM XOẮN (OD)
-      // =====================================================================
+      // Phần 1 (Trái): Phóng to chi tiết OD
       const zoomY = 112;
       const zoomXStart = 28;
       const zoomXEnd = 186;
       const zoomPitch = 88;
       const zoomAmp = 14;
       const zoomWireW = numWires <= 3 ? 11.5 : Math.max(6.5, 24 / numWires);
-
-      const zoomHelixSvg = buildSVG3DHelixBundle(zoomXStart, zoomXEnd, zoomY, zoomPitch, zoomAmp, zoomWireW, numWires);
-      const zoomWaveSvg = buildSVGWaveBreak(zoomXStart + 2, zoomY, 32, 5);
-
       const topCenterY = zoomY - zoomAmp;
       const botCenterY = zoomY + zoomAmp;
       const odDimX = 222;
 
-      // Mặt cắt thu nhỏ góc dưới trái hiển thị vòng tròn tâm xoắn OD đi qua tâm N sợi dây
-      const csX = 56;
-      const csY = 198;
-      const csR = 14;
+      const zoomHelixSvg = build3DHelixBundleSVG(zoomXStart, zoomXEnd, zoomY, zoomPitch, zoomAmp, zoomWireW, numWires);
+      const zoomWaveSvg = buildSVGWaveBreak(zoomXStart + 2, zoomY, 32, 5);
+
+      // Mặt cắt thu nhỏ góc dưới trái
+      const csX = 56, csY = 198, csR = 14;
       const wireR = Math.min(7.5, csR * Math.sin(Math.PI / numWires));
-      let miniCrossSectionSvg = '';
+      let csWiresSvg = '';
       for (let k = 0; k < numWires; k++) {
         const ang = (2 * Math.PI * k) / numWires - Math.PI / 2;
-        const wx = (csX + csR * Math.cos(ang)).toFixed(2);
-        const wy = (csY + csR * Math.sin(ang)).toFixed(2);
-        const cObj = getTwistWireColorObj(k);
-        miniCrossSectionSvg += `
-          <circle cx="${wx}" cy="${wy}" r="${wireR.toFixed(2)}" fill="${cObj.fill}" stroke="#0f172a" stroke-width="1.15"/>
-        `;
+        const wx = csX + csR * Math.cos(ang);
+        const wy = csY + csR * Math.sin(ang);
+        csWiresSvg += `<circle cx="${wx.toFixed(2)}" cy="${wy.toFixed(2)}" r="${wireR.toFixed(2)}" fill="${getTwistWireColorObj(k).fill}" stroke="#0f172a" stroke-width="1.1"/>`;
       }
-      miniCrossSectionSvg += `
-        <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.25" stroke-dasharray="3,2"/>
-        <text x="${csX + 26}" y="${csY + 4}" font-size="10.5" font-weight="600" fill="#475569">
-          Mặt cắt vòng tâm OD (${numWires} sợi)
-        </text>
-      `;
 
-      // =====================================================================
-      // PHẦN 2 (BÊN PHẢI): BẢN VẼ TỔNG THỂ CHIỀU DÀI L, a, b, P, h1, h2
-      // =====================================================================
+      // Phần 2 (Phải): Bản vẽ tổng thể L, a, b, P, h1, h2
       const mainY = 115;
       const xH1 = 305;
       const xTwistStart = 375;
       const xTwistEnd = 643;
       const xH2 = 713;
-
       const mainPitch = 53.6;
       const mainAmp = 6.2;
       const mainWireW = numWires <= 3 ? 5.2 : Math.max(3.4, 11 / numWires);
@@ -1440,82 +1371,54 @@
         const yRightEnd = mainY + ((k / (numWires - 1)) - 0.5) * 16;
 
         const cObj = getTwistWireColorObj(k);
-        const bW = (mainWireW + 2.2).toFixed(2);
-        const fW = mainWireW.toFixed(2);
-
         straightEndsSvg += `
-          <line x1="${xH1}" y1="${yLeftStart.toFixed(2)}" x2="${xTwistStart}" y2="${yLeftEnd.toFixed(2)}"
-                stroke="#0f172a" stroke-width="${bW}" stroke-linecap="round"/>
-          <line x1="${xH1}" y1="${yLeftStart.toFixed(2)}" x2="${xTwistStart}" y2="${yLeftEnd.toFixed(2)}"
-                stroke="${cObj.fill}" stroke-width="${fW}" stroke-linecap="round"/>
-
-          <line x1="${xTwistEnd}" y1="${yRightStart.toFixed(2)}" x2="${xH2}" y2="${yRightEnd.toFixed(2)}"
-                stroke="#0f172a" stroke-width="${bW}" stroke-linecap="round"/>
-          <line x1="${xTwistEnd}" y1="${yRightStart.toFixed(2)}" x2="${xH2}" y2="${yRightEnd.toFixed(2)}"
-                stroke="${cObj.fill}" stroke-width="${fW}" stroke-linecap="round"/>
+          <line x1="${xH1}" y1="${yLeftStart.toFixed(2)}" x2="${xTwistStart}" y2="${yLeftEnd.toFixed(2)}" stroke="#0f172a" stroke-width="${(mainWireW + 2.2).toFixed(2)}" stroke-linecap="round"/>
+          <line x1="${xH1}" y1="${yLeftStart.toFixed(2)}" x2="${xTwistStart}" y2="${yLeftEnd.toFixed(2)}" stroke="${cObj.fill}" stroke-width="${mainWireW.toFixed(2)}" stroke-linecap="round"/>
+          <line x1="${xTwistEnd}" y1="${yRightStart.toFixed(2)}" x2="${xH2}" y2="${yRightEnd.toFixed(2)}" stroke="#0f172a" stroke-width="${(mainWireW + 2.2).toFixed(2)}" stroke-linecap="round"/>
+          <line x1="${xTwistEnd}" y1="${yRightStart.toFixed(2)}" x2="${xH2}" y2="${yRightEnd.toFixed(2)}" stroke="${cObj.fill}" stroke-width="${mainWireW.toFixed(2)}" stroke-linecap="round"/>
         `;
       }
 
-      const mainHelixSvg = buildSVG3DHelixBundle(xTwistStart, xTwistEnd, mainY, mainPitch, mainAmp, mainWireW, numWires);
+      const mainHelixSvg = build3DHelixBundleSVG(xTwistStart, xTwistEnd, mainY, mainPitch, mainAmp, mainWireW, numWires);
       const midBreakX = 0.5 * (xTwistStart + xTwistEnd);
       const mainWaveSvg = buildSVGWaveBreak(midBreakX, mainY, 18, 5);
 
-      const housingW = 24;
-      const housingH = 54;
+      const housingW = 24, housingH = 54;
       const pX1 = xTwistStart + mainPitch * 0.5;
       const pX2 = pX1 + mainPitch;
 
-      const dimLSvg = buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13);
-      const dimASvg = buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12);
-      const dimBSvg = buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12);
-      const dimPSvg = buildSVGDimension(pX1, 172, pX2, 172, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 12.5);
-
       svg.innerHTML = `
-        <!-- PHẦN 1: CHI TIẾT TÂM XOẮN OD -->
-        <text x="14" y="22" font-size="11.5" font-weight="bold" fill="#334155">
-          Chi tiết tâm xoắn OD (${numWires} dây)
-        </text>
+        <!-- Chi tiết phóng to OD bên trái -->
+        <text x="14" y="22" font-size="11.5" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${numWires} dây)</text>
         ${zoomHelixSvg}
         ${zoomWaveSvg}
-
-        <!-- Đường gióng tâm OD -->
-        <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="234" y2="${topCenterY}"
-              stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
-        <line x1="${zoomXStart + 35}" y1="${botCenterY}" x2="234" y2="${botCenterY}"
-              stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
-        <line x1="${odDimX}" y1="${topCenterY - 22}" x2="${odDimX}" y2="${botCenterY + 22}"
-              stroke="#dc2626" stroke-width="1.3"/>
+        <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="234" y2="${topCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
+        <line x1="${zoomXStart + 35}" y1="${botCenterY}" x2="234" y2="${botCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
+        <line x1="${odDimX}" y1="${topCenterY - 22}" x2="${odDimX}" y2="${botCenterY + 22}" stroke="#dc2626" stroke-width="1.3"/>
         <polygon points="${odDimX},${topCenterY} ${odDimX - 3.5},${topCenterY - 8} ${odDimX + 3.5},${topCenterY - 8}" fill="#dc2626"/>
         <polygon points="${odDimX},${botCenterY} ${odDimX - 3.5},${botCenterY + 8} ${odDimX + 3.5},${botCenterY + 8}" fill="#dc2626"/>
-        <text x="${odDimX - 18}" y="${botCenterY + 38}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
-          OD = ${formatNumClean(OD, 3)} mm
-        </text>
+        <text x="${odDimX - 18}" y="${botCenterY + 38}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">OD = ${formatNumClean(OD, 3)} mm</text>
 
         <!-- Mặt cắt thu nhỏ vòng tâm OD -->
-        ${miniCrossSectionSvg}
+        ${csWiresSvg}
+        <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.2" stroke-dasharray="3,2"/>
+        <text x="${csX + 26}" y="${csY + 4}" font-size="10.5" font-weight="600" fill="#475569">Mặt cắt vòng tâm OD (${numWires} sợi)</text>
 
-        <!-- PHẦN 2: BẢN VẼ TỔNG THỂ -->
+        <!-- Bản vẽ tổng thể bên phải -->
         ${straightEndsSvg}
         ${mainHelixSvg}
         ${mainWaveSvg}
 
-        <!-- Housing 1 & h1 -->
-        <rect x="${xH1 - housingW}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}"
-              fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
+        <!-- Housing 1 & 2 -->
+        <rect x="${xH1 - housingW}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
         <line x1="${xH1 - 14}" y1="${mainY - 8}" x2="${xH1}" y2="${mainY - 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
         <line x1="${xH1 - 14}" y1="${mainY + 8}" x2="${xH1}" y2="${mainY + 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
-        <text x="${xH1 - housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">
-          h1=${formatNumClean(h1)}
-        </text>
+        <text x="${xH1 - housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">h1=${formatNumClean(h1)}</text>
 
-        <!-- Housing 2 & h2 -->
-        <rect x="${xH2}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}"
-              fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
+        <rect x="${xH2}" y="${mainY - housingH / 2}" width="${housingW}" height="${housingH}" fill="#e2e8f0" stroke="#0f172a" stroke-width="1.4"/>
         <line x1="${xH2}" y1="${mainY - 8}" x2="${xH2 + 14}" y2="${mainY - 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
         <line x1="${xH2}" y1="${mainY + 8}" x2="${xH2 + 14}" y2="${mainY + 8}" stroke="#2563eb" stroke-width="1.5" stroke-dasharray="2.5,2"/>
-        <text x="${xH2 + housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">
-          h2=${formatNumClean(h2)}
-        </text>
+        <text x="${xH2 + housingW / 2}" y="${mainY + housingH / 2 + 13}" text-anchor="middle" font-size="10.5" font-weight="bold" fill="#1d4ed8">h2=${formatNumClean(h2)}</text>
 
         <!-- Đường gióng kích thước L, a, b, P -->
         <line x1="${xH1}" y1="22" x2="${xH1}" y2="${mainY - housingH / 2}" stroke="#475569" stroke-width="1"/>
@@ -1525,10 +1428,10 @@
         <line x1="${pX1.toFixed(2)}" y1="${mainY + 12}" x2="${pX1.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
         <line x1="${pX2.toFixed(2)}" y1="${mainY + 12}" x2="${pX2.toFixed(2)}" y2="182" stroke="#475569" stroke-width="1"/>
 
-        ${dimLSvg}
-        ${dimASvg}
-        ${dimBSvg}
-        ${dimPSvg}
+        ${buildSVGDimension(xH1, 30, xH2, 30, `L = ${formatNumClean(L)} mm`, '#0f172a', -9, 13)}
+        ${buildSVGDimension(xH1, 64, xTwistStart, 64, `a = ${formatNumClean(a)}`, '#0f172a', -8, 12)}
+        ${buildSVGDimension(xTwistEnd, 64, xH2, 64, `b = ${formatNumClean(b)}`, '#0f172a', -8, 12)}
+        ${buildSVGDimension(pX1, 172, pX2, 172, `P = ${formatNumClean(P)} mm`, '#0f172a', -9, 12.5)}
       `;
     }
 
@@ -1554,7 +1457,6 @@
       document.getElementById('tw-turns').textContent = (twistZone / P).toFixed(2) + ' vòng';
       document.getElementById('tw-extra').textContent = `+${extra.toFixed(2)} mm (+${extraPct.toFixed(2)}%)`;
 
-      // Cập nhật ngay lập tức lên bản vẽ kỹ thuật
       drawTwistCADCanvas();
     }
 
@@ -1592,7 +1494,7 @@
     }
 
     // =========================================================================
-    // 2. TÍNH QUẤN TAPE TRÒN (ĐƯỜNG XOẮN ỐC 2D)
+    // 2. TÍNH QUẤN TAPE TRÒN (ĐƯỜNG XOẮN ỐC 2D VECTOR SVG)
     // =========================================================================
     function syncCircleTapeFromD() {
       const D = parseFloat(document.getElementById('ct-D').value) || 0;
@@ -1618,38 +1520,34 @@
       document.getElementById('ct-r-out').textContent = rOut.toFixed(4) + ' mm';
       document.getElementById('ct-d-out').textContent = (rOut * 2).toFixed(4) + ' mm';
 
-      draw2DSpiralCanvas(r, T, n);
+      draw2DSpiralSVG(r, T, n);
     }
 
-    function draw2DSpiralCanvas(r, T, n) {
+    function draw2DSpiralSVG(r, T, n) {
       const svg = document.getElementById('svg-spiral-2d');
       if (!svg) return;
 
-      const w = 460;
-      const h = 340;
-      const cx = w / 2;
-      const cy = h / 2;
+      const w = 460, h = 340;
+      const cx = w / 2, cy = h / 2;
 
-      // Phóng đại trực quan bước tăng T để nhìn rõ các vòng xoắn như hình gốc
       const visualStep = Math.max(r * 0.35, T * 3.5);
       const maxR = r + Math.max(n, 2) * visualStep;
       const scale = Math.min(w, h) * 0.34 / maxR;
 
-      // Xây dựng đường xoắn ốc Archimedes bằng SVG path
-      const totalSteps = Math.max(200, Math.floor(n * 110));
+      const totalSteps = Math.max(200, Math.floor(n * 100));
       const maxTheta = n * 2 * Math.PI;
-      let spiralPathD = '';
+      let pathD = '';
       for (let i = 0; i <= totalSteps; i++) {
         const theta = (i / totalSteps) * maxTheta;
         const rad = (r + (visualStep / (2 * Math.PI)) * theta) * scale;
         const x = cx + rad * Math.cos(theta);
         const y = cy - rad * Math.sin(theta);
-        spiralPathD += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
+        pathD += (i === 0 ? 'M ' : ' L ') + x.toFixed(2) + ' ' + y.toFixed(2);
       }
 
-      // Xác định chính xác 2 vòng ngoài cùng trên tia -45 độ (1.75*pi) để đặt mũi tên T
+      // Tính chính xác vị trí mũi tên độ dày T giữa 2 vòng ngoài cùng
       const preferredPhi = 1.75 * Math.PI;
-      let theta1, theta2, phiRay;
+      let theta1 = null, theta2 = 0, phiRay = preferredPhi;
       let coreCircleSvg = '';
 
       if (maxTheta >= 2 * Math.PI + preferredPhi) {
@@ -1665,10 +1563,7 @@
         phiRay = maxTheta * 0.7;
         theta1 = null;
         theta2 = phiRay;
-        coreCircleSvg = `
-          <circle cx="${cx}" cy="${cy}" r="${(r * scale).toFixed(2)}"
-                  fill="none" stroke="#94a3b8" stroke-width="1.15" stroke-dasharray="3,3"/>
-        `;
+        coreCircleSvg = `<circle cx="${cx}" cy="${cy}" r="${(r * scale).toFixed(2)}" fill="none" stroke="#94a3b8" stroke-width="1.1" stroke-dasharray="3,3"/>`;
       }
 
       const r1Px = theta1 !== null
@@ -1683,71 +1578,40 @@
       const x2 = cx + r2Px * ux;
       const y2 = cy + r2Px * uy;
 
-      const gapPx = r2Px - r1Px;
-      const headLen = Math.min(5.8, gapPx * 0.38);
-      const nx = -uy;
-      const ny = ux;
-      let tArrowsSvg = '';
-      if (gapPx >= 7) {
-        const p1x = (x1 + ux * headLen + nx * (headLen * 0.55)).toFixed(2);
-        const p1y = (y1 + uy * headLen + ny * (headLen * 0.55)).toFixed(2);
-        const p2x = (x1 + ux * headLen - nx * (headLen * 0.55)).toFixed(2);
-        const p2y = (y1 + uy * headLen - ny * (headLen * 0.55)).toFixed(2);
-
-        const q1x = (x2 - ux * headLen + nx * (headLen * 0.55)).toFixed(2);
-        const q1y = (y2 - uy * headLen + ny * (headLen * 0.55)).toFixed(2);
-        const q2x = (x2 - ux * headLen - nx * (headLen * 0.55)).toFixed(2);
-        const q2y = (y2 - uy * headLen - ny * (headLen * 0.55)).toFixed(2);
-
-        tArrowsSvg = `
-          <polygon points="${x1.toFixed(2)},${y1.toFixed(2)} ${p1x},${p1y} ${p2x},${p2y}" fill="#dc2626"/>
-          <polygon points="${x2.toFixed(2)},${y2.toFixed(2)} ${q1x},${q1y} ${q2x},${q2y}" fill="#dc2626"/>
-        `;
-      }
-
       const leadX = cx + (r2Px + 12) * ux;
       const leadY = cy + (r2Px + 12) * uy;
-      const tAnchor = ux >= 0 ? 'start' : 'end';
-      const tx = leadX + (ux >= 0 ? 4 : -4);
+      const tx = leadX + (ux >= 0 ? 5 : -5);
       const ty = leadY + (uy >= 0 ? 4 : -2);
-      const tLabel = `T = ${formatNumClean(T, 3)} mm`;
+      const tAnchor = ux >= 0 ? 'start' : 'end';
 
       const rOutReal = r + n * T;
       const rEnd = (r + visualStep * n) * scale;
-      const rLabel = `r = ${formatNumClean(r, 4)}`;
-      const bLabel = `b = ${formatNumClean(rOutReal, 3)}`;
       const bx = Math.max(12, cx - rEnd - 64);
 
       svg.innerHTML = `
         <!-- Trục tọa độ -->
         <line x1="20" y1="${cy}" x2="${w - 20}" y2="${cy}" stroke="#334155" stroke-width="1.2"/>
         <line x1="${cx}" y1="16" x2="${cx}" y2="${h - 16}" stroke="#334155" stroke-width="1.2"/>
-
         ${coreCircleSvg}
 
-        <!-- Đường xoắn ốc Archimedes 2D -->
-        <path d="${spiralPathD}" fill="none" stroke="#0f172a" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"/>
+        <!-- Đường xoắn ốc Archimedes -->
+        <path d="${pathD}" fill="none" stroke="#0f172a" stroke-width="1.9" stroke-linecap="round"/>
 
-        <!-- Đo khoảng cách lớp T nằm khít giữa 2 vòng ngoài cùng -->
-        <line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${leadX.toFixed(2)}" y2="${leadY.toFixed(2)}"
-              stroke="#dc2626" stroke-width="1.5"/>
-        ${tArrowsSvg}
-        <text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" text-anchor="${tAnchor}"
-              font-size="12" font-weight="bold" fill="#dc2626"
-              stroke="#ffffff" stroke-width="3.5" paint-order="stroke">
-          ${tLabel}
+        <!-- Ký hiệu độ dày T nằm khít giữa 2 vòng xoắn -->
+        ${buildSVGDimension(x1, y1, x2, y2, '', '#dc2626', 0, 11)}
+        <line x1="${x2.toFixed(2)}" y1="${y2.toFixed(2)}" x2="${leadX.toFixed(2)}" y2="${leadY.toFixed(2)}" stroke="#dc2626" stroke-width="1.2"/>
+        <text x="${tx.toFixed(2)}" y="${ty.toFixed(2)}" text-anchor="${tAnchor}" font-size="12" font-weight="bold" fill="#dc2626" stroke="#ffffff" stroke-width="3" paint-order="stroke">
+          T = ${formatNumClean(T, 3)} mm
         </text>
 
-        <!-- Nhãn gốc 0, bán kính bắt đầu r, bán kính ngoài b và số vòng n -->
-        <text x="${cx + 5}" y="${cy + 16}" font-size="12.5" font-weight="bold" fill="#0f172a"
-              stroke="#ffffff" stroke-width="3.5" paint-order="stroke">0</text>
-
-        <text x="${(cx + r * scale + 5).toFixed(2)}" y="${cy + 16}" font-size="12.5" font-weight="bold" fill="#2563eb"
-              stroke="#ffffff" stroke-width="3.5" paint-order="stroke">${rLabel}</text>
-
-        <text x="${bx.toFixed(2)}" y="${cy - 8}" font-size="12.5" font-weight="bold" fill="#059669"
-              stroke="#ffffff" stroke-width="3.5" paint-order="stroke">${bLabel}</text>
-
+        <!-- Nhãn 0, r, b, n -->
+        <text x="${cx + 5}" y="${cy + 16}" font-size="12.5" font-weight="bold" fill="#0f172a" stroke="#ffffff" stroke-width="3" paint-order="stroke">0</text>
+        <text x="${(cx + r * scale + 5).toFixed(2)}" y="${cy + 16}" font-size="12.5" font-weight="bold" fill="#2563eb" stroke="#ffffff" stroke-width="3.5" paint-order="stroke">
+          r = ${formatNumClean(r, 4)}
+        </text>
+        <text x="${bx.toFixed(2)}" y="${cy - 8}" font-size="12.5" font-weight="bold" fill="#059669" stroke="#ffffff" stroke-width="3.5" paint-order="stroke">
+          b = ${formatNumClean(rOutReal, 3)}
+        </text>
         <text x="18" y="26" font-size="12.5" font-weight="bold" fill="#0f172a">
           Số vòng n = ${formatNumClean(n, 2)} vòng
         </text>
@@ -1755,61 +1619,39 @@
     }
 
     // =========================================================================
-    // 3. TÍNH QUẤN TAPE CHÉO (3D + KHÓA TRÒN 2 ĐẦU) & 2 HÌNH VECTOR SVG ĐỘNG
+    // 3. TÍNH QUẤN TAPE CHÉO (3D + KHÓA TRÒN 2 ĐẦU) & VẼ MINH HOẠ ĐỘNG
     // =========================================================================
     function updateStepFromOverlap() {
-      const b = Math.max(0.1, parseFloat(document.getElementById('st-b').value) || 19);
-      const overlap = parseFloat(document.getElementById('st-overlap').value) || 0;
-      const h = Math.max(0.1, b * (1 - overlap / 100));
+      const b = Math.max(0.5, parseFloat(document.getElementById('st-b').value) || 19);
+      const overlapPct = parseFloat(document.getElementById('st-overlap').value) || 0;
+      const h = Math.max(0.2, b * (1 - overlapPct / 100));
       document.getElementById('st-h').value = parseFloat(h.toFixed(4));
-      document.getElementById('st-h-badge').textContent = h.toFixed(2);
+      document.getElementById('st-h-badge').textContent = formatNumClean(h, 2);
       calculateSpiralTape();
     }
 
     function updateOverlapFromStep() {
-      const b = Math.max(0.1, parseFloat(document.getElementById('st-b').value) || 19);
-      const h = Math.max(0.1, parseFloat(document.getElementById('st-h').value) || 9.5);
-      const overlap = ((b - h) / b) * 100;
-      document.getElementById('st-overlap').value = parseFloat(overlap.toFixed(1));
-      document.getElementById('st-h-badge').textContent = h.toFixed(2);
+      const b = Math.max(0.5, parseFloat(document.getElementById('st-b').value) || 19);
+      const h = Math.max(0.2, parseFloat(document.getElementById('st-h').value) || 9.5);
+      const overlapPct = ((b - h) / b) * 100;
+      document.getElementById('st-overlap').value = parseFloat(overlapPct.toFixed(2));
+      document.getElementById('st-h-badge').textContent = formatNumClean(h, 2);
       calculateSpiralTape();
     }
 
     function calculateSpiralTape() {
-      const b = Math.max(0.1, parseFloat(document.getElementById('st-b').value) || 19);
-      const T = Math.max(0.001, parseFloat(document.getElementById('st-T').value) || 0.25);
-      const h = Math.max(0.1, parseFloat(document.getElementById('st-h').value) || 9.5);
+      const b = Math.max(0.1, parseFloat(document.getElementById('st-b').value) || 0);
+      const T = Math.max(0.001, parseFloat(document.getElementById('st-T').value) || 0);
+      const h = Math.max(0.1, parseFloat(document.getElementById('st-h').value) || 1);
       const n1 = parseFloat(document.getElementById('st-n1').value) || 0;
       const n2 = parseFloat(document.getElementById('st-n2').value) || 0;
-      const D = Math.max(0.1, parseFloat(document.getElementById('st-D').value) || 2.5);
-      const c = Math.max(0, parseFloat(document.getElementById('st-c').value) || 161);
+      const D = Math.max(0.1, parseFloat(document.getElementById('st-D').value) || 0);
+      const c = Math.max(0, parseFloat(document.getElementById('st-c').value) || 0);
 
       const warnEl = document.getElementById('st-warning');
       if (warnEl) {
         if (n1 <= 0 || n2 <= 0) warnEl.classList.remove('hidden');
         else warnEl.classList.add('hidden');
-      }
-
-      const overlapPct = ((b - h) / b) * 100;
-      const overlapWidth = b - h;
-      document.getElementById('st-h-badge').textContent = h.toFixed(2);
-
-      const modeTag = document.getElementById('st-overlap-mode-tag');
-      const descEl = document.getElementById('st-overlap-desc');
-      if (modeTag && descEl) {
-        if (overlapPct > 0.05) {
-          modeTag.textContent = `Chồng mí ${formatNumClean(overlapPct, 1)}%`;
-          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200';
-          descEl.innerHTML = `Độ rộng chồng mí thực tế: <strong class="text-red-600">${formatNumClean(overlapWidth, 2)} mm</strong> (${formatNumClean(overlapPct, 1)}%) trên bản băng keo rộng <strong class="text-slate-700">${formatNumClean(b, 2)} mm</strong>.`;
-        } else if (Math.abs(overlapPct) <= 0.05) {
-          modeTag.textContent = 'Quấn sát mép (0%)';
-          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200';
-          descEl.innerHTML = `Các vòng băng keo xếp <strong>sát mép nhau</strong> (<i>h</i> = <i>b</i> = <strong>${formatNumClean(b, 2)} mm</strong>).`;
-        } else {
-          modeTag.textContent = `Quấn hở (h > b)`;
-          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300';
-          descEl.innerHTML = `Quấn hở cách khoảng: khoảng hở giữa 2 vòng liên tiếp là <strong class="text-amber-700">${formatNumClean(h - b, 2)} mm</strong>.`;
-        }
       }
 
       const radiusR = D / 2;
@@ -1825,201 +1667,257 @@
       document.getElementById('st-len-end1').textContent = lenEnd1.toFixed(2) + ' mm';
       document.getElementById('st-len-mid').textContent = lenMid.toFixed(2) + ' mm';
       document.getElementById('st-len-end2').textContent = lenEnd2.toFixed(2) + ' mm';
+      document.getElementById('st-h-badge').textContent = formatNumClean(h, 2);
 
-      drawSpiralTapeSVGs(b, T, h, n1, n2, D, c, overlapPct);
-    }
+      const overlapPct = ((b - h) / b) * 100;
+      const overlapMm = b - h;
+      const modeTag = document.getElementById('st-overlap-mode-tag');
+      const descEl = document.getElementById('st-overlap-desc');
 
-    function drawSpiralTapeSVGs(b, T, h, n1, n2, D, c, overlapPct) {
-      const mainSvg = document.getElementById('svg-spiral-tape');
-      const overlapSvg = document.getElementById('svg-overlap-dynamic');
-      if (!mainSvg || !overlapSvg) return;
-
-      const ratioHB = Math.max(0.12, Math.min(2.2, h / b));
-
-      // =====================================================================
-      // HÌNH 1: SƠ ĐỒ TỔNG THỂ QUẤN TAPE CHÉO (#svg-spiral-tape)
-      // =====================================================================
-      const yTop = 74;
-      const yBot = 136;
-      const bundleX1 = 76;
-      const bundleX2 = 636;
-
-      const xWrapStart = 108;
-      const xWrapEnd = 594;
-      const bPx = 56; // Độ rộng chuẩn cho cả Đầu 1, Đầu 2 và mỗi vòng băng keo chéo
-      const hPx = Math.max(10, Math.min(115, bPx * ratioHB));
-      const slantPx = 28;
-
-      const xSpiralStart = xWrapStart + bPx;
-      const xSpiralEnd = xWrapEnd - bPx;
-
-      let spiralStripsSvg = '';
-      let backDashedSvg = '';
-
-      // Vẽ các vòng băng keo chéo trong vùng clip giữa Đầu 1 và Đầu 2
-      const numTurns = Math.ceil((xSpiralEnd - xSpiralStart + slantPx * 2) / hPx) + 2;
-      for (let k = -1; k < numTurns; k++) {
-        const xTL = xSpiralStart + k * hPx;
-        const xTR = xTL + bPx;
-        const xBL = xTL - slantPx;
-        const xBR = xTR - slantPx;
-
-        // Nét đứt mặt khuất phía sau
-        backDashedSvg += `
-          <line x1="${xTR.toFixed(2)}" y1="${yTop}" x2="${(xBL + hPx).toFixed(2)}" y2="${yBot}"
-                stroke="#dc2626" stroke-width="1.1" stroke-dasharray="4,3" opacity="0.55"/>
-        `;
-
-        if (ratioHB < 0.999) {
-          // Trường hợp quấn chồng mí (h < b): phần lộ trắng rộng hPx bên trái + dải chồng mí đỏ rộng (bPx - hPx) bên phải
-          const xOverlapTL = xTL + hPx;
-          const xOverlapBL = xBL + hPx;
-          spiralStripsSvg += `
-            <polygon points="${xBL.toFixed(2)},${yBot} ${xTL.toFixed(2)},${yTop} ${xOverlapTL.toFixed(2)},${yTop} ${xOverlapBL.toFixed(2)},${yBot}"
-                     fill="#ffffff" stroke="#dc2626" stroke-width="1.35" stroke-linejoin="round"/>
-            <polygon points="${xOverlapBL.toFixed(2)},${yBot} ${xOverlapTL.toFixed(2)},${yTop} ${xTR.toFixed(2)},${yTop} ${xBR.toFixed(2)},${yBot}"
-                     fill="#ef4444" fill-opacity="0.88" stroke="#b91c1c" stroke-width="1.35" stroke-linejoin="round"/>
-          `;
+      if (modeTag && descEl) {
+        if (overlapMm > 0.001) {
+          modeTag.textContent = `Chồng mí ${formatNumClean(overlapPct, 1)}%`;
+          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200';
+          descEl.innerHTML = `Độ rộng chồng mí thực tế: <strong class="text-red-600">${formatNumClean(overlapMm, 2)} mm</strong> (${formatNumClean(overlapPct, 1)}%) trên bản băng keo rộng <strong class="text-slate-700">${formatNumClean(b, 2)} mm</strong>.`;
+        } else if (Math.abs(overlapMm) <= 0.001) {
+          modeTag.textContent = 'Quấn sát mép (0%)';
+          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200';
+          descEl.innerHTML = `Quấn sát mép không chồng mí (<i>h</i> = <i>b</i> = <strong>${formatNumClean(b, 2)} mm</strong>).`;
         } else {
-          // Trường hợp quấn sát mép (h = b) hoặc quấn hở (h > b)
-          spiralStripsSvg += `
-            <polygon points="${xBL.toFixed(2)},${yBot} ${xTL.toFixed(2)},${yTop} ${xTR.toFixed(2)},${yTop} ${xBR.toFixed(2)},${yBot}"
-                     fill="#ffffff" stroke="#dc2626" stroke-width="1.4" stroke-linejoin="round"/>
-          `;
+          modeTag.textContent = `Quấn hở (h > b)`;
+          modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300';
+          descEl.innerHTML = `Quấn cách quãng hở: khoảng trống giữa 2 vòng liên tiếp là <strong class="text-amber-700">${formatNumClean(h - b, 2)} mm</strong>.`;
         }
       }
 
-      // Vị trí đo kích thước bước tiến h (từ mép trái vòng thứ 1 đến mép trái vòng thứ 2)
-      const hDimX1 = xSpiralStart + hPx;
-      const hDimX2 = hDimX1 + hPx;
-      const hDimY = 30;
+      drawSpiralTapeDiagrams(b, h, n1, n2, D, c);
+    }
 
-      const dimDSvg = buildSVGDimension(44, yTop, 44, yBot, '', '#dc2626', 0, 12);
-      const dimHSvg = buildSVGDimension(hDimX1, hDimY, hDimX2, hDimY, `h = ${formatNumClean(h, 2)} mm`, '#dc2626', -10, 12.5);
-      const dimBSvg = buildSVGDimension(xWrapStart, 168, xWrapStart + bPx, 168, `b = ${formatNumClean(b, 1)}`, '#dc2626', -8, 12);
-      const dimCSvg = buildSVGDimension(xWrapStart, 204, xWrapEnd, 204, `c = ${formatNumClean(c, 1)} mm`, '#dc2626', -9, 13);
+    function drawSpiralTapeDiagrams(b, h, n1, n2, D, c) {
+      const svgMain = document.getElementById('svg-spiral-tape');
+      const svgOverlap = document.getElementById('svg-overlap-dynamic');
+      if (!svgMain || !svgOverlap) return;
 
-      mainSvg.innerHTML = `
+      const ratioHB = Math.max(0.15, Math.min(2.2, h / Math.max(0.1, b)));
+      const overlapPct = ((b - h) / Math.max(0.1, b)) * 100;
+
+      // =======================================================================
+      // A. VẼ HÌNH CHÍNH (#svg-spiral-tape) ĐỒNG NHẤT TỶ LỆ b VÀ h
+      // =======================================================================
+      const yTop = 68;
+      const yBot = 132;
+      const bundleH = yBot - yTop;
+      const xBundleL = 78;
+      const xBundleR = 620;
+
+      // Bề rộng chuẩn trên hình của 1 bản băng keo bPx = 56px
+      const bPx = 56;
+      const hPx = Math.max(12, Math.min(115, bPx * ratioHB));
+      const overlapPx = Math.max(0, bPx - hPx);
+      const slant = 28; // Độ nghiêng mép băng keo quấn chéo
+
+      const xEnd1L = 112;
+      const xEnd1R = xEnd1L + bPx;
+      const xEnd2R = 568;
+      const xEnd2L = xEnd2R - bPx;
+
+      let spiralStripsSvg = '';
+      const xMidStart = xEnd1R;
+      const xMidEnd = xEnd2L;
+
+      // Vẽ các dải băng keo quấn chéo nằm trong vùng giữa (clip-path giữ gọn trong thân bó dây)
+      const stripPositions = [];
+      for (let x = xMidStart - slant; x < xMidEnd + bPx; x += hPx) {
+        stripPositions.push(x);
+      }
+
+      stripPositions.forEach((xL, idx) => {
+        // Hình bình hành của vòng băng keo thứ idx:
+        // Đỉnh trên: từ xL + slant đến xL + slant + bPx
+        // Đỉnh dưới: từ xL đến xL + bPx
+        const topL = xL + slant;
+        const topR = topL + bPx;
+        const botL = xL;
+        const botR = botL + bPx;
+
+        // Phần nền trắng của vòng băng keo
+        spiralStripsSvg += `
+          <polygon points="${botL},${yBot} ${topL},${yTop} ${topR},${yTop} ${botR},${yBot}"
+                   fill="#ffffff" stroke="#dc2626" stroke-width="1.35"/>
+        `;
+
+        // Nét đứt mặt khuất phía sau bó dây
+        spiralStripsSvg += `
+          <line x1="${topL}" y1="${yTop}" x2="${botR}" y2="${yBot}"
+                stroke="#fca5a5" stroke-width="1" stroke-dasharray="4,3"/>
+        `;
+
+        // Nếu có chồng mí (overlapPx > 0) và có vòng kế tiếp đè lên phía bên phải của vòng này:
+        // Dải chồng mí nằm từ (topR - overlapPx) đến topR (tức là bắt đầu đúng từ vị trí xL + hPx của vòng kế tiếp!)
+        if (overlapPx > 0.5 && idx < stripPositions.length - 1) {
+          const ovTopL = topL + hPx;
+          const ovTopR = topR;
+          const ovBotL = botL + hPx;
+          const ovBotR = botR;
+          spiralStripsSvg += `
+            <polygon points="${ovBotL},${yBot} ${ovTopL},${yTop} ${ovTopR},${yTop} ${ovBotR},${yBot}"
+                     fill="#ef4444" fill-opacity="0.88" stroke="#dc2626" stroke-width="1.2"/>
+          `;
+        }
+      });
+
+      // Chọn vòng tiêu biểu ở giữa để gióng kích thước bước tiến h (từ mép trái vòng i đến mép trái vòng i+1)
+      const MeasureIdx = stripPositions.length > 2 ? 1 : 0;
+      const hMeasureX1 = Math.max(xEnd1R + 4, stripPositions[MeasureIdx] + slant);
+      const hMeasureX2 = hMeasureX1 + hPx;
+
+      svgMain.innerHTML = `
         <defs>
-          <clipPath id="clip-spiral-mid">
-            <rect x="${xSpiralStart}" y="${yTop}" width="${xSpiralEnd - xSpiralStart}" height="${yBot - yTop}"/>
+          <clipPath id="clip-mid-spiral">
+            <rect x="${xEnd1R}" y="${yTop}" width="${xEnd2L - xEnd1R}" height="${bundleH}"/>
           </clipPath>
         </defs>
 
-        <!-- Ký hiệu mặt cắt 2 đầu bó dây -->
-        <path d="M ${bundleX1} ${yTop} Q ${bundleX1 - 12} ${(yTop + yBot) / 2 - 15} ${bundleX1} ${(yTop + yBot) / 2} Q ${bundleX1 + 12} ${(yTop + yBot) / 2 + 15} ${bundleX1} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
-        <path d="M ${bundleX2} ${yTop} Q ${bundleX2 - 12} ${(yTop + yBot) / 2 - 15} ${bundleX2} ${(yTop + yBot) / 2} Q ${bundleX2 + 12} ${(yTop + yBot) / 2 + 15} ${bundleX2} ${yBot}"
-              fill="none" stroke="#0f172a" stroke-width="1.6"/>
-
-        <!-- Thân bó dây nền xám nhạt để phân biệt rõ với băng keo màu trắng -->
-        <rect x="${bundleX1}" y="${yTop}" width="${bundleX2 - bundleX1}" height="${yBot - yTop}"
-              fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
-
-        <!-- Vùng quấn chéo ở giữa -->
-        <g clip-path="url(#clip-spiral-mid)">
-          ${backDashedSvg}
-          ${spiralStripsSvg}
-        </g>
-
-        <!-- Viền trên & dưới của bó dây -->
-        <line x1="${bundleX1}" y1="${yTop}" x2="${bundleX2}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
-        <line x1="${bundleX1}" y1="${yBot}" x2="${bundleX2}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
-
-        <!-- Khóa tròn Đầu 1 và Đầu 2 -->
-        <rect x="${xWrapStart}" y="${yTop - 2}" width="${bPx}" height="${yBot - yTop + 4}"
-              fill="#fee2e2" stroke="#dc2626" stroke-width="1.8" rx="1"/>
-        <text x="${xWrapStart + bPx / 2}" y="${yTop - 10}" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">
-          Đầu 1 (${formatNumClean(n1, 1)} vòng)
-        </text>
-
-        <rect x="${xWrapEnd - bPx}" y="${yTop - 2}" width="${bPx}" height="${yBot - yTop + 4}"
-              fill="#fee2e2" stroke="#dc2626" stroke-width="1.8" rx="1"/>
-        <text x="${xWrapEnd - bPx / 2}" y="${yTop - 10}" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">
-          Đầu 2 (${formatNumClean(n2, 1)} vòng)
-        </text>
-
-        <!-- Kích thước đường kính bó dây D -->
-        <line x1="34" y1="${yTop}" x2="${bundleX1 - 4}" y2="${yTop}" stroke="#dc2626" stroke-width="1.15"/>
-        <line x1="34" y1="${yBot}" x2="${bundleX1 - 4}" y2="${yBot}" stroke="#dc2626" stroke-width="1.15"/>
-        ${dimDSvg}
-        <text x="44" y="${yTop - 8}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
+        <!-- Kích thước đường kính bó dây D bên trái -->
+        <line x1="26" y1="${yTop}" x2="${xBundleL}" y2="${yTop}" stroke="#dc2626" stroke-width="1.1"/>
+        <line x1="26" y1="${yBot}" x2="${xBundleL}" y2="${yBot}" stroke="#dc2626" stroke-width="1.1"/>
+        <line x1="42" y1="${yTop}" x2="42" y2="${yBot}" stroke="#dc2626" stroke-width="1.5"/>
+        <polygon points="42,${yTop} 38.5,${yTop + 8} 45.5,${yTop + 8}" fill="#dc2626"/>
+        <polygon points="42,${yBot} 38.5,${yBot - 8} 45.5,${yBot - 8}" fill="#dc2626"/>
+        <text x="42" y="${yTop - 10}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
           D = ${formatNumClean(D, 2)}
         </text>
 
-        <!-- Kích thước bước quấn h -->
-        <line x1="${hDimX1.toFixed(2)}" y1="22" x2="${hDimX1.toFixed(2)}" y2="${yTop + 14}" stroke="#dc2626" stroke-width="1.2"/>
-        <line x1="${hDimX2.toFixed(2)}" y1="22" x2="${hDimX2.toFixed(2)}" y2="${yTop + 14}" stroke="#dc2626" stroke-width="1.2"/>
-        ${dimHSvg}
+        <!-- Thân bó dây nền xám nhạt để phân biệt rõ với băng keo màu trắng -->
+        <rect x="${xBundleL}" y="${yTop}" width="${xBundleR - xBundleL}" height="${bundleH}"
+              fill="#e2e8f0" stroke="#0f172a" stroke-width="1.5"/>
 
-        <!-- Kích thước bề rộng tape b -->
-        <line x1="${xWrapStart}" y1="${yBot + 2}" x2="${xWrapStart}" y2="178" stroke="#dc2626" stroke-width="1.15"/>
-        <line x1="${xWrapStart + bPx}" y1="${yBot + 2}" x2="${xWrapStart + bPx}" y2="178" stroke="#dc2626" stroke-width="1.15"/>
-        ${dimBSvg}
+        <!-- Ký hiệu cắt sóng 2 đầu bó dây -->
+        <path d="M ${xBundleL} ${yTop} Q ${xBundleL - 9} ${yTop + bundleH * 0.25} ${xBundleL} ${yTop + bundleH * 0.5} Q ${xBundleL + 9} ${yTop + bundleH * 0.75} ${xBundleL} ${yBot}"
+              fill="none" stroke="#0f172a" stroke-width="1.6"/>
+        <path d="M ${xBundleR} ${yTop} Q ${xBundleR - 9} ${yTop + bundleH * 0.25} ${xBundleR} ${yTop + bundleH * 0.5} Q ${xBundleR + 9} ${yTop + bundleH * 0.75} ${xBundleR} ${yBot}"
+              fill="none" stroke="#0f172a" stroke-width="1.6"/>
 
-        <!-- Kích thước tổng chiều dài quấn c -->
-        <line x1="${xWrapStart}" y1="178" x2="${xWrapStart}" y2="214" stroke="#dc2626" stroke-width="1.15"/>
-        <line x1="${xWrapEnd}" y1="${yBot + 2}" x2="${xWrapEnd}" y2="214" stroke="#dc2626" stroke-width="1.15"/>
-        ${dimCSvg}
+        <!-- Các vòng băng keo quấn chéo ở giữa (Clip gọn trong vùng giữa 2 đầu) -->
+        <g clip-path="url(#clip-mid-spiral)">
+          ${spiralStripsSvg}
+        </g>
+
+        <!-- Viền trên & dưới của thân bó dây -->
+        <line x1="${xBundleL}" y1="${yTop}" x2="${xBundleR}" y2="${yTop}" stroke="#0f172a" stroke-width="1.5"/>
+        <line x1="${xBundleL}" y1="${yBot}" x2="${xBundleR}" y2="${yBot}" stroke="#0f172a" stroke-width="1.5"/>
+
+        <!-- Quấn tròn khóa Đầu 1 -->
+        <text x="${(xEnd1L + xEnd1R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
+          Đầu 1 (${formatNumClean(n1, 1)} vòng)
+        </text>
+        <rect x="${xEnd1L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
+              fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+
+        <!-- Quấn tròn khóa Đầu 2 -->
+        <text x="${(xEnd2L + xEnd2R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
+          Đầu 2 (${formatNumClean(n2, 1)} vòng)
+        </text>
+        <rect x="${xEnd2L}" y="${yTop - 2}" width="${bPx}" height="${bundleH + 4}"
+              fill="#fee2e2" stroke="#dc2626" stroke-width="1.6"/>
+
+        <!-- Kích thước bước tiến h (gióng từ góc trên trái vòng 1 đến góc trên trái vòng 2 = đúng bề rộng phần trắng) -->
+        <line x1="${hMeasureX1}" y1="22" x2="${hMeasureX1}" y2="${yTop}" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${hMeasureX2}" y1="22" x2="${hMeasureX2}" y2="${yTop}" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${hMeasureX1}" y1="30" x2="${hMeasureX2}" y2="30" stroke="#dc2626" stroke-width="1.5"/>
+        <polygon points="${hMeasureX1},30 ${hMeasureX1 + 7},26.8 ${hMeasureX1 + 7},33.2" fill="#dc2626"/>
+        <polygon points="${hMeasureX2},30 ${hMeasureX2 - 7},26.8 ${hMeasureX2 - 7},33.2" fill="#dc2626"/>
+        <text x="${(hMeasureX1 + hMeasureX2) / 2}" y="18" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
+          h = ${formatNumClean(h, 2)} mm
+        </text>
+
+        <!-- Kích thước bề rộng tape b ở Đầu 1 -->
+        <line x1="${xEnd1L}" y1="${yBot + 3}" x2="${xEnd1L}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd1R}" y1="${yBot + 3}" x2="${xEnd1R}" y2="176" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd1L - 14}" y1="166" x2="${xEnd1R + 14}" y2="166" stroke="#dc2626" stroke-width="1.4"/>
+        <polygon points="${xEnd1L},166 ${xEnd1L - 7},162.8 ${xEnd1L - 7},169.2" fill="#dc2626"/>
+        <polygon points="${xEnd1R},166 ${xEnd1R + 7},162.8 ${xEnd1R + 7},169.2" fill="#dc2626"/>
+        <text x="${(xEnd1L + xEnd1R) / 2}" y="159" text-anchor="middle" font-size="12" font-weight="bold" fill="#dc2626">
+          b = ${formatNumClean(b, 1)}
+        </text>
+
+        <!-- Kích thước tổng chiều dài sau quấn c -->
+        <line x1="${xEnd1L}" y1="176" x2="${xEnd1L}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd2R}" y1="${yBot + 3}" x2="${xEnd2R}" y2="215" stroke="#dc2626" stroke-width="1.2"/>
+        <line x1="${xEnd1L}" y1="205" x2="${xEnd2R}" y2="205" stroke="#dc2626" stroke-width="1.5"/>
+        <polygon points="${xEnd1L},205 ${xEnd1L + 8},201.8 ${xEnd1L + 8},208.2" fill="#dc2626"/>
+        <polygon points="${xEnd2R},205 ${xEnd2R - 8},201.8 ${xEnd2R - 8},208.2" fill="#dc2626"/>
+        <text x="${(xEnd1L + xEnd2R) / 2}" y="197" text-anchor="middle" font-size="13" font-weight="bold" fill="#dc2626">
+          c = ${formatNumClean(c, 1)} mm
+        </text>
       `;
 
-      // =====================================================================
-      // HÌNH 2: PHÓNG TO CHI TIẾT OVERLAP 2 VÒNG LIÊN TIẾP (#svg-overlap-dynamic)
-      // =====================================================================
-      const ovTop = 42;
-      const ovBot = 98;
-      const ovSlant = 30;
-      const ovB = 96;
-      const ovH = Math.max(16, Math.min(145, ovB * ratioHB));
+      // =======================================================================
+      // B. VẼ HÌNH PHÓNG TO OVERLAP (#svg-overlap-dynamic) ĐỒNG NHẤT 100% VỚI HÌNH CHÍNH
+      // =======================================================================
+      const ovTopY = 38;
+      const ovBotY = 98;
+      const ovSlant = 28;
+      // Tự động co giãn để cả 2 vòng băng keo (rộng b + h) luôn nằm gọn trong khung 300px
+      const totalSpanUnits = 1 + ratioHB;
+      const bSubPx = Math.min(115, Math.max(58, 195 / totalSpanUnits));
+      const hSubPx = bSubPx * ratioHB;
+      const ovSubPx = Math.max(0, bSubPx - hSubPx);
 
-      const x1TL = 58;
-      const x1TR = x1TL + ovB;
-      const x1BL = x1TL - ovSlant;
-      const x1BR = x1TR - ovSlant;
+      const x0 = 22; // Đáy trái của vòng tape 1
+      const s1BotL = x0;
+      const s1BotR = x0 + bSubPx;
+      const s1TopL = x0 + ovSlant;
+      const s1TopR = s1TopL + bSubPx;
 
-      const x2TL = x1TL + ovH;
-      const x2TR = x2TL + ovB;
-      const x2BL = x2TL - ovSlant;
-      const x2BR = x2TR - ovSlant;
+      const s2BotL = x0 + hSubPx;
+      const s2BotR = s2BotL + bSubPx;
+      const s2TopL = s1TopL + hSubPx;
+      const s2TopR = s2TopL + bSubPx;
 
-      let overlapZoneSvg = '';
-      if (ovH < ovB - 0.5) {
-        const midX = (x2TL + x1TR - ovSlant) / 2;
-        const midY = (ovTop + ovBot) / 2 + 4;
-        overlapZoneSvg = `
-          <polygon points="${x2BL.toFixed(2)},${ovBot} ${x2TL.toFixed(2)},${ovTop} ${x1TR.toFixed(2)},${ovTop} ${x1BR.toFixed(2)},${ovBot}"
-                   fill="#ef4444" stroke="#b91c1c" stroke-width="1.5" stroke-linejoin="round"/>
-          <text x="${midX.toFixed(2)}" y="${midY.toFixed(2)}" text-anchor="middle"
-                font-size="11.5" font-weight="bold" fill="#ffffff">
+      let intersectionSvg = '';
+      if (ovSubPx > 0.5) {
+        intersectionSvg = `
+          <polygon points="${s2BotL},${ovBotY} ${s2TopL},${ovTopY} ${s1TopR},${ovTopY} ${s1BotR},${ovBotY}"
+                   fill="#ef4444" stroke="#dc2626" stroke-width="1.3"/>
+          <text x="${(s2BotL + s1TopR) / 2}" y="${(ovTopY + ovBotY) / 2 + 4}"
+                text-anchor="middle" font-size="11.5" font-weight="bold" fill="#ffffff">
             ${formatNumClean(overlapPct, 0)}%
           </text>
         `;
       }
 
-      const ovDimHSvg = buildSVGDimension(x1TL, 22, x2TL, 22, `h = ${formatNumClean(h, 2)}`, '#dc2626', -8, 11.5);
-      const ovDimBSvg = buildSVGDimension(x1BL, 116, x1BR, 116, `b = ${formatNumClean(b, 1)}`, '#0f172a', 13, 11.5);
+      svgOverlap.innerHTML = `
+        <!-- Vòng băng keo 1 (Bên trái - phần không bị đè có nền trắng) -->
+        <polygon points="${s1BotL},${ovBotY} ${s1TopL},${ovTopY} ${s1TopR},${ovTopY} ${s1BotR},${ovBotY}"
+                 fill="#ffffff" stroke="#334155" stroke-width="1.35"/>
 
-      overlapSvg.innerHTML = `
-        <!-- Vòng tape thứ 1 -->
-        <polygon points="${x1BL.toFixed(2)},${ovBot} ${x1TL.toFixed(2)},${ovTop} ${x1TR.toFixed(2)},${ovTop} ${x1BR.toFixed(2)},${ovBot}"
-                 fill="#ffffff" stroke="#334155" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- Vòng băng keo 2 (Dịch sang phải một đoạn đúng bằng h) -->
+        <polygon points="${s2BotL},${ovBotY} ${s2TopL},${ovTopY} ${s2TopR},${ovTopY} ${s2BotR},${ovBotY}"
+                 fill="#fff1f2" fill-opacity="0.55" stroke="#dc2626" stroke-width="1.35"/>
 
-        <!-- Vòng tape thứ 2 dịch đi một bước h -->
-        <polygon points="${x2BL.toFixed(2)},${ovBot} ${x2TL.toFixed(2)},${ovTop} ${x2TR.toFixed(2)},${ovTop} ${x2BR.toFixed(2)},${ovBot}"
-                 fill="#fff1f2" fill-opacity="0.65" stroke="#dc2626" stroke-width="1.5" stroke-linejoin="round"/>
+        <!-- Phần diện tích chồng mí màu đỏ (nằm giữa s2Left và s1Right) -->
+        ${intersectionSvg}
 
-        <!-- Phần diện tích chồng mí màu đỏ -->
-        ${overlapZoneSvg}
+        <!-- Kích thước bước tiến h ở phía trên (từ góc trên trái vòng 1 đến góc trên trái vòng 2) -->
+        <line x1="${s1TopL}" y1="14" x2="${s1TopL}" y2="${ovTopY}" stroke="#dc2626" stroke-width="1.15"/>
+        <line x1="${s2TopL}" y1="14" x2="${s2TopL}" y2="${ovTopY}" stroke="#dc2626" stroke-width="1.15"/>
+        <line x1="${s1TopL}" y1="21" x2="${s2TopL}" y2="21" stroke="#dc2626" stroke-width="1.4"/>
+        <polygon points="${s1TopL},21 ${s1TopL + 6},18.2 ${s1TopL + 6},23.8" fill="#dc2626"/>
+        <polygon points="${s2TopL},21 ${s2TopL - 6},18.2 ${s2TopL - 6},23.8" fill="#dc2626"/>
+        <text x="${(s1TopL + s2TopL) / 2}" y="12" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#dc2626">
+          h = ${formatNumClean(h, 2)}
+        </text>
 
-        <!-- Đường gióng & kích thước bước h ở cạnh trên -->
-        <line x1="${x1TL.toFixed(2)}" y1="14" x2="${x1TL.toFixed(2)}" y2="${ovTop}" stroke="#dc2626" stroke-width="1.2"/>
-        <line x1="${x2TL.toFixed(2)}" y1="14" x2="${x2TL.toFixed(2)}" y2="${ovTop}" stroke="#dc2626" stroke-width="1.2"/>
-        ${ovDimHSvg}
-
-        <!-- Đường gióng & kích thước bề rộng b ở cạnh dưới -->
-        <line x1="${x1BL.toFixed(2)}" y1="${ovBot}" x2="${x1BL.toFixed(2)}" y2="122" stroke="#0f172a" stroke-width="1.15"/>
-        <line x1="${x1BR.toFixed(2)}" y1="${ovBot}" x2="${x1BR.toFixed(2)}" y2="122" stroke="#0f172a" stroke-width="1.15"/>
-        ${ovDimBSvg}
+        <!-- Kích thước bề rộng băng keo b ở phía dưới (toàn bộ bề rộng vòng 1) -->
+        <line x1="${s1BotL}" y1="${ovBotY}" x2="${s1BotL}" y2="122" stroke="#0f172a" stroke-width="1.15"/>
+        <line x1="${s1BotR}" y1="${ovBotY}" x2="${s1BotR}" y2="122" stroke="#0f172a" stroke-width="1.15"/>
+        <line x1="${s1BotL}" y1="114" x2="${s1BotR}" y2="114" stroke="#0f172a" stroke-width="1.35"/>
+        <polygon points="${s1BotL},114 ${s1BotL + 6},111.2 ${s1BotL + 6},116.8" fill="#0f172a"/>
+        <polygon points="${s1BotR},114 ${s1BotR - 6},111.2 ${s1BotR - 6},116.8" fill="#0f172a"/>
+        <text x="${(s1BotL + s1BotR) / 2}" y="129" text-anchor="middle" font-size="11.5" font-weight="bold" fill="#0f172a">
+          b = ${formatNumClean(b, 1)}
+        </text>
       `;
     }
 
