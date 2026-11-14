@@ -781,7 +781,7 @@
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3.5">
           <div class="flex items-center justify-between gap-2 border-b pb-2.5">
             <h2 class="font-bold text-slate-800 text-base">Mặt Cắt &amp; Đường Kính Bó Dây</h2>
-            <span id="bd-busy" class="hidden items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-3 py-1 shrink-0">
+            <span id="bd-busy" class="inline-flex invisible items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-3 py-1 shrink-0">
               <svg class="bd-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c7d2fe" stroke-width="3.5"/><path d="M21 12a9 9 0 0 0-9-9" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round"/></svg>
               <span id="bd-busy-text">Đang tính…</span>
             </span>
@@ -1559,7 +1559,7 @@
       const xTwistStart = 152;
       const xTwistEnd = 638;
       const xH2 = 712;
-      const mainPitch = 53.6;
+      const mainPitch = 80; // bước sóng VẼ thưa (chỉ là minh họa) để sóng không đè lên nhãn P
       const mainAmp = 9;
       const mainWireW = numWires <= 3 ? 7 : Math.max(4.2, 15 / numWires);
 
@@ -2486,6 +2486,14 @@
         }
       }
       scheduleBundleGeometry();
+      // Tổng số sợi + tổng tiết diện là phép tính nhẹ: cập nhật NGAY để số liệu phản hồi tức thì.
+      // Phần xếp hình nặng (đường kính bó, mặt cắt) chạy ở luồng phụ và cập nhật sau, trang không khựng.
+      let fastWires = 0, fastArea = 0;
+      wireGroups.forEach(g => { fastWires += g.qty; fastArea += g.qty * Math.PI * Math.pow(g.d / 2, 2); });
+      const fwEl = document.getElementById('bd-total-wires');
+      if (fwEl) fwEl.textContent = fastWires + ' sợi';
+      const faEl = document.getElementById('bd-total-area');
+      if (faEl) faEl.textContent = fastArea.toFixed(2);
       // Cập nhật lại tiết diện trên bảng mà không làm mất focus ô đang gõ
       const tbody = document.getElementById('wire-groups-tbody');
       if (tbody && tbody.children[idx]) {
@@ -2771,18 +2779,17 @@
       bundleComputeTimer = setTimeout(() => {
         bundleComputeTimer = null;
         runBundleComputeAsync();
-      }, 280);
+      }, 450);
     }
 
     // Chỉ báo trạng thái cho người dùng biết trang đang tính hay đang vẽ (mục Bó Dây).
     // Thuần JS + SVG/CSS nhúng sẵn trong trang — không tải thêm thư viện/API nào từ bên ngoài.
-    function setBundleBusy(show, text) {
+    // Chỉ báo bận luôn chiếm sẵn vị trí trong tiêu đề thẻ (ẩn bằng invisible) nên khi hiện/ẩn
+    // bố cục không hề xê dịch — trang giữ nguyên trạng thái, không "giật" như nạp lại.
+    function setBundleBusy(show) {
       const el = document.getElementById('bd-busy');
-      const tx = document.getElementById('bd-busy-text');
       if (!el) return;
-      if (text && tx) tx.textContent = text;
-      el.classList.toggle('hidden', !show);
-      el.classList.toggle('inline-flex', show);
+      el.classList.toggle('invisible', !show);
     }
 
     function nextFrame() {
@@ -2796,20 +2803,19 @@
       // Chưa có gì thay đổi kể từ lần tính trước: dùng lại kết quả, không tính/vẽ lại
       if (!bundleDirty && bundleCache) return;
       bundleBusyRunning = true;
+      // Chỉ hiện chỉ báo khi việc tính kéo dài quá 300ms — thao tác nhẹ thì không nhấp nháy gì cả
+      const busyTimer = setTimeout(() => setBundleBusy(true), 300);
       try {
-        setBundleBusy(true, 'Đang tính đường kính bó dây…');
-        await nextFrame(); // nhường trình duyệt vẽ chỉ báo trước khi bắt đầu tính nặng
-        const res = computeBundleGeometry({ deferDraw: true });
-        setBundleBusy(true, 'Đang vẽ mặt cắt…');
-        await nextFrame();
-        drawBundleCrossSection(res.circles, res.outerD, res.pitchOD);
-      } finally {
-        setBundleBusy(false);
-        bundleBusyRunning = false;
-        if (bundleBusyPending) {
+        do {
           bundleBusyPending = false;
-          runBundleComputeAsync();
-        }
+          bundleInFlight = computeBundleGeometryAsync();
+          await bundleInFlight;
+        } while (bundleBusyPending && bundleDirty);
+      } finally {
+        clearTimeout(busyTimer);
+        setBundleBusy(false);
+        bundleInFlight = null;
+        bundleBusyRunning = false;
       }
     }
 
@@ -2817,12 +2823,91 @@
     // chưa đổi (khỏi tính lại từ đầu). bundleDirty = true mỗi khi thông số nhóm dây thay đổi.
     let bundleCache = null;
     let bundleDirty = true;
-    function getBundleGeometry() {
-      if (!bundleDirty && bundleCache) return bundleCache;
-      return computeBundleGeometry();
+    // =========================================================================
+    // XẾP HÌNH BÓ DÂY Ở LUỒNG PHỤ (Web Worker) — trang không bị khựng/giật khi sửa thông số.
+    // Thuật toán giữ nguyên 100% (đúng cùng hàm packCirclesDeterministically), chỉ khác nơi chạy.
+    // Trình duyệt không hỗ trợ Worker thì tự quay về tính đồng bộ như trước.
+    // =========================================================================
+    let bundleWorker = null;
+    let bundleWorkerBroken = false;
+    let bundleReqSeq = 0;
+    let bundlePendingResolve = null;
+    let bundleInFlight = null;
+
+    function getBundleWorker() {
+      if (bundleWorker || bundleWorkerBroken) return bundleWorker;
+      try {
+        if (typeof Worker === 'undefined') { bundleWorkerBroken = true; return null; }
+        const workerSrc =
+          'const solveMinimumEnclosingCircle = ' + solveMinimumEnclosingCircle.toString() + ';\n' +
+          'const packCirclesDeterministically = ' + packCirclesDeterministically.toString() + ';\n' +
+          'onmessage = function (e) { var packed = packCirclesDeterministically(e.data.items); postMessage({ id: e.data.id, circles: packed.circles, R: packed.R }); };';
+        bundleWorker = new Worker(URL.createObjectURL(new Blob([workerSrc], { type: 'text/javascript' })));
+        bundleWorker.onmessage = (e) => {
+          if (bundlePendingResolve && e.data && e.data.id === bundleReqSeq) {
+            const resolve = bundlePendingResolve;
+            bundlePendingResolve = null;
+            resolve(e.data);
+          }
+        };
+        bundleWorker.onerror = () => {
+          bundleWorkerBroken = true;
+          bundleWorker = null;
+          if (bundlePendingResolve) { const r = bundlePendingResolve; bundlePendingResolve = null; r(null); }
+        };
+      } catch (err) {
+        bundleWorkerBroken = true;
+        bundleWorker = null;
+      }
+      return bundleWorker;
     }
 
-    function computeBundleGeometry(opts = {}) {
+    // Gửi danh sách vòng tròn sang worker xếp; trả null nếu không dùng được worker
+    function packItemsAsync(items) {
+      const wk = getBundleWorker();
+      if (!wk) return Promise.resolve(null);
+      if (bundlePendingResolve) { const r = bundlePendingResolve; bundlePendingResolve = null; r(null); }
+      const id = ++bundleReqSeq;
+      return new Promise(resolve => {
+        bundlePendingResolve = resolve;
+        try { wk.postMessage({ id, items }); }
+        catch (err) { bundlePendingResolve = null; resolve(null); }
+      });
+    }
+
+    async function computeBundleGeometryAsync() {
+      bundleDirty = false; // chụp trạng thái hiện tại — thay đổi mới trong lúc tính sẽ bật lại cờ này
+      const { items, totalWires, totalArea } = buildBundleItems();
+      const packedData = await packItemsAsync(items);
+      if (!packedData) {
+        // Không có worker: tính đồng bộ như cũ (hàm tự ghi kết quả ra giao diện)
+        return computeBundleGeometry();
+      }
+      let maxCenterDist = 0;
+      packedData.circles.forEach(c => {
+        const distCenter = Math.hypot(c.x, c.y);
+        if (distCenter > maxCenterDist) maxCenterDist = distCenter;
+      });
+      const pitchOD = packedData.circles.length === 1 ? packedData.circles[0].d : maxCenterDist * 2;
+      const result = { outerD: packedData.R * 2, radiusA: packedData.R, pitchOD, circles: packedData.circles, totalWires, totalArea };
+      if (bundleDirty) return null; // đã có thay đổi mới hơn trong lúc tính — bỏ kết quả cũ, vòng ngoài tính lại
+      applyBundleResult(result);
+      return result;
+    }
+
+    // Các nút "Áp dụng" lấy kết quả hình học mới nhất (đã tính ở luồng phụ nên không khựng trang)
+    async function ensureBundleGeometry() {
+      if (!bundleDirty && bundleCache) return bundleCache;
+      if (bundleInFlight) {
+        await bundleInFlight;
+        if (!bundleDirty && bundleCache) return bundleCache;
+      }
+      const r = await computeBundleGeometryAsync();
+      return r || bundleCache || computeBundleGeometry();
+    }
+
+    // Dựng danh sách vòng tròn cần xếp từ các nhóm dây (thuần dữ liệu, không đụng giao diện)
+    function buildBundleItems() {
       let totalWires = 0;
       let totalArea = 0;
       const items = [];
@@ -2841,7 +2926,30 @@
           });
         }
       });
+      return { items, totalWires, totalArea };
+    }
 
+    // Ghi kết quả hình học bó dây ra giao diện + vẽ mặt cắt + lưu cache
+    function applyBundleResult(result) {
+      document.getElementById('bd-total-wires').textContent = result.totalWires + ' sợi';
+      document.getElementById('bd-total-area').textContent = result.totalArea.toFixed(2);
+      document.getElementById('bd-outer-d').textContent = result.outerD.toFixed(3) + ' mm';
+      document.getElementById('bd-radius-a').textContent = result.radiusA.toFixed(4) + ' mm';
+      document.getElementById('bd-pitch-od').textContent = result.pitchOD.toFixed(3) + ' mm';
+
+      const sbD = document.getElementById('sidebar-bundle-d');
+      const sbOD = document.getElementById('sidebar-bundle-od');
+      if (sbD) sbD.textContent = result.outerD.toFixed(2) + ' mm';
+      if (sbOD) sbOD.textContent = result.pitchOD.toFixed(2) + ' mm';
+
+      bundleCache = result;
+      bundleDirty = false;
+      drawBundleCrossSection(result.circles, result.outerD, result.pitchOD);
+    }
+
+    // Tính đồng bộ (đường dự phòng khi trình duyệt không có Web Worker)
+    function computeBundleGeometry() {
+      const { items, totalWires, totalArea } = buildBundleItems();
       const packed = packCirclesDeterministically(items);
       const outerD = packed.R * 2;
       const radiusA = packed.R;
@@ -2854,24 +2962,8 @@
       });
       const pitchOD = packed.circles.length === 1 ? packed.circles[0].d : maxCenterDist * 2;
 
-      document.getElementById('bd-total-wires').textContent = totalWires + ' sợi';
-      document.getElementById('bd-total-area').textContent = totalArea.toFixed(2);
-      document.getElementById('bd-outer-d').textContent = outerD.toFixed(3) + ' mm';
-      document.getElementById('bd-radius-a').textContent = radiusA.toFixed(4) + ' mm';
-      document.getElementById('bd-pitch-od').textContent = pitchOD.toFixed(3) + ' mm';
-
-      const sbD = document.getElementById('sidebar-bundle-d');
-      const sbOD = document.getElementById('sidebar-bundle-od');
-      if (sbD) sbD.textContent = outerD.toFixed(2) + ' mm';
-      if (sbOD) sbOD.textContent = pitchOD.toFixed(2) + ' mm';
-
-      const result = { outerD, radiusA, pitchOD, circles: packed.circles };
-      bundleCache = result;
-      bundleDirty = false;
-      // opts.deferDraw: hoãn vẽ mặt cắt để luồng bất đồng bộ kịp hiện chữ "Đang vẽ mặt cắt…"
-      if (!opts.deferDraw) {
-        drawBundleCrossSection(packed.circles, outerD, pitchOD);
-      }
+      const result = { outerD, radiusA, pitchOD, circles: packed.circles, totalWires, totalArea };
+      applyBundleResult(result);
       return result;
     }
 
@@ -2955,8 +3047,8 @@
     }
 
     // Các hàm áp dụng nhanh kết quả từ Bó Dây sang các Tab tính toán
-    function applyBundleToTwist() {
-      const { pitchOD, outerD, circles } = getBundleGeometry();
+    async function applyBundleToTwist() {
+      const { pitchOD, outerD, circles } = await ensureBundleGeometry();
       const totalWires = circles ? circles.length : 0;
       if (totalWires >= 2) {
         // Đồng bộ màu của từng sợi dây trong bó sang hình vẽ Xoắn Dây (vẽ tối đa 12 dây)
@@ -2969,30 +3061,30 @@
       switchTab('twist');
     }
 
-    function applyBundleToCircleTape() {
-      const { outerD, radiusA } = getBundleGeometry();
+    async function applyBundleToCircleTape() {
+      const { outerD, radiusA } = await ensureBundleGeometry();
       document.getElementById('ct-D').value = parseFloat(outerD.toFixed(4));
       document.getElementById('ct-a').value = parseFloat(radiusA.toFixed(4));
       calculateCircleTape();
       switchTab('circle-tape');
     }
 
-    function applyBundleToSpiralTape() {
-      const { outerD } = getBundleGeometry();
+    async function applyBundleToSpiralTape() {
+      const { outerD } = await ensureBundleGeometry();
       document.getElementById('st-D').value = parseFloat(outerD.toFixed(4));
       calculateSpiralTape();
       switchTab('spiral-tape');
     }
 
-    function useBundleForCircleTape() {
-      const { outerD, radiusA } = getBundleGeometry();
+    async function useBundleForCircleTape() {
+      const { outerD, radiusA } = await ensureBundleGeometry();
       document.getElementById('ct-D').value = parseFloat(outerD.toFixed(4));
       document.getElementById('ct-a').value = parseFloat(radiusA.toFixed(4));
       calculateCircleTape();
     }
 
-    function useBundleForSpiralTape() {
-      const { outerD } = getBundleGeometry();
+    async function useBundleForSpiralTape() {
+      const { outerD } = await ensureBundleGeometry();
       document.getElementById('st-D').value = parseFloat(outerD.toFixed(4));
       calculateSpiralTape();
     }
@@ -3109,7 +3201,7 @@
     });
     window.addEventListener('resize', () => {
       drawTwistCADCanvas();
-      computeBundleGeometry();
+      scheduleBundleGeometry();
     });
   </script>
 </body>
