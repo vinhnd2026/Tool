@@ -761,13 +761,14 @@
     <!-- TAB 5: ĐỔI AWG <-> mm <-> mm2                                         -->
     <!-- =================================================================== -->
     <section id="tab-awg" class="tab-panel hidden space-y-4 max-w-6xl mx-auto">
-      <!-- Đổi AWG <-> mm <-> mm2 (theo chuẩn AWG, giống RapidTables) -->
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-2.5">
-        <div class="flex flex-wrap items-end gap-x-5 gap-y-3">
-          <span class="font-bold text-slate-800 text-sm pb-1">Đổi AWG &harr; mm &harr; mm<sup>2</sup></span>
+      <!-- Đổi AWG <-> mm <-> mm2 (theo chuẩn AWG, giống RapidTables) — form DỌC:
+           nhập vào 1 ô thì các ô còn lại tự động cập nhật ngay -->
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-md mx-auto">
+        <h2 class="font-bold text-slate-800 text-base border-b pb-2.5">Đổi AWG &harr; mm &harr; mm<sup>2</sup></h2>
+        <div class="space-y-3.5 mt-4 text-sm">
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Cỡ dây (AWG #):</label>
-            <select id="awg-gauge" onchange="awgFromGauge()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-28">
+            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge">Chọn cỡ dây (AWG #):</label>
+            <select id="awg-gauge" onchange="awgFromGauge()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white">
                 <option value="-3">0000</option>
                 <option value="-2">000</option>
                 <option value="-1">00</option>
@@ -815,17 +816,21 @@
             </select>
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Đường kính (mm):</label>
-            <input type="number" id="awg-mm" step="0.0001" min="0" oninput="awgFromMm()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-32"/>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge-num">Cỡ AWG (nhập tay — số lẻ cũng được):</label>
+            <input type="number" id="awg-gauge-num" step="0.1" oninput="awgFromGaugeNum()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
           </div>
           <div>
-            <label class="block text-xs font-medium text-slate-600 mb-1">Tiết diện (mm<sup>2</sup>):</label>
-            <input type="number" id="awg-mm2" step="0.0001" min="0" oninput="awgFromMm2()" class="px-2 py-1.5 border border-slate-300 rounded font-bold text-center bg-white text-sm w-32"/>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-mm">Đường kính (mm):</label>
+            <input type="number" id="awg-mm" step="0.0001" min="0" oninput="awgFromMm()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
           </div>
-          <span id="awg-equiv" class="text-xs text-slate-500 pb-1.5"></span>
-          <button onclick="awgReset()" class="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-semibold rounded transition mb-0.5">&times; Đặt lại</button>
+          <div>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-mm2">Tiết diện (mm<sup>2</sup>):</label>
+            <input type="number" id="awg-mm2" step="0.0001" min="0" oninput="awgFromMm2()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
+          </div>
+          <div id="awg-equiv" class="text-xs text-slate-500 min-h-[1rem]"></div>
+          <button onclick="awgReset()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-semibold rounded transition">&times; Đặt lại</button>
+          <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</p>
         </div>
-        <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</p>
       </div>
     </section>
 
@@ -3135,45 +3140,52 @@
     function awgMmToGauge(d) { return 36 - 39 * (Math.log(d / 0.127) / Math.log(92)); }
     function awgLabel(g) { return g === -3 ? '0000' : g === -2 ? '000' : g === -1 ? '00' : String(g); }
 
-    function awgShow(d, fromGauge) {
+    // Đồng bộ tất cả các ô từ đường kính d. source = ô người dùng đang gõ — không ghi đè ô đó
+    // để không làm phiền thao tác gõ; mọi ô CÒN LẠI cập nhật ngay khi nhập.
+    function awgSync(d, source) {
+      const sel = document.getElementById('awg-gauge');
+      const num = document.getElementById('awg-gauge-num');
       const mmEl = document.getElementById('awg-mm');
       const mm2El = document.getElementById('awg-mm2');
       const eqEl = document.getElementById('awg-equiv');
-      if (!mmEl || !mm2El) return;
-      mmEl.value = parseFloat(d.toFixed(4));
-      mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
+      if (!mmEl || !mm2El || !(d > 0)) return;
+      const gExact = awgMmToGauge(d);
+      const gRound = Math.round(gExact);
+      if (source !== 'mm') mmEl.value = parseFloat(d.toFixed(4));
+      if (source !== 'mm2') mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
+      if (source !== 'num' && num) num.value = parseFloat(gExact.toFixed(1));
+      if (source !== 'select' && sel && gRound >= -3 && gRound <= 40) sel.value = String(gRound);
       if (eqEl) {
-        if (fromGauge) { eqEl.textContent = ''; }
-        else {
-          const gExact = awgMmToGauge(d);
-          const gRound = Math.round(gExact);
-          eqEl.textContent = `≈ AWG ${awgLabel(gRound)} (chính xác ${gExact.toFixed(1)})`;
-        }
+        eqEl.textContent = (Math.abs(gExact - gRound) < 0.05)
+          ? `Đúng cỡ chuẩn AWG ${awgLabel(gRound)}`
+          : `Giữa hai cỡ chuẩn — gần nhất AWG ${awgLabel(gRound)} (chính xác ${gExact.toFixed(1)})`;
       }
     }
 
     function awgFromGauge() {
       const sel = document.getElementById('awg-gauge');
+      const num = document.getElementById('awg-gauge-num');
       if (!sel) return;
-      awgShow(awgGaugeToMm(parseFloat(sel.value)), true);
+      if (num) num.value = sel.value;
+      awgSync(awgGaugeToMm(parseFloat(sel.value)), 'select');
+    }
+
+    function awgFromGaugeNum() {
+      const num = document.getElementById('awg-gauge-num');
+      if (!num || num.value === '') return;
+      const g = parseFloat(num.value);
+      if (!isFinite(g)) return;
+      awgSync(awgGaugeToMm(g), 'num');
     }
 
     function awgFromMm() {
       const d = parseFloat(document.getElementById('awg-mm').value) || 0;
-      if (d <= 0) return;
-      const mm2El = document.getElementById('awg-mm2');
-      const eqEl = document.getElementById('awg-equiv');
-      if (mm2El) mm2El.value = parseFloat((Math.PI * d * d / 4).toFixed(4));
-      if (eqEl) {
-        const gExact = awgMmToGauge(d);
-        eqEl.textContent = `≈ AWG ${awgLabel(Math.round(gExact))} (chính xác ${gExact.toFixed(1)})`;
-      }
+      if (d > 0) awgSync(d, 'mm');
     }
 
     function awgFromMm2() {
       const a = parseFloat(document.getElementById('awg-mm2').value) || 0;
-      if (a <= 0) return;
-      awgShow(Math.sqrt(4 * a / Math.PI), false);
+      if (a > 0) awgSync(Math.sqrt(4 * a / Math.PI), 'mm2');
     }
 
     function awgReset() {
