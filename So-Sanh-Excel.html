@@ -245,22 +245,22 @@
                 <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="cell" class="sr-only peer" checked onchange="handleModeChange()">
-                        <span class="px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh từng ô theo đúng vị trí">
+                        <span class="w-[88px] text-center px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh từng ô theo đúng vị trí">
                             Từng ô
                         </span>
                     </label>
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="key" class="sr-only peer" onchange="handleModeChange()">
-                        <span class="px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh theo cột khóa (ID)">
+                        <span class="w-[88px] text-center px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh theo cột khóa (ID)">
                             Theo khóa
                         </span>
                     </label>
                 </div>
 
                 <!-- Key Column Selector -->
-                <div id="keyColumnContainer" class="hidden flex items-center space-x-1.5">
+                <div id="keyColumnContainer" class="invisible flex items-center space-x-1.5 w-[196px] shrink-0" aria-hidden="true">
                     <span class="t-text-muted font-medium">Khóa:</span>
-                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[170px]">
+                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0">
                         <option value="0">Cột A</option>
                     </select>
                 </div>
@@ -729,9 +729,11 @@
             const mode = document.querySelector('input[name="compareMode"]:checked').value;
             const keyContainer = document.getElementById('keyColumnContainer');
             if (mode === 'key') {
-                keyContainer.classList.remove('hidden');
+                keyContainer.classList.remove('invisible');
+                keyContainer.removeAttribute('aria-hidden');
             } else {
-                keyContainer.classList.add('hidden');
+                keyContainer.classList.add('invisible');
+                keyContainer.setAttribute('aria-hidden', 'true');
             }
             if (hasCompared) compareData(false);
         }
