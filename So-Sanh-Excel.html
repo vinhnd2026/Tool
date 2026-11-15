@@ -349,8 +349,9 @@
                     <div class="flex items-center space-x-2">
                         <span id="badge1" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(1)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(1)" class="t-text-muted hover:text-rose-500 transition p-0.5" title="Xóa vùng A">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button onclick="clearSingle(1)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng A">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <span>Xoá</span>
                         </button>
                     </div>
                 </div>
@@ -369,8 +370,9 @@
                     <div class="flex items-center space-x-2">
                         <span id="badge2" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(2)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(2)" class="t-text-muted hover:text-rose-500 transition p-0.5" title="Xóa vùng B">
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                        <button onclick="clearSingle(2)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng B">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            <span>Xoá</span>
                         </button>
                     </div>
                 </div>
@@ -1448,8 +1450,26 @@
         }
 
         function clearSingle(num) {
-            document.getElementById(`input${num}`).value = '';
+            const el = document.getElementById(`input${num}`);
+            if (!el.value) {
+                showToast(`Vùng ${num === 1 ? 'A' : 'B'} đang trống, không có gì để xoá!`);
+                return;
+            }
+            el.value = '';
             updateDimensionsAndDropdown();
+            showToast(`Đã xoá toàn bộ dữ liệu Vùng ${num === 1 ? 'A' : 'B'}`);
+            if (hasCompared) {
+                const otherEmpty = !document.getElementById(`input${num === 1 ? 2 : 1}`).value.trim();
+                if (otherEmpty) {
+                    // Cả hai vùng đều trống: quay về trạng thái ban đầu
+                    hasCompared = false;
+                    document.getElementById('resultsSection').classList.add('hidden');
+                    document.getElementById('welcomeState').classList.remove('hidden');
+                } else {
+                    compareData(false);
+                }
+            }
+            el.focus();
         }
 
         function clearAll() {
