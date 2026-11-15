@@ -209,30 +209,30 @@
     </div>
 
     <!-- 1. COMPACT TOP TOOLBAR -->
-    <header class="t-surface border-b t-border px-3 py-2 shrink-0 z-30 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-2">
+    <header class="t-surface border-b t-border px-2 py-1.5 shrink-0 z-30 shadow-sm">
+        <div class="flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-2 gap-y-1">
             
             <!-- Left: Brand & Drawer Toggle -->
-            <div class="flex items-center space-x-2.5">
-                <div class="flex items-center space-x-2">
-                    <div class="bg-emerald-600 text-white p-1.5 rounded-lg shadow-sm">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div class="flex items-center space-x-2 shrink-0">
+                <div class="flex items-center space-x-1.5">
+                    <div class="bg-emerald-600 text-white p-1 rounded-lg shadow-sm">
+                        <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
                     <div>
-                        <h1 class="text-sm sm:text-base font-bold t-text-main leading-tight">Data comparison</h1>
+                        <h1 class="text-sm font-bold t-text-main leading-tight whitespace-nowrap">Data comparison</h1>
                     </div>
                 </div>
 
-                <div class="h-5 w-[1px] t-muted mx-1 hidden sm:block"></div>
+                <div class="h-5 w-[1px] t-muted mx-0.5 hidden sm:block"></div>
 
                 <!-- Toggle Input Panel Button -->
-                <button id="btnToggleInput" onclick="toggleInputDrawer()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border t-border t-subtle hover:opacity-90 transition flex items-center space-x-1.5">
+                <button id="btnToggleInput" onclick="toggleInputDrawer()" class="px-2 py-1 rounded-lg text-xs font-semibold border t-border t-subtle hover:opacity-90 transition flex items-center space-x-1 whitespace-nowrap">
                     <svg id="drawerChevron" class="w-4 h-4 text-emerald-600 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path>
                     </svg>
-                    <span id="drawerBtnText">Thu gọn vùng nhập</span>
+                    <span id="drawerBtnText">Thu gọn</span>
                     <span id="drawerSummaryBadges" class="hidden md:inline-flex items-center space-x-1 pl-1 text-[11px] font-mono-num t-text-muted">
                         (<span id="miniBadge1">0×0</span> vs <span id="miniBadge2">0×0</span>)
                     </span>
@@ -240,19 +240,19 @@
             </div>
 
             <!-- Center: Compare Configuration Inline -->
-            <div class="flex flex-wrap items-center gap-2 text-xs">
+            <div class="flex items-center gap-1.5 text-xs min-w-0">
                 <!-- Mode Segmented Control -->
                 <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="cell" class="sr-only peer" checked onchange="handleModeChange()">
-                        <span class="px-2.5 py-1 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition">
-                            Từng ô (Vị trí)
+                        <span class="px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh từng ô theo đúng vị trí">
+                            Từng ô
                         </span>
                     </label>
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="key" class="sr-only peer" onchange="handleModeChange()">
-                        <span class="px-2.5 py-1 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition">
-                            Theo Cột Khóa (ID)
+                        <span class="px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh theo cột khóa (ID)">
+                            Theo khóa
                         </span>
                     </label>
                 </div>
@@ -260,15 +260,13 @@
                 <!-- Key Column Selector -->
                 <div id="keyColumnContainer" class="hidden flex items-center space-x-1.5">
                     <span class="t-text-muted font-medium">Khóa:</span>
-                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-2 py-1 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500">
+                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[170px]">
                         <option value="0">Cột A</option>
                     </select>
                 </div>
 
-                <div class="h-4 w-[1px] t-muted hidden lg:block"></div>
-
                 <!-- Quick Checkboxes -->
-                <div class="flex items-center space-x-3 px-1">
+                <div class="flex items-center space-x-2 whitespace-nowrap">
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
                         <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Có tiêu đề</span>
@@ -289,29 +287,29 @@
             </div>
 
             <!-- Right: Quick Actions & Theme Switcher -->
-            <div class="flex items-center space-x-1.5">
-                <button onclick="loadSampleData()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
+            <div class="flex items-center space-x-1 shrink-0">
+                <button onclick="loadSampleData()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
                     <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     <span class="hidden sm:inline">Mẫu</span>
                 </button>
-                <button onclick="swapInputs()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu Vùng A và Vùng B">
+                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu Vùng A và Vùng B">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
                     <span class="hidden md:inline">Đảo A⇄B</span>
                 </button>
-                <button onclick="clearAll()" class="px-2.5 py-1.5 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
+                <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     <span class="hidden md:inline">Xóa</span>
                 </button>
 
                 <!-- Theme Switcher Group -->
-                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border ml-1" title="Chế độ màu nền">
-                    <button onclick="setTheme('light')" id="themeBtn-light" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Sáng (Light)">
+                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border ml-0.5" title="Chế độ màu nền">
+                    <button onclick="setTheme('light')" id="themeBtn-light" class="p-1 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Sáng (Light)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                     </button>
-                    <button onclick="setTheme('sepia')" id="themeBtn-sepia" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Dịu mắt (Sepia)">
+                    <button onclick="setTheme('sepia')" id="themeBtn-sepia" class="p-1 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Dịu mắt (Sepia)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                     </button>
-                    <button onclick="setTheme('dark')" id="themeBtn-dark" class="p-1.5 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Tối (Dark)">
+                    <button onclick="setTheme('dark')" id="themeBtn-dark" class="p-1 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Tối (Dark)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
                 </div>
@@ -603,9 +601,9 @@
                 const btn = document.getElementById(`themeBtn-${t}`);
                 if (!btn) return;
                 if (t === themeName) {
-                    btn.className = "p-1.5 rounded-md text-xs font-medium bg-emerald-600 text-white shadow-sm transition flex items-center space-x-1";
+                    btn.className = "p-1 rounded-md text-xs font-medium bg-emerald-600 text-white shadow-sm transition flex items-center space-x-1";
                 } else {
-                    btn.className = "p-1.5 rounded-md text-xs font-medium t-text-sec hover:opacity-80 transition flex items-center space-x-1";
+                    btn.className = "p-1 rounded-md text-xs font-medium t-text-sec hover:opacity-80 transition flex items-center space-x-1";
                 }
             });
         }
@@ -621,11 +619,11 @@
             if (isDrawerOpen) {
                 drawer.classList.remove('hidden');
                 chevron.classList.remove('rotate-180');
-                btnText.textContent = 'Thu gọn vùng nhập';
+                btnText.textContent = 'Thu gọn';
             } else {
                 drawer.classList.add('hidden');
                 chevron.classList.add('rotate-180');
-                btnText.textContent = 'Mở vùng nhập dữ liệu';
+                btnText.textContent = 'Mở vùng nhập';
             }
         }
 
