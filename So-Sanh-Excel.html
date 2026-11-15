@@ -321,19 +321,18 @@
     </header>
 
     <!-- 1B. COLUMN MAPPING PANEL (Ghép cột không tương xứng) -->
-    <section id="colMapPanel" class="hidden t-surface border-b t-border px-3 py-2.5 shrink-0">
+    <section id="colMapPanel" class="hidden t-surface border-b t-border px-3 py-1.5 shrink-0">
         <div class="flex flex-wrap items-center justify-between gap-2">
-            <div class="text-xs">
-                <span class="font-bold t-text-main">Ghép cột: Vùng A ↔ Vùng B</span>
+            <div class="text-xs" title="Máy tự ghép các cột có tên tiêu đề giống nhau (không phân biệt hoa/thường, dấu, khoảng trắng thừa). Ghép sai thì chọn lại ở ô bên phải; cột không có bên kia sẽ báo riêng là “chỉ ở A” / “chỉ ở B”.">
+                <span class="font-bold t-text-main">Ghép cột A ↔ B</span>
                 <span id="colMapSummary" class="t-text-muted ml-2"></span>
             </div>
             <div class="flex items-center gap-1.5">
-                <button onclick="resetColMapAuto()" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition">↺ Tự ghép lại theo tên cột</button>
-                <button onclick="compareData(false)" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition">Áp dụng &amp; So sánh lại</button>
+                <button onclick="resetColMapAuto()" class="px-2 py-0.5 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Tự ghép lại theo tên cột">↺ Tự ghép lại</button>
+                <button onclick="compareData(false)" class="px-2 py-0.5 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition">Áp dụng</button>
             </div>
         </div>
-        <p class="text-[11px] t-text-muted mt-1">Máy tự ghép các cột có tên tiêu đề giống nhau (không phân biệt hoa/thường, dấu, khoảng trắng thừa). Cột ghép sai thì chọn lại ở ô bên phải; cột không có bên kia sẽ được báo riêng là “chỉ ở A” / “chỉ ở B” thay vì báo sai hàng loạt.</p>
-        <div id="colMapRows" class="mt-2 grid gap-1.5 md:grid-cols-2 xl:grid-cols-3"></div>
+        <div id="colMapRows" class="mt-1.5 grid gap-1 md:grid-cols-2 xl:grid-cols-3"></div>
     </section>
 
     <!-- 2. COLLAPSIBLE INPUT DRAWER -->
@@ -889,7 +888,7 @@
             const summary = document.getElementById('colMapSummary');
 
             if (colsA === 0 && colsB === 0) {
-                wrap.innerHTML = '<p class="text-[11px] t-text-muted md:col-span-2 xl:col-span-3">Dán dữ liệu vào Vùng A và Vùng B để bắt đầu ghép cột.</p>';
+                wrap.innerHTML = '<p class="text-[11px] t-text-muted md:col-span-2 xl:col-span-3">Chưa có dữ liệu.</p>';
                 summary.textContent = '';
                 return;
             }
@@ -911,16 +910,16 @@
                     const labelB = `B · ${getExcelColName(j)}${headerOf(grid2, j, hasHeader) ? ': ' + escapeHTML(headerOf(grid2, j, hasHeader)) : ''}`;
                     opts += `<option value="${j}" ${p.b === j ? 'selected' : ''}>${labelB}</option>`;
                 }
-                html += `<div class="flex items-center gap-2 t-subtle border t-border rounded-lg px-2 py-1.5">
+                html += `<div class="flex items-center gap-2 t-subtle border t-border rounded-lg px-2 py-1">
                     <span class="text-[11px] font-medium t-text-main truncate flex-1" title="${labelA}">${labelA}</span>
                     <span class="text-emerald-600 font-bold text-[11px]">↔</span>
-                    <select onchange="onColMapSelectChange(${p.a}, this.value)" class="t-surface border t-border t-text-main rounded-md px-1.5 py-1 text-[11px] font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[46%]">${opts}</select>
+                    <select onchange="onColMapSelectChange(${p.a}, this.value)" class="t-surface border t-border t-text-main rounded-md px-1.5 py-0.5 text-[11px] font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[46%]">${opts}</select>
                 </div>`;
             });
             pairs.filter(p => p.a === -1).forEach(p => {
                 const labelB = `B · ${getExcelColName(p.b)}${headerOf(grid2, p.b, hasHeader) ? ': ' + escapeHTML(headerOf(grid2, p.b, hasHeader)) : ''}`;
-                html += `<div class="flex items-center gap-2 rounded-lg px-2 py-1.5 border border-dashed t-border text-[11px] t-text-muted">
-                    <span class="truncate flex-1" title="${labelB}">${labelB}</span><span class="shrink-0 font-medium">chỉ có ở B — chọn ghép ở một hàng A phía trên nếu cần</span>
+                html += `<div class="flex items-center gap-2 rounded-lg px-2 py-1 border border-dashed t-border text-[11px] t-text-muted">
+                    <span class="truncate flex-1" title="${labelB}">${labelB}</span><span class="shrink-0 font-medium">chỉ có ở B</span>
                 </div>`;
             });
             wrap.innerHTML = html;
