@@ -371,8 +371,12 @@
     /* Chon o / dong trong bang ket qua So sanh (muc 6) */
     #tab-compare #tableWrapper td { cursor: cell; }
     #tab-compare #tableWrapper td.sticky-col-1, #tab-compare #tableWrapper td.sticky-col-2 { cursor: pointer; }
-    #tab-compare #tableWrapper td.cmp-sel { background-color: rgba(37, 99, 235, 0.16) !important; box-shadow: inset 0 0 0 2px #2563eb; }
-    #tab-compare #tableWrapper tr.cmp-sel-row > td { background-color: rgba(37, 99, 235, 0.13) !important; }
+    #tab-compare #tableWrapper td.cmp-sel { background-color: rgba(37, 99, 235, 0.22) !important; box-shadow: inset 0 0 0 2px #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td { background-color: rgba(37, 99, 235, 0.30) !important; font-weight: 700; box-shadow: inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td:first-child { box-shadow: inset 4px 0 0 #2563eb, inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td:last-child { box-shadow: inset -4px 0 0 #2563eb, inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #bfdbfe !important; }
+    #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #1e3a8a !important; }
   </style>
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
