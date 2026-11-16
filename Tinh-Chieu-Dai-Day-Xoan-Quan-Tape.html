@@ -1075,6 +1075,10 @@
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                     </div>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
+                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Ghép thông minh</span>
+                    </label>
                 </div>
             </div>
 
@@ -4082,6 +4086,41 @@
             return isFinite(n) ? (neg ? -n : n) : null;
         }
 
+        // Do tuong dong 2 chuoi theo cap 2 ky tu lien tiep (Dice), 0..1
+        function cmpDiceSim(a, b) {
+            if (a === b) return 1;
+            if (a.length < 2 || b.length < 2) return 0;
+            const grams = (s) => { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const g = s.substr(i, 2); m.set(g, (m.get(g) || 0) + 1); } return m; };
+            const ma = grams(a), mb = grams(b);
+            let inter = 0, ta = 0, tb = 0;
+            ma.forEach(v => { ta += v; });
+            mb.forEach(v => { tb += v; });
+            ma.forEach((v, g) => { const w = mb.get(g) || 0; inter += Math.min(v, w); });
+            return (2 * inter) / (ta + tb);
+        }
+
+        // Cat phan giong nhau o dau/cuoi, tra ve cac doan [text, isDiff] cua hai phia
+        function cmpCharDiff(a, b) {
+            let pre = 0;
+            const maxPre = Math.min(a.length, b.length);
+            while (pre < maxPre && a.charAt(pre) === b.charAt(pre)) pre++;
+            let suf = 0;
+            const maxSuf = Math.min(a.length - pre, b.length - pre);
+            while (suf < maxSuf && a.charAt(a.length - 1 - suf) === b.charAt(b.length - 1 - suf)) suf++;
+            const segA = [], segB = [];
+            const pushSeg = (arr, txt, isD) => { if (txt) arr.push([txt, isD]); };
+            pushSeg(segA, a.slice(0, pre), false); pushSeg(segB, b.slice(0, pre), false);
+            pushSeg(segA, a.slice(pre, a.length - suf), true); pushSeg(segB, b.slice(pre, b.length - suf), true);
+            pushSeg(segA, a.slice(a.length - suf), false); pushSeg(segB, b.slice(b.length - suf), false);
+            return [segA, segB];
+        }
+
+        function cmpSegHTML(segs, isOld) {
+            return segs.map(([txt, isD]) => isD
+                ? `<span class="${isOld ? 'bg-rose-500/35' : 'bg-emerald-500/35'} rounded-[3px] px-[1px] font-bold">${escapeHTML(txt)}</span>`
+                : escapeHTML(txt)).join('');
+        }
+
         function displayValue(val, trimOpt) {
             let s = (val === undefined || val === null) ? '' : String(val);
             return trimOpt ? s.trim() : s;
@@ -4501,6 +4540,62 @@
                 });
             }
 
+            // Ghep thong minh: cap dong Xoa (OLD) voi dong Them (NEW) rat giong nhau
+            // thanh mot dong Da sua (chi chay khi nguoi dung tick o "Ghep thong minh")
+            const smartOpt = document.getElementById('optSmartMatch');
+            if (smartOpt && smartOpt.checked) {
+                const delIdx = [], addIdx = [];
+                resultRows.forEach((row, i) => { if (row.status === 'deleted') delIdx.push(i); else if (row.status === 'added') addIdx.push(i); });
+                if (delIdx.length > 0 && addIdx.length > 0) {
+                    const rowText = (row, side) => row.cells.map(cell => normalizeValue(side === 'A' ? cell.val1 : cell.val2, trimOpt, caseOpt)).join('\u0002');
+                    const cand = [];
+                    delIdx.forEach(di => {
+                        const ta = rowText(resultRows[di], 'A');
+                        addIdx.forEach(ai => {
+                            const sim = cmpDiceSim(ta, rowText(resultRows[ai], 'B'));
+                            if (sim >= 0.85) cand.push({ di, ai, sim });
+                        });
+                    });
+                    cand.sort((x, y) => y.sim - x.sim);
+                    const usedD = new Set(), usedA = new Set(), mergedAt = new Map();
+                    cand.forEach(({ di, ai }) => {
+                        if (usedD.has(di) || usedA.has(ai)) return;
+                        usedD.add(di); usedA.add(ai);
+                        const dRow = resultRows[di], aRow = resultRows[ai];
+                        let hasDiff = false, diffCount = 0;
+                        const cells = dRow.cells.map((dc, c) => {
+                            const v1 = dc.val1, v2 = aRow.cells[c] ? aRow.cells[c].val2 : '';
+                            let isDiff = normalizeValue(v1, trimOpt, caseOpt) !== normalizeValue(v2, trimOpt, caseOpt);
+                            if (isDiff && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[c] === 'num') {
+                                const n1 = cmpParseNum(v1), n2 = cmpParseNum(v2);
+                                if (n1 !== null && n2 !== null) isDiff = Math.abs(n1 - n2) > 1e-9 * Math.max(1, Math.abs(n1), Math.abs(n2));
+                            }
+                            const cell = { status: isDiff ? 'modified' : 'same', val1: v1, val2: v2 };
+                            if (isDiff) { hasDiff = true; diffCount++; const hd = cmpCharDiff(v1, v2); cell.hlA = hd[0]; cell.hlB = hd[1]; }
+                            return cell;
+                        });
+                        const numA = String(dRow.rowLabel).replace(/^A?#/, '');
+                        const numB = String(aRow.rowLabel).replace(/^B?#/, '');
+                        mergedAt.set(di, { rowLabel: numA === numB ? `#${numA}` : `A${numA}\u2192B${numB}`, status: hasDiff ? 'modified' : 'same', cells });
+                        stats.deletedRows--; stats.addedRows--;
+                        stats.diffCells -= 2 * numCols;
+                        for (let c = 0; c < numCols; c++) colDiffCounts[c]--;
+                        stats.diffCells += diffCount;
+                        cells.forEach((cell, c) => { if (cell.status === 'modified') colDiffCounts[c]++; });
+                        if (hasDiff) stats.modifiedRows++; else stats.sameRows++;
+                    });
+                    if (mergedAt.size > 0) {
+                        const kept = [];
+                        resultRows.forEach((row, i) => {
+                            if (mergedAt.has(i)) kept.push(mergedAt.get(i));
+                            else if (!(row.status === 'added' && usedA.has(i))) kept.push(row);
+                        });
+                        resultRows.length = 0;
+                        kept.forEach(r => resultRows.push(r));
+                    }
+                }
+            }
+
             stats.totalRows = resultRows.length;
             const totalDiffRows = stats.modifiedRows + stats.addedRows + stats.deletedRows;
 
@@ -4684,8 +4779,8 @@
                         if (cell.status === 'same') {
                             html += `<td class="py-2 px-3 border-r t-border-subtle t-text-main font-mono-num">${escapeHTML(cell.val2)}</td>`;
                         } else if (cell.status === 'modified') {
-                            const oldVal = cell.val1 !== '' ? escapeHTML(cell.val1) : '<i class="opacity-60">(Trống)</i>';
-                            const newVal = cell.val2 !== '' ? escapeHTML(cell.val2) : '<i class="opacity-60">(Trống)</i>';
+                            const oldVal = cell.hlA ? cmpSegHTML(cell.hlA, true) : (cell.val1 !== '' ? escapeHTML(cell.val1) : '<i class="opacity-60">(Trống)</i>');
+                            const newVal = cell.hlB ? cmpSegHTML(cell.hlB, false) : (cell.val2 !== '' ? escapeHTML(cell.val2) : '<i class="opacity-60">(Trống)</i>');
                             html += `<td class="py-2 px-3 border-r cell-modified font-mono-num">
                                 <div class="flex flex-wrap items-center gap-1">
                                     <span class="diff-old">${oldVal}</span>
