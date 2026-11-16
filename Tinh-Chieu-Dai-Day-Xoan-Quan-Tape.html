@@ -3261,10 +3261,12 @@
       const g = el ? awgParseGauge(el.value) : null;
       document.querySelectorAll('.awg-chip').forEach(ch => {
         const on = g !== null && awgChipValue(ch.getAttribute('data-awg')) === g;
-        ch.classList.toggle('bg-blue-600', on);
-        ch.classList.toggle('text-white', on);
-        ch.classList.toggle('border-blue-600', on);
-        ch.classList.toggle('shadow-md', on);
+        // Co dang chon: to nen DO NHAT + chu do dam bang style truc tiep (luon thang
+        // cac class mau nen mac dinh cua chip, so se khong bao gio bi trang tren trang).
+        ch.style.backgroundColor = on ? '#fee2e2' : '';
+        ch.style.color = on ? '#b91c1c' : '';
+        ch.style.borderColor = on ? '#f87171' : '';
+        ch.style.boxShadow = on ? '0 0 0 1px #f87171 inset' : '';
       });
     }
 
