@@ -5122,11 +5122,24 @@
       const _kbtn = document.getElementById('cmp-keycols-btn');
       const _kpanel = document.getElementById('cmp-keycols-panel');
       if (_kbtn && _kpanel) {
-        _kbtn.addEventListener('click', (e) => { e.stopPropagation(); _kpanel.classList.toggle('hidden'); });
+        _kbtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (_kpanel.classList.contains('hidden')) { cmpRebuildKeyCols(); _kpanel.classList.remove('hidden'); }
+          else { _kpanel.classList.add('hidden'); }
+        });
         document.addEventListener('click', (e) => {
           const box = document.getElementById('cmp-keycols');
           if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
         });
+      }
+      if (typeof window.handleModeChange === 'function') {
+        const _origMode = window.handleModeChange;
+        window.handleModeChange = function () {
+          const r = _origMode.apply(this, arguments);
+          const m = document.querySelector('input[name="compareMode"]:checked');
+          if (m && m.value === 'key') cmpRebuildKeyCols();
+          return r;
+        };
       }
       // Bang ghep cot lech thanh popover noi ngay duoi o tick — khong chiem them dong lam viec.
       // Tick o Ghep cot lech = bat tinh nang + mo popover; nut chevron canh o tick mo/dong popover;
