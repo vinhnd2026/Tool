@@ -1036,7 +1036,7 @@
                     <div id="cmp-keycols" class="relative">
                         <button type="button" id="cmp-keycols-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium whitespace-nowrap" title="Chọn một hoặc nhiều cột làm khóa ghép dòng">Khóa: A</button>
                         <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
-                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo Vùng A):</div>
+                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo OLD):</div>
                             <div id="cmp-keycols-list"></div>
                         </div>
                     </div>
@@ -1069,9 +1069,9 @@
 
             <!-- Right: Quick Actions & Theme Switcher -->
             <div class="flex items-center space-x-1 shrink-0">
-                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu Vùng A và Vùng B">
+                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                    <span class="hidden md:inline">Đảo A⇄B</span>
+                    <span class="hidden md:inline">Đảo OLD⇄NEW</span>
                 </button>
                 <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -1118,6 +1118,9 @@
                 <span id="colMapSummary" class="t-text-muted ml-2"></span>
             </div>
             <div class="flex items-center gap-1.5">
+                <button id="cmp-colmap-toggle" class="px-1.5 py-0.5 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Ẩn phần ghép cột">
+                    <svg class="w-3.5 h-3.5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7"></path></svg>
+                </button>
                 <button onclick="resetColMapAuto()" class="px-2 py-0.5 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Tự ghép lại theo tên cột">↺ Tự ghép lại</button>
                 <button onclick="compareData(false)" class="px-2 py-0.5 rounded-lg text-[11px] font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition">Áp dụng</button>
             </div>
@@ -1133,12 +1136,12 @@
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
                     <div class="flex items-center space-x-2">
                         <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <label for="input1" class="font-semibold text-xs t-text-main">Vùng A (Bản gốc)</label>
+                        <label for="input1" class="font-semibold text-xs t-text-main">OLD</label>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge1" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(1)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(1)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng A">
+                        <button onclick="clearSingle(1)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu OLD">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>Xoá</span>
                         </button>
@@ -1161,7 +1164,7 @@
                 <input type="checkbox" id="optAutoCollapse" class="mt-0.5 shrink-0 w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                 <span>Tự động thu gọn</span>
             </label>
-                <button onclick="clearAll()" class="w-full px-3 py-1 justify-center bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-semibold rounded-lg transition flex items-center space-x-1.5 text-xs" title="Xoá hết dữ liệu ở cả Vùng A và Vùng B">
+                <button onclick="clearAll()" class="w-full px-3 py-1 justify-center bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-semibold rounded-lg transition flex items-center space-x-1.5 text-xs" title="Xoá hết dữ liệu ở cả OLD và NEW">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                 </svg>
@@ -1174,12 +1177,12 @@
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
                     <div class="flex items-center space-x-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <label for="input2" class="font-semibold text-xs t-text-main">Vùng B (Bản mới / Cần đối chiếu)</label>
+                        <label for="input2" class="font-semibold text-xs t-text-main">NEW</label>
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge2" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(2)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(2)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng B">
+                        <button onclick="clearSingle(2)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu NEW">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>Xoá</span>
                         </button>
@@ -1204,7 +1207,7 @@
             </div>
             <h2 class="text-sm sm:text-base font-bold t-text-main">Sẵn sàng đối chiếu dữ liệu Excel</h2>
             <p class="text-xs t-text-muted max-w-md mt-1">
-                Dán 2 bảng dữ liệu từ Excel vào <b>Vùng A</b> và <b>Vùng B</b> phía trên rồi nhấn <b>So Sánh Dữ Liệu</b>.
+                Dán 2 bảng dữ liệu từ Excel vào <b>OLD</b> và <b>NEW</b> phía trên rồi nhấn <b>So sánh</b>.
             </p>
         </div>
 
@@ -4235,7 +4238,7 @@
             const grid2 = parseExcelText(raw2);
 
             if (grid1.length === 0 && grid2.length === 0) {
-                showToast('Vui lòng dán dữ liệu vào Vùng A hoặc Vùng B trước khi so sánh!');
+                showToast('Vui lòng dán dữ liệu vào OLD hoặc NEW trước khi so sánh!');
                 toggleInputDrawer(true);
                 return;
             }
@@ -4374,7 +4377,7 @@
                 });
                 const keyColIndexB = keyIdxB.length > 0 ? keyIdxB[0] : -1;
                 if (colMapOn && keyIdxB.some(b => b === -1)) {
-                    showToast('Có cột khóa chưa được ghép sang Vùng B — hãy ghép các cột khóa trong bảng Ghép cột trước!');
+                    showToast('Có cột khóa chưa được ghép sang NEW — hãy ghép các cột khóa trong bảng Ghép cột trước!');
                 }
                 const cmpKeyOf = (row, idxArr) => idxArr.some(b => b === -1)
                     ? null
@@ -4760,18 +4763,18 @@
             input2.value = temp;
             updateDimensionsAndDropdown();
             if (hasCompared) compareData(false);
-            showToast('Đã đảo chiều dữ liệu Vùng A ⇄ Vùng B');
+            showToast('Đã đảo chiều dữ liệu OLD ⇄ NEW');
         }
 
         function clearSingle(num) {
             const el = document.getElementById(`input${num}`);
             if (!el.value) {
-                showToast(`Vùng ${num === 1 ? 'A' : 'B'} đang trống, không có gì để xoá!`);
+                showToast(`${num === 1 ? 'OLD' : 'NEW'} đang trống, không có gì để xoá!`);
                 return;
             }
             el.value = '';
             updateDimensionsAndDropdown();
-            showToast(`Đã xoá toàn bộ dữ liệu Vùng ${num === 1 ? 'A' : 'B'}`);
+            showToast(`Đã xoá toàn bộ dữ liệu ${num === 1 ? 'OLD' : 'NEW'}`);
             if (hasCompared) {
                 const otherEmpty = !document.getElementById(`input${num === 1 ? 2 : 1}`).value.trim();
                 if (otherEmpty) {
@@ -5121,6 +5124,16 @@
           if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
         });
       }
+      // An/hien than bang ghep cot bang nut chevron canh tieu de
+      const _cmt = document.getElementById('cmp-colmap-toggle');
+      if (_cmt) _cmt.addEventListener('click', () => {
+        const rows = document.getElementById('colMapRows');
+        if (!rows) return;
+        const collapsed = rows.classList.toggle('hidden');
+        const svg = _cmt.querySelector('svg');
+        if (svg) svg.style.transform = collapsed ? 'rotate(180deg)' : '';
+        _cmt.title = collapsed ? 'Hiện phần ghép cột' : 'Ẩn phần ghép cột';
+      });
       // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
       cmpRenderProfiles();
       const _pbtn = document.getElementById('cmp-profile-btn');
