@@ -5245,6 +5245,40 @@
         const tab = document.getElementById('tab-compare');
         if (!tab || tab.classList.contains('hidden')) return;
         if (e.key === 'Escape') { cmpClearSelection(); return; }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          const t = e.target;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+          const tbody = cmpTableBody();
+          if (!tbody || tbody.rows.length === 0) return;
+          if (!cmpSel.focus && cmpSel.cells.size === 0 && cmpSel.rows.size === 0) return;
+          let cur = cmpSel.focus;
+          if (!cur) {
+            if (cmpSel.rows.size) { cur = { r: Math.max(...cmpSel.rows), c: 0 }; }
+            else { let best = null; cmpSel.cells.forEach(k => { const [r, c] = k.split(',').map(Number); if (!best || r > best.r || (r === best.r && c > best.c)) best = { r, c }; }); cur = best || { r: 0, c: 0 }; }
+          }
+          const dr = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+          const dc = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+          const nr = Math.max(0, Math.min(tbody.rows.length - 1, cur.r + dr));
+          const nc = Math.max(0, Math.min(tbody.rows[nr].cells.length - 1, cur.c + dc));
+          e.preventDefault();
+          if (dc !== 0 && cmpSel.dragMode === 'row') cmpSel.dragMode = 'cell';
+          if (e.shiftKey) {
+            if (!cmpSel.anchor) cmpSel.anchor = { r: cur.r, c: cur.c };
+            cmpSel.focus = { r: nr, c: nc };
+            cmpSel.additive = false;
+            cmpRectToSelection();
+          } else {
+            cmpSel.anchor = { r: nr, c: nc };
+            cmpSel.focus = { r: nr, c: nc };
+            cmpSel.additive = false;
+            cmpSel.cells.clear(); cmpSel.rows.clear();
+            if (cmpSel.dragMode === 'row') cmpSel.rows.add(nr); else cmpSel.cells.add(cmpCellKey(nr, nc));
+            cmpApplySelection();
+          }
+          const td = tbody.rows[nr] && tbody.rows[nr].cells[nc];
+          if (td && typeof td.scrollIntoView === 'function') { try { td.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (err) {} }
+          return;
+        }
         if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
           const t = e.target;
           if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
