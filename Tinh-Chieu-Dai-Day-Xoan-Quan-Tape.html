@@ -1107,7 +1107,7 @@
     </section>
 
     <!-- 2. COLLAPSIBLE INPUT DRAWER -->
-    <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2.5 shrink-0 transition-all duration-200">
+    <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2 shrink-0 transition-all duration-200">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
             <!-- Vùng A -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
@@ -1125,8 +1125,8 @@
                         </button>
                     </div>
                 </div>
-                <textarea id="input1" rows="5" 
-                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                <textarea id="input1" rows="3" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu từ Excel và nhấn Ctrl+V vào đây..."></textarea>
             </div>
 
@@ -1146,8 +1146,8 @@
                         </button>
                     </div>
                 </div>
-                <textarea id="input2" rows="5" 
-                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                <textarea id="input2" rows="3" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu thứ 2 từ Excel và nhấn Ctrl+V vào đây..."></textarea>
             </div>
         </div>
@@ -1854,6 +1854,8 @@
       document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + tabId).classList.remove('hidden');
       if (typeof updateSidebarBtns === 'function') updateSidebarBtns();
+      const _mainEl = document.querySelector('main');
+      if (_mainEl) _mainEl.style.padding = (tabId === 'compare') ? '0' : '';
 
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.getElementById('nav-' + tabId);
@@ -4850,6 +4852,26 @@
             showToast('Đã xuất file CSV chuẩn tiếng Việt thành công!');
         }
     
+  </script>
+  <script>
+    // Muc 6 (tich hop): toi uu khong gian lam viec — bang nhap day kich len tren:
+    // mac dinh thu gon vung nhap, va tu dong thu gon sau moi lan so sanh
+    // de bang ket qua co nhieu dien tich nhat. Bam "Mo vung nhap" de mo lai.
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof toggleInputDrawer === 'function' && typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
+        toggleInputDrawer(false);
+      }
+      if (typeof window.compareData === 'function') {
+        const _origCompareData = window.compareData;
+        window.compareData = function () {
+          const r = _origCompareData.apply(this, arguments);
+          if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen && typeof toggleInputDrawer === 'function') {
+            toggleInputDrawer(false);
+          }
+          return r;
+        };
+      }
+    });
   </script>
 
   <script>
