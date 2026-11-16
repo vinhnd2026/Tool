@@ -4843,15 +4843,12 @@
     
   </script>
   <script>
-    // Muc 6 (tich hop): toi uu khong gian lam viec — bang nhap day kich len tren:
-    // mac dinh thu gon vung nhap + bat san o tick tu thu gon (chinh cong cu se
-    // tu thu gon sau khi so sanh neu o tick dang bat). Bam "Mo vung nhap" de mo lai.
+    // Muc 6 (tich hop): toi uu khong gian lam viec — vung nhap mac dinh MO san
+    // de dan du lieu ngay; bat san o tick tu thu gon (chinh cong cu se tu thu
+    // gon sau khi so sanh neu o tick dang bat) de bang ket qua rong toi da.
     document.addEventListener('DOMContentLoaded', () => {
       const _cbAuto = document.getElementById('optAutoCollapse');
       if (_cbAuto) _cbAuto.checked = true;
-      if (typeof toggleInputDrawer === 'function' && typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
-        toggleInputDrawer(false);
-      }
     });
   </script>
 
