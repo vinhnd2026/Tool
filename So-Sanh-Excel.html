@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="vi" data-theme="light">
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root, [data-theme="light"] {
+        html, body { height: 100%; margin: 0; }
+/* ===== CSS cua muc 6 (So sanh du lieu) — da scope vao #tab-compare ===== */
+#tab-compare, #tab-compare[data-theme="light"] {
             --bg-app: #f1f5f9;
             --bg-surface: #ffffff;
             --bg-subtle: #f8fafc;
@@ -20,7 +22,7 @@
             --accent: #059669;
             --accent-hover: #047857;
             
-            /* Diff Colors - Light */
+            
             --row-mod-bg: rgba(254, 243, 199, 0.35);
             --cell-mod-bg: #fef3c7;
             --cell-mod-border: #fcd34d;
@@ -31,9 +33,7 @@
             --new-bg: #dcfce7;
             --new-text: #15803d;
             --sticky-shadow: rgba(15, 23, 42, 0.06);
-        }
-
-        [data-theme="dark"] {
+        }#tab-compare[data-theme="dark"] {
             --bg-app: #090d16;
             --bg-surface: #111827;
             --bg-subtle: #1e293b;
@@ -46,7 +46,7 @@
             --accent: #10b981;
             --accent-hover: #059669;
 
-            /* Diff Colors - Dark */
+            
             --row-mod-bg: rgba(120, 53, 15, 0.18);
             --cell-mod-bg: rgba(180, 83, 9, 0.32);
             --cell-mod-border: #78350f;
@@ -57,9 +57,7 @@
             --new-bg: rgba(22, 101, 52, 0.5);
             --new-text: #86efac;
             --sticky-shadow: rgba(0, 0, 0, 0.35);
-        }
-
-        [data-theme="sepia"] {
+        }#tab-compare[data-theme="sepia"] {
             --bg-app: #ebe5d8;
             --bg-surface: #f7f3eb;
             --bg-subtle: #efeadd;
@@ -72,7 +70,7 @@
             --accent: #0d9488;
             --accent-hover: #0f766e;
 
-            /* Diff Colors - Sepia */
+            
             --row-mod-bg: rgba(245, 158, 11, 0.14);
             --cell-mod-bg: #f5e1b9;
             --cell-mod-border: #d9b675;
@@ -83,47 +81,25 @@
             --new-bg: #c6e6d3;
             --new-text: #166534;
             --sticky-shadow: rgba(44, 37, 29, 0.08);
-        }
-
-        body {
+        }#tab-compare {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-app);
             color: var(--text-main);
             transition: background-color 0.15s ease, color 0.15s ease;
-        }
-
-        .font-mono-num {
+        }#tab-compare .font-mono-num {
             font-family: 'JetBrains Mono', monospace;
             font-variant-numeric: tabular-nums;
-        }
-
-        /* Theme utility classes */
-        .t-surface { background-color: var(--bg-surface); }
-        .t-subtle { background-color: var(--bg-subtle); }
-        .t-muted { background-color: var(--bg-muted); }
-        .t-border { border-color: var(--border-color); }
-        .t-border-subtle { border-color: var(--border-subtle); }
-        .t-text-main { color: var(--text-main); }
-        .t-text-sec { color: var(--text-secondary); }
-        .t-text-muted { color: var(--text-muted); }
-
-        /* Custom Scrollbars */
-        ::-webkit-scrollbar {
+        }#tab-compare .t-surface { background-color: var(--bg-surface); }#tab-compare .t-subtle { background-color: var(--bg-subtle); }#tab-compare .t-muted { background-color: var(--bg-muted); }#tab-compare .t-border { border-color: var(--border-color); }#tab-compare .t-border-subtle { border-color: var(--border-subtle); }#tab-compare .t-text-main { color: var(--text-main); }#tab-compare .t-text-sec { color: var(--text-secondary); }#tab-compare .t-text-muted { color: var(--text-muted); }#tab-compare ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
-        }
-        ::-webkit-scrollbar-track {
+        }#tab-compare ::-webkit-scrollbar-track {
             background: var(--bg-subtle);
-        }
-        ::-webkit-scrollbar-thumb {
+        }#tab-compare ::-webkit-scrollbar-thumb {
             background: var(--border-color);
             border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
+        }#tab-compare ::-webkit-scrollbar-thumb:hover {
             background: var(--text-muted);
-        }
-
-        .tab-textarea {
+        }#tab-compare .tab-textarea {
             tab-size: 12;
             -moz-tab-size: 12;
             white-space: pre;
@@ -132,71 +108,68 @@
             background-color: var(--bg-subtle);
             color: var(--text-main);
             border-color: var(--border-color);
-        }
-        .tab-textarea:focus {
+        }#tab-compare .tab-textarea:focus {
             background-color: var(--bg-surface);
-        }
-
-        /* Diff Pill Styling */
-        .diff-old {
+        }#tab-compare .diff-old {
             text-decoration: line-through;
             color: var(--old-text);
             background-color: var(--old-bg);
             padding: 1px 5px;
             border-radius: 4px;
             font-size: 0.85em;
-        }
-        .diff-new {
+        }#tab-compare .diff-new {
             color: var(--new-text);
             background-color: var(--new-bg);
             padding: 1px 5px;
             border-radius: 4px;
             font-weight: 600;
-        }
-
-        /* Table Sticky Columns & Headers */
-        .sticky-header th {
+        }#tab-compare .sticky-header th {
             position: sticky;
             top: 0;
             z-index: 20;
             background-color: var(--bg-subtle);
             box-shadow: 0 1px 0 var(--border-color);
-        }
-        .sticky-col-1 {
+        }#tab-compare .sticky-col-1 {
             position: sticky;
             left: 0;
             z-index: 15;
             background-color: var(--bg-surface);
-        }
-        .sticky-col-2 {
+        }#tab-compare .sticky-col-2 {
             position: sticky;
             left: 88px;
             z-index: 15;
             background-color: var(--bg-surface);
             box-shadow: 3px 0 5px -2px var(--sticky-shadow);
-        }
-        .sticky-header .sticky-col-1,
-        .sticky-header .sticky-col-2 {
+        }#tab-compare .sticky-header .sticky-col-1, #tab-compare .sticky-header .sticky-col-2 {
             z-index: 30;
             background-color: var(--bg-subtle);
-        }
-
-        /* Row Diff Highlights */
-        .row-modified { background-color: var(--row-mod-bg); }
-        .row-added { background-color: var(--row-add-bg); }
-        .row-deleted { background-color: var(--row-del-bg); }
-        .cell-modified {
+        }#tab-compare .row-modified { background-color: var(--row-mod-bg); }#tab-compare .row-added { background-color: var(--row-add-bg); }#tab-compare .row-deleted { background-color: var(--row-del-bg); }#tab-compare .cell-modified {
             background-color: var(--cell-mod-bg);
             border-color: var(--cell-mod-border);
-        }
-        
-        /* Keep sticky columns tinted appropriately when row has status */
-        tr:hover td {
+        }#tab-compare tr:hover td {
             filter: brightness(0.97);
         }
+    
+
+    </style>
+    <style>
+    /* Chon o / dong trong bang ket qua So sanh (muc 6) */
+    #tab-compare #tableWrapper td { cursor: cell; }
+    #tab-compare #tableWrapper td.sticky-col-1, #tab-compare #tableWrapper td.sticky-col-2 { cursor: pointer; }
+    #tab-compare #tableWrapper td.cmp-sel { background-color: rgba(37, 99, 235, 0.22) !important; box-shadow: inset 0 0 0 2px #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td { background-color: rgba(37, 99, 235, 0.30) !important; font-weight: 700; box-shadow: inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td:first-child { box-shadow: inset 4px 0 0 #2563eb, inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td:last-child { box-shadow: inset -4px 0 0 #2563eb, inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #bfdbfe !important; }
+    #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #1e3a8a !important; }
+    /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
+    #tab-compare #colMapPanel.cmp-popover { position: absolute; top: calc(100% + 6px); right: 0; width: min(94vw, 920px); max-height: 64vh; overflow: auto; z-index: 60; border-width: 1px; border-style: solid; border-radius: 12px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
+
     </style>
 </head>
-<body class="h-screen overflow-hidden flex flex-col select-none sm:select-auto">
+<body>
+    <section id="tab-compare" data-theme="light" style="height:100%">
+      <div id="cmp-root" class="flex flex-col select-none sm:select-auto" style="height:100%">
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
@@ -210,7 +183,7 @@
 
     <!-- 1. COMPACT TOP TOOLBAR -->
     <header class="t-surface border-b t-border px-2 py-1.5 shrink-0 z-30 shadow-sm">
-        <div class="flex flex-wrap lg:flex-nowrap items-center justify-between gap-x-2 gap-y-1">
+        <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
             
             <!-- Left: Brand & Drawer Toggle -->
             <div class="flex items-center space-x-2 shrink-0">
@@ -220,11 +193,8 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
                     </div>
-                    <div>
-                        <h1 class="text-sm font-bold t-text-main leading-tight whitespace-nowrap">Data comparison</h1>
-                    </div>
+                    <h1 class="text-sm font-bold t-text-main leading-tight whitespace-nowrap">Data comparison</h1>
                 </div>
-
                 <div class="h-5 w-[1px] t-muted mx-0.5 hidden sm:block"></div>
 
                 <!-- Toggle Input Panel Button -->
@@ -240,7 +210,7 @@
             </div>
 
             <!-- Center: Compare Configuration Inline -->
-            <div class="flex items-center gap-1.5 text-xs min-w-0">
+            <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs min-w-0 flex-1">
                 <!-- Mode Segmented Control -->
                 <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
                     <label class="cursor-pointer">
@@ -263,43 +233,77 @@
                     <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0">
                         <option value="0">Cột A</option>
                     </select>
+                    <div id="cmp-keycols" class="relative">
+                        <button type="button" id="cmp-keycols-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium whitespace-nowrap" title="Chọn một hoặc nhiều cột làm khóa ghép dòng">Khóa: A</button>
+                        <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
+                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo OLD):</div>
+                            <div id="cmp-keycols-list"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Quick Checkboxes -->
-                <div class="flex items-center space-x-2 whitespace-nowrap">
-                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Dòng đầu tiên là tiêu đề cột">
                         <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Có tiêu đề</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
+                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
                         <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Bỏ khoảng trắng</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
+                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Phân biệt chữ HOA và chữ thường">
                         <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Hoa/thường</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
-                        <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Ghép cột lệch</span>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
+                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Bỏ dòng trống</span>
+                    </label>
+                    <div id="cmp-colmap-anchor" class="relative inline-flex items-center gap-1">
+                        <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
+                            <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                            <span class="t-text-sec font-medium">Ghép cột lệch</span>
+                        </label>
+                        <button type="button" id="cmp-colmap-open" class="px-1 py-0.5 rounded text-[11px] t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Mở / đóng cài đặt ghép cột lệch">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                    </div>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
+                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Ghép thông minh</span>
                     </label>
                 </div>
             </div>
 
             <!-- Right: Quick Actions & Theme Switcher -->
-            <div class="flex items-center space-x-1 shrink-0">
+            <div class="flex flex-wrap items-center gap-x-1 gap-y-1">
                 <button onclick="loadSampleData()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
                     <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     <span class="hidden sm:inline">Mẫu</span>
                 </button>
-                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu Vùng A và Vùng B">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path></svg>
-                    <span class="hidden md:inline">Đảo A⇄B</span>
+                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
+                    <span>OLD⇄NEW</span>
                 </button>
                 <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     <span class="hidden md:inline">Xóa</span>
                 </button>
+
+                <!-- Ho so cai dat (ban tich hop): bam ten de ap dung, dau X o tung dong de xoa -->
+                <div class="inline-flex items-center gap-1 ml-0.5" title="Hồ sơ cài đặt: lưu toàn bộ tuỳ chọn so sánh và ghép cột để dùng lại">
+                    <div id="cmp-profile" class="relative">
+                        <button type="button" id="cmp-profile-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-1 text-xs font-medium flex items-center gap-1 max-w-[160px]" title="Chọn hồ sơ cài đặt để áp dụng">
+                            <span id="cmp-profile-name" class="truncate">Hồ sơ…</span>
+                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="cmp-profile-panel" class="hidden absolute right-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl py-1 w-56 max-h-60 overflow-auto">
+                            <div id="cmp-profile-list"></div>
+                            <div id="cmp-profile-empty" class="px-3 py-2 text-[11px] t-text-muted">Chưa có hồ sơ nào — chỉnh cài đặt rồi bấm Lưu.</div>
+                        </div>
+                    </div>
+                    <button id="cmp-profile-save" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Lưu cài đặt hiện tại thành hồ sơ">Lưu</button>
+                </div>
 
                 <!-- Theme Switcher Group -->
                 <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border ml-0.5" title="Chế độ màu nền">
@@ -334,64 +338,71 @@
     </section>
 
     <!-- 2. COLLAPSIBLE INPUT DRAWER -->
-    <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2.5 shrink-0 transition-all duration-200">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+    <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2 shrink-0 transition-all duration-200">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3">
             <!-- Vùng A -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-                        <label for="input1" class="font-semibold text-xs t-text-main">Vùng A (Bản gốc)</label>
+                    <div class="flex items-center space-x-2 flex-1 min-w-0 mr-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
+                        <label for="input1" class="font-semibold text-xs t-text-main">OLD</label>
+                        <input type="text" id="cmp-note-old" placeholder="Ghi chú…" maxlength="60" class="flex-1 min-w-[50px] max-w-[230px] bg-transparent border border-transparent hover:border-slate-400/50 focus:border-emerald-500 rounded px-1.5 py-0.5 text-[11px] t-text-sec outline-none" title="Ghi chú ngắn cho dữ liệu OLD (tự lưu)">
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge1" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(1)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(1)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng A">
+                        <button onclick="clearSingle(1)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu OLD">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>Xoá</span>
                         </button>
                     </div>
                 </div>
-                <textarea id="input1" rows="5" 
-                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                <textarea id="input1" rows="3" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu từ Excel và nhấn Ctrl+V vào đây..."></textarea>
+            </div>
+
+            <!-- Cot giua: nut So sanh + tuy chon thu gon (chen giua A/B, bo hang nut rieng) -->
+            <div class="flex lg:flex-col flex-wrap items-center justify-center gap-1.5 lg:w-40 shrink-0">
+                <button onclick="compareData(true)" class="w-full px-3 py-1.5 justify-center bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 text-xs">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                <span>So sánh</span>
+            </button>
+                <label class="flex items-start space-x-1.5 text-[11px] leading-snug t-text-muted cursor-pointer select-none" title="Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả">
+                <input type="checkbox" id="optAutoCollapse" class="mt-0.5 shrink-0 w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                <span>Tự động thu gọn</span>
+            </label>
+                <button onclick="clearAll()" class="w-full px-3 py-1 justify-center bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-semibold rounded-lg transition flex items-center space-x-1.5 text-xs" title="Xoá hết dữ liệu ở cả OLD và NEW">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                </svg>
+                <span>Xoá hết</span>
+            </button>
             </div>
 
             <!-- Vùng B -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <label for="input2" class="font-semibold text-xs t-text-main">Vùng B (Bản mới / Cần đối chiếu)</label>
+                    <div class="flex items-center space-x-2 flex-1 min-w-0 mr-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+                        <label for="input2" class="font-semibold text-xs t-text-main">NEW</label>
+                        <input type="text" id="cmp-note-new" placeholder="Ghi chú…" maxlength="60" class="flex-1 min-w-[50px] max-w-[230px] bg-transparent border border-transparent hover:border-slate-400/50 focus:border-emerald-500 rounded px-1.5 py-0.5 text-[11px] t-text-sec outline-none" title="Ghi chú ngắn cho dữ liệu NEW (tự lưu)">
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge2" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
                         <button onclick="pasteFromClipboard(2)" class="text-[11px] px-1.5 py-0.5 rounded t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Dán từ Clipboard">Dán</button>
-                        <button onclick="clearSingle(2)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu Vùng B">
+                        <button onclick="clearSingle(2)" class="text-[11px] px-1.5 py-0.5 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xoá toàn bộ dữ liệu NEW">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                             <span>Xoá</span>
                         </button>
                     </div>
                 </div>
-                <textarea id="input2" rows="5" 
-                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[84px] max-h-[260px]"
+                <textarea id="input2" rows="3" 
+                    class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu thứ 2 từ Excel và nhấn Ctrl+V vào đây..."></textarea>
             </div>
-        </div>
-
-        <!-- Drawer Bottom Action Bar -->
-        <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-            <label class="flex items-center space-x-1.5 text-xs t-text-muted cursor-pointer select-none">
-                <input type="checkbox" id="optAutoCollapse" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                <span>Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả</span>
-            </label>
-
-            <button onclick="compareData(true)" class="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 text-xs sm:text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                </svg>
-                <span>So Sánh Dữ Liệu</span>
-            </button>
         </div>
     </section>
 
@@ -407,11 +418,9 @@
             </div>
             <h2 class="text-sm sm:text-base font-bold t-text-main">Sẵn sàng đối chiếu dữ liệu Excel</h2>
             <p class="text-xs t-text-muted max-w-md mt-1">
-                Dán 2 bảng dữ liệu từ Excel vào <b>Vùng A</b> và <b>Vùng B</b> phía trên rồi nhấn <b>So Sánh Dữ Liệu</b>, hoặc bấm nút <b>Mẫu</b> trên thanh công cụ để xem thử nghiệm ngay.
+                Dán 2 bảng dữ liệu từ Excel vào <b>OLD</b> và <b>NEW</b> phía trên rồi nhấn <b>So sánh</b>.
             </p>
-            <button onclick="loadSampleData()" class="mt-4 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-sm transition">
-                Tải dữ liệu mẫu &amp; So sánh ngay
-            </button>
+            <button onclick="loadSampleData()" class="mt-4 px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition">Tải dữ liệu mẫu &amp; So sánh ngay</button>
         </div>
 
         <!-- Results Workspace -->
@@ -469,16 +478,6 @@
                         </button>
                     </div>
 
-                    <!-- View Switcher: Merged vs Split -->
-                    <div class="inline-flex p-0.5 t-subtle border t-border rounded-lg">
-                        <button id="btnViewMerged" onclick="setViewMode('merged')" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white transition">
-                            Bảng gộp (Cũ → Mới)
-                        </button>
-                        <button id="btnViewSplit" onclick="setViewMode('split')" class="px-2.5 py-1 text-xs font-semibold rounded-md t-text-sec hover:opacity-80 transition">
-                            Song song (2 bảng)
-                        </button>
-                    </div>
-
                     <!-- Export Actions -->
                     <button onclick="copyResultToClipboard()" class="px-2.5 py-1 t-subtle hover:opacity-80 t-text-main border t-border text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Copy kết quả hiện tại để dán vào Excel">
                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
@@ -496,7 +495,7 @@
             <div class="flex-1 t-surface rounded-xl border t-border overflow-hidden flex flex-col min-h-0 shadow-sm relative">
                 
                 <!-- Merged / Single Table Container -->
-                <div id="tableWrapper" class="flex-1 overflow-auto w-full h-full"></div>
+            <div id="tableWrapper" class="flex-1 overflow-auto w-full h-full"></div>
 
                 <!-- Synchronized Split View Container -->
                 <div id="splitTableWrapper" class="hidden flex-1 grid grid-cols-2 divide-x t-border min-h-0 h-full overflow-hidden">
@@ -518,7 +517,12 @@
 
     </main>
 
+    
+      </div>
+    </section>
+
     <script>
+
         // Application State
         let hasCompared = false;
         let isDrawerOpen = true;
@@ -594,7 +598,7 @@
 
         // Theme Management
         function setTheme(themeName) {
-            document.documentElement.setAttribute('data-theme', themeName);
+            document.getElementById('tab-compare').setAttribute('data-theme', themeName);
             localStorage.setItem('excel_diff_theme', themeName);
 
             ['light', 'sepia', 'dark'].forEach(t => {
@@ -743,6 +747,70 @@
             if (trimOpt) s = s.trim();
             if (!caseOpt) s = s.toLowerCase();
             return s;
+        }
+
+        // Doc mot gia tri thanh so (phuc vu cot gan kieu So): chap nhan 1.5 / 1,5 /
+        // 1.500.000 / 1,500,000 / 1 000; so 0 thua sau dau thap phan tu mat khi so sanh.
+        // Tra null neu khong phai so -> nguoi goi tu quay ve so sanh chu.
+        function cmpParseNum(val) {
+            if (val === undefined || val === null) return null;
+            let s = String(val).trim().replace(/\s+/g, '');
+            if (s === '') return null;
+            let neg = false;
+            if (s.charAt(0) === '+') s = s.slice(1);
+            else if (s.charAt(0) === '-') { neg = true; s = s.slice(1); }
+            if (!/^[0-9.,]+$/.test(s)) return null;
+            const hasDot = s.indexOf('.') !== -1, hasComma = s.indexOf(',') !== -1;
+            if (hasDot && hasComma) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(/,/g, '.');
+                else s = s.replace(/,/g, '');
+                if (s.indexOf('.') !== s.lastIndexOf('.')) return null;
+            } else if (hasComma) {
+                if (/^[1-9][0-9]{0,2}(,[0-9]{3})+$/.test(s)) s = s.replace(/,/g, '');
+                else if (s.indexOf(',') === s.lastIndexOf(',')) s = s.replace(',', '.');
+                else return null;
+            } else if (hasDot) {
+                if (/^[1-9][0-9]{0,2}(\.[0-9]{3})+$/.test(s)) s = s.replace(/\./g, '');
+                else if (s.indexOf('.') !== s.lastIndexOf('.')) return null;
+            }
+            if (!/^[0-9]+(\.[0-9]+)?$/.test(s)) return null;
+            const n = parseFloat(s);
+            return isFinite(n) ? (neg ? -n : n) : null;
+        }
+
+        // Do tuong dong 2 chuoi theo cap 2 ky tu lien tiep (Dice), 0..1
+        function cmpDiceSim(a, b) {
+            if (a === b) return 1;
+            if (a.length < 2 || b.length < 2) return 0;
+            const grams = (s) => { const m = new Map(); for (let i = 0; i < s.length - 1; i++) { const g = s.substr(i, 2); m.set(g, (m.get(g) || 0) + 1); } return m; };
+            const ma = grams(a), mb = grams(b);
+            let inter = 0, ta = 0, tb = 0;
+            ma.forEach(v => { ta += v; });
+            mb.forEach(v => { tb += v; });
+            ma.forEach((v, g) => { const w = mb.get(g) || 0; inter += Math.min(v, w); });
+            return (2 * inter) / (ta + tb);
+        }
+
+        // Cat phan giong nhau o dau/cuoi, tra ve cac doan [text, isDiff] cua hai phia
+        function cmpCharDiff(a, b) {
+            let pre = 0;
+            const maxPre = Math.min(a.length, b.length);
+            while (pre < maxPre && a.charAt(pre) === b.charAt(pre)) pre++;
+            let suf = 0;
+            const maxSuf = Math.min(a.length - pre, b.length - pre);
+            while (suf < maxSuf && a.charAt(a.length - 1 - suf) === b.charAt(b.length - 1 - suf)) suf++;
+            const segA = [], segB = [];
+            const pushSeg = (arr, txt, isD) => { if (txt) arr.push([txt, isD]); };
+            pushSeg(segA, a.slice(0, pre), false); pushSeg(segB, b.slice(0, pre), false);
+            pushSeg(segA, a.slice(pre, a.length - suf), true); pushSeg(segB, b.slice(pre, b.length - suf), true);
+            pushSeg(segA, a.slice(a.length - suf), false); pushSeg(segB, b.slice(b.length - suf), false);
+            return [segA, segB];
+        }
+
+        function cmpSegHTML(segs, isOld) {
+            return segs.map(([txt, isD]) => isD
+                ? `<span class="${isOld ? 'bg-rose-500/35' : 'bg-emerald-500/35'} rounded-[3px] px-[1px] font-bold">${escapeHTML(txt)}</span>`
+                : escapeHTML(txt)).join('');
         }
 
         function displayValue(val, trimOpt) {
@@ -934,7 +1002,7 @@
             const grid2 = parseExcelText(raw2);
 
             if (grid1.length === 0 && grid2.length === 0) {
-                showToast('Vui lòng dán dữ liệu vào Vùng A hoặc Vùng B trước khi so sánh!');
+                showToast('Vui lòng dán dữ liệu vào OLD hoặc NEW trước khi so sánh!');
                 toggleInputDrawer(true);
                 return;
             }
@@ -992,7 +1060,13 @@
                 const v2 = p.b !== -1 ? displayValue(r2[p.b], trimOpt) : '';
                 const norm1 = p.a !== -1 ? normalizeValue(r1[p.a], trimOpt, caseOpt) : '';
                 const norm2 = p.b !== -1 ? normalizeValue(r2[p.b], trimOpt, caseOpt) : '';
-                return { isDiff: norm1 !== norm2, cell: { status: norm1 !== norm2 ? 'modified' : 'same', val1: v1, val2: v2 } };
+                let isDiff = norm1 !== norm2;
+                if (isDiff && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[pairs.indexOf(p)] === 'num') {
+                    const n1 = p.a !== -1 ? cmpParseNum(r1[p.a]) : null;
+                    const n2 = p.b !== -1 ? cmpParseNum(r2[p.b]) : null;
+                    if (n1 !== null && n2 !== null) isDiff = Math.abs(n1 - n2) > 1e-9 * Math.max(1, Math.abs(n1), Math.abs(n2));
+                }
+                return { isDiff: isDiff, cell: { status: isDiff ? 'modified' : 'same', val1: v1, val2: v2 } };
             };
             const pairCellsForSingleRow = (row, side, status) => pairs.map(p => {
                 if (side === 'B') {
@@ -1063,20 +1137,39 @@
                 }
             } else {
                 // Key Column Matching — khi ghép cột lệch, khóa ở B tra qua cặp ghép của cột khóa A
-                const keyPair = pairs.find(p => p.a === keyColIndex);
-                const keyColIndexB = colMapOn ? (keyPair ? keyPair.b : -1) : keyColIndex;
-                if (colMapOn && keyColIndexB === -1) {
-                    showToast('Cột khóa chưa được ghép sang Vùng B — hãy ghép cột khóa trong bảng Ghép cột trước!');
+                // (Ban tich hop: chon duoc NHIEU cot khoa — khoa ghep la cac gia tri noi nhau)
+                const keyIdxA = (typeof window.__cmpKeyCols !== 'undefined' && Array.isArray(window.__cmpKeyCols) && window.__cmpKeyCols.length > 0)
+                    ? window.__cmpKeyCols.slice() : [keyColIndex];
+                const keyIdxB = keyIdxA.map(aIdx => {
+                    if (!colMapOn) return aIdx;
+                    const kp = pairs.find(p => p.a === aIdx);
+                    return kp ? kp.b : -1;
+                });
+                const keyColIndexB = keyIdxB.length > 0 ? keyIdxB[0] : -1;
+                if (colMapOn && keyIdxB.some(b => b === -1)) {
+                    showToast('Có cột khóa chưa được ghép sang NEW — hãy ghép các cột khóa trong bảng Ghép cột trước!');
                 }
+                const cmpKeyOf = (row, idxArr) => idxArr.some(b => b === -1)
+                    ? null
+                    : idxArr.map((ci, k) => {
+                        const pairIdx = pairs.findIndex(p => p.a === keyIdxA[k]);
+                        if (pairIdx >= 0 && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[pairIdx] === 'num') {
+                            const n = cmpParseNum(row[ci]);
+                            if (n !== null) return 'N:' + n;
+                        }
+                        return normalizeValue(row[ci], trimOpt, caseOpt);
+                    }).join('\u0001');
                 const map2 = new Map();
                 rows2.forEach((r2, idx) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_B_${idx}` : normalizeValue(r2[keyColIndexB], trimOpt, caseOpt);
+                    const _kB = cmpKeyOf(r2, keyIdxB);
+                    const normKey = _kB === null ? `__NOKEY_B_${idx}` : _kB;
                     if (!map2.has(normKey)) map2.set(normKey, []);
                     map2.get(normKey).push({ row: r2, index: idx, matched: false });
                 });
 
                 rows1.forEach((r1, idx1) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_A_${idx1}` : normalizeValue(r1[keyColIndex], trimOpt, caseOpt);
+                    const _kA = cmpKeyOf(r1, keyIdxA);
+                    const normKey = (_kA === null || keyIdxB.some(b => b === -1)) ? `__NOKEY_A_${idx1}` : _kA;
                     const candidates = map2.get(normKey);
                     const matchObj = candidates ? candidates.find(item => !item.matched) : null;
                     const rowNum1 = hasHeader ? idx1 + 2 : idx1 + 1;
@@ -1120,7 +1213,8 @@
                 });
 
                 rows2.forEach((r2, idx2) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_B_${idx2}` : normalizeValue(r2[keyColIndexB], trimOpt, caseOpt);
+                    const _kB2 = cmpKeyOf(r2, keyIdxB);
+                    const normKey = _kB2 === null ? `__NOKEY_B_${idx2}` : _kB2;
                     const candidates = map2.get(normKey) || [];
                     const item = candidates.find(c => c.index === idx2);
                     if (item && !item.matched) {
@@ -1138,6 +1232,62 @@
                 });
             }
 
+            // Ghep thong minh: cap dong Xoa (OLD) voi dong Them (NEW) rat giong nhau
+            // thanh mot dong Da sua (chi chay khi nguoi dung tick o "Ghep thong minh")
+            const smartOpt = document.getElementById('optSmartMatch');
+            if (smartOpt && smartOpt.checked) {
+                const delIdx = [], addIdx = [];
+                resultRows.forEach((row, i) => { if (row.status === 'deleted') delIdx.push(i); else if (row.status === 'added') addIdx.push(i); });
+                if (delIdx.length > 0 && addIdx.length > 0) {
+                    const rowText = (row, side) => row.cells.map(cell => normalizeValue(side === 'A' ? cell.val1 : cell.val2, trimOpt, caseOpt)).join('\u0002');
+                    const cand = [];
+                    delIdx.forEach(di => {
+                        const ta = rowText(resultRows[di], 'A');
+                        addIdx.forEach(ai => {
+                            const sim = cmpDiceSim(ta, rowText(resultRows[ai], 'B'));
+                            if (sim >= 0.85) cand.push({ di, ai, sim });
+                        });
+                    });
+                    cand.sort((x, y) => y.sim - x.sim);
+                    const usedD = new Set(), usedA = new Set(), mergedAt = new Map();
+                    cand.forEach(({ di, ai }) => {
+                        if (usedD.has(di) || usedA.has(ai)) return;
+                        usedD.add(di); usedA.add(ai);
+                        const dRow = resultRows[di], aRow = resultRows[ai];
+                        let hasDiff = false, diffCount = 0;
+                        const cells = dRow.cells.map((dc, c) => {
+                            const v1 = dc.val1, v2 = aRow.cells[c] ? aRow.cells[c].val2 : '';
+                            let isDiff = normalizeValue(v1, trimOpt, caseOpt) !== normalizeValue(v2, trimOpt, caseOpt);
+                            if (isDiff && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[c] === 'num') {
+                                const n1 = cmpParseNum(v1), n2 = cmpParseNum(v2);
+                                if (n1 !== null && n2 !== null) isDiff = Math.abs(n1 - n2) > 1e-9 * Math.max(1, Math.abs(n1), Math.abs(n2));
+                            }
+                            const cell = { status: isDiff ? 'modified' : 'same', val1: v1, val2: v2 };
+                            if (isDiff) { hasDiff = true; diffCount++; const hd = cmpCharDiff(v1, v2); cell.hlA = hd[0]; cell.hlB = hd[1]; }
+                            return cell;
+                        });
+                        const numA = String(dRow.rowLabel).replace(/^A?#/, '');
+                        const numB = String(aRow.rowLabel).replace(/^B?#/, '');
+                        mergedAt.set(di, { rowLabel: numA === numB ? `#${numA}` : `A${numA}\u2192B${numB}`, status: hasDiff ? 'modified' : 'same', cells });
+                        stats.deletedRows--; stats.addedRows--;
+                        stats.diffCells -= 2 * numCols;
+                        for (let c = 0; c < numCols; c++) colDiffCounts[c]--;
+                        stats.diffCells += diffCount;
+                        cells.forEach((cell, c) => { if (cell.status === 'modified') colDiffCounts[c]++; });
+                        if (hasDiff) stats.modifiedRows++; else stats.sameRows++;
+                    });
+                    if (mergedAt.size > 0) {
+                        const kept = [];
+                        resultRows.forEach((row, i) => {
+                            if (mergedAt.has(i)) kept.push(mergedAt.get(i));
+                            else if (!(row.status === 'added' && usedA.has(i))) kept.push(row);
+                        });
+                        resultRows.length = 0;
+                        kept.forEach(r => resultRows.push(r));
+                    }
+                }
+            }
+
             stats.totalRows = resultRows.length;
             const totalDiffRows = stats.modifiedRows + stats.addedRows + stats.deletedRows;
 
@@ -1148,6 +1298,7 @@
                 mode,
                 // Chỉ số cặp cột chứa khóa (để tô 🔑 đúng cột khi ghép lệch)
                 keyColIndex: mode === 'key' ? pairs.findIndex(p => p.a === keyColIndex) : keyColIndex,
+                keyPairIdxs: mode === 'key' ? ((Array.isArray(window.__cmpKeyCols) && window.__cmpKeyCols.length > 0) ? window.__cmpKeyCols : [keyColIndex]).map(a => pairs.findIndex(p => p.a === a)).filter(x => x !== -1) : [],
                 stats
             };
 
@@ -1279,7 +1430,7 @@
             }
             emptyState.classList.add('hidden');
 
-            const { headers, colDiffCounts, mode, keyColIndex } = currentComparison;
+            const { headers, colDiffCounts, mode, keyColIndex, keyPairIdxs } = currentComparison;
 
             if (currentViewMode === 'merged') {
                 splitWrapper.classList.add('hidden');
@@ -1291,7 +1442,7 @@
                 html += `<th class="sticky-col-2 py-2.5 px-2.5 font-semibold border-r border-b t-border w-[86px] min-w-[86px] t-text-sec">Trạng thái</th>`;
 
                 headers.forEach((h, idx) => {
-                    const isKey = (mode === 'key' && idx === keyColIndex);
+                    const isKey = (mode === 'key' && (idx === keyColIndex || (keyPairIdxs && keyPairIdxs.includes(idx))));
                     const diffCount = colDiffCounts[idx];
                     html += `<th class="py-2 px-3 font-semibold border-r border-b t-border min-w-[140px] ${isKey ? 'bg-indigo-500/10' : ''}">
                         <div class="flex items-center justify-between gap-1.5">
@@ -1320,8 +1471,8 @@
                         if (cell.status === 'same') {
                             html += `<td class="py-2 px-3 border-r t-border-subtle t-text-main font-mono-num">${escapeHTML(cell.val2)}</td>`;
                         } else if (cell.status === 'modified') {
-                            const oldVal = cell.val1 !== '' ? escapeHTML(cell.val1) : '<i class="opacity-60">(Trống)</i>';
-                            const newVal = cell.val2 !== '' ? escapeHTML(cell.val2) : '<i class="opacity-60">(Trống)</i>';
+                            const oldVal = cell.hlA ? cmpSegHTML(cell.hlA, true) : (cell.val1 !== '' ? escapeHTML(cell.val1) : '<i class="opacity-60">(Trống)</i>');
+                            const newVal = cell.hlB ? cmpSegHTML(cell.hlB, false) : (cell.val2 !== '' ? escapeHTML(cell.val2) : '<i class="opacity-60">(Trống)</i>');
                             html += `<td class="py-2 px-3 border-r cell-modified font-mono-num">
                                 <div class="flex flex-wrap items-center gap-1">
                                     <span class="diff-old">${oldVal}</span>
@@ -1445,18 +1596,18 @@
             input2.value = temp;
             updateDimensionsAndDropdown();
             if (hasCompared) compareData(false);
-            showToast('Đã đảo chiều dữ liệu Vùng A ⇄ Vùng B');
+            showToast('Đã đảo chiều dữ liệu OLD ⇄ NEW');
         }
 
         function clearSingle(num) {
             const el = document.getElementById(`input${num}`);
             if (!el.value) {
-                showToast(`Vùng ${num === 1 ? 'A' : 'B'} đang trống, không có gì để xoá!`);
+                showToast(`${num === 1 ? 'OLD' : 'NEW'} đang trống, không có gì để xoá!`);
                 return;
             }
             el.value = '';
             updateDimensionsAndDropdown();
-            showToast(`Đã xoá toàn bộ dữ liệu Vùng ${num === 1 ? 'A' : 'B'}`);
+            showToast(`Đã xoá toàn bộ dữ liệu ${num === 1 ? 'OLD' : 'NEW'}`);
             if (hasCompared) {
                 const otherEmpty = !document.getElementById(`input${num === 1 ? 2 : 1}`).value.trim();
                 if (otherEmpty) {
@@ -1566,6 +1717,462 @@
 
             showToast('Đã xuất file CSV chuẩn tiếng Việt thành công!');
         }
+    
+
+    </script>
+    <script>
+    // Ban doc lap: toi uu khong gian lam viec — vung nhap mac dinh MO san
+    // de dan du lieu ngay; bat san o tick tu thu gon (chinh cong cu se tu thu
+    // gon sau khi so sanh neu o tick dang bat) de bang ket qua rong toi da.
+    // Kem tinh nang chon o / dong trong bang ket qua.
+    const cmpSel = { cells: new Set(), rows: new Set(), anchor: null, focus: null, dragging: false, dragMode: 'cell', additive: false };
+    function cmpCellKey(r, c) { return r + ',' + c; }
+    function cmpTableBody() { const w = document.getElementById('tableWrapper'); return w ? w.querySelector('tbody') : null; }
+    function cmpApplySelection() {
+      const tbody = cmpTableBody(); if (!tbody) return;
+      const rows = tbody.rows;
+      for (let r = 0; r < rows.length; r++) {
+        const tr = rows[r];
+        tr.classList.toggle('cmp-sel-row', cmpSel.rows.has(r));
+        for (let c = 0; c < tr.cells.length; c++) {
+          tr.cells[c].classList.toggle('cmp-sel', cmpSel.cells.has(cmpCellKey(r, c)));
+        }
+      }
+      const bar = document.getElementById('cmp-selbar');
+      const info = document.getElementById('cmp-selinfo');
+      const n = cmpSel.cells.size, nr = cmpSel.rows.size;
+      if (bar) bar.classList.toggle('hidden', n === 0 && nr === 0);
+      if (info) info.textContent = (nr > 0 ? nr + ' dòng' : '') + (nr > 0 && n > 0 ? ' + ' : '') + (n > 0 ? n + ' ô' : '');
+    }
+    function cmpClearSelection() {
+      cmpSel.cells.clear(); cmpSel.rows.clear();
+      cmpSel.anchor = null; cmpSel.focus = null; cmpSel.dragging = false;
+      cmpApplySelection();
+    }
+    function cmpRectToSelection() {
+      if (!cmpSel.anchor || !cmpSel.focus) return;
+      const r1 = Math.min(cmpSel.anchor.r, cmpSel.focus.r), r2 = Math.max(cmpSel.anchor.r, cmpSel.focus.r);
+      if (cmpSel.dragMode === 'row') {
+        if (!cmpSel.additive) cmpSel.rows.clear();
+        for (let r = r1; r <= r2; r++) cmpSel.rows.add(r);
+      } else {
+        const c1 = Math.min(cmpSel.anchor.c, cmpSel.focus.c), c2 = Math.max(cmpSel.anchor.c, cmpSel.focus.c);
+        if (!cmpSel.additive) cmpSel.cells.clear();
+        for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) cmpSel.cells.add(cmpCellKey(r, c));
+      }
+      cmpApplySelection();
+    }
+    function cmpCellText(td) { return (td.innerText || td.textContent || '').trim().replace(/\s*\n\s*/g, ' \u2192 '); }
+    function cmpCopyFallback(text, done) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (err) {}
+      document.body.removeChild(ta);
+    }
+    function cmpCopySelection() {
+      const tbody = cmpTableBody(); if (!tbody) return;
+      const byRow = {};
+      const rowIdxs = new Set(cmpSel.rows);
+      cmpSel.cells.forEach(k => { const parts = k.split(','); const r = Number(parts[0]), c = Number(parts[1]); (byRow[r] = byRow[r] || []).push(c); rowIdxs.add(r); });
+      const lines = [];
+      Array.from(rowIdxs).sort((a, b) => a - b).forEach(r => {
+        const tr = tbody.rows[r]; if (!tr) return;
+        let cells;
+        if (cmpSel.rows.has(r)) {
+          cells = Array.from(tr.cells).map(td => cmpCellText(td));
+        } else {
+          cells = (byRow[r] || []).sort((a, b) => a - b).map(c => tr.cells[c] ? cmpCellText(tr.cells[c]) : '');
+        }
+        lines.push(cells.join('\t'));
+      });
+      const text = lines.join('\n');
+      const done = () => { if (typeof showToast === 'function') showToast('Đã chép vùng đã chọn vào clipboard'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => cmpCopyFallback(text, done));
+      } else { cmpCopyFallback(text, done); }
+    }
+
+    // ===== Kieu du lieu tung cot: 123 = So (so theo gia tri so), abc = Chu (mac dinh) =====
+    window.__cmpColTypes = window.__cmpColTypes || {};
+    function cmpInjectColTypeChips() {
+      const headRow = document.querySelector('#tableWrapper thead tr');
+      if (!headRow) return;
+      const types = window.__cmpColTypes || {};
+      Array.from(headRow.children).forEach((th, thIdx) => {
+        if (thIdx < 2) return;
+        const pairIdx = thIdx - 2;
+        const host = th.querySelector('div') || th;
+        const box = document.createElement('span');
+        box.className = 'cmp-type-chips inline-flex items-center gap-0.5 shrink-0';
+        const cur = types[pairIdx] === 'num' ? 'num' : 'text';
+        [['num', '123'], ['text', 'abc']].forEach(([tp, label]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          b.className = 'px-1 py-px rounded text-[9px] font-bold leading-none ' + (cur === tp ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-500');
+          b.addEventListener('mousedown', (e) => e.stopPropagation());
+          b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (tp === 'num') window.__cmpColTypes[pairIdx] = 'num'; else delete window.__cmpColTypes[pairIdx];
+            if (typeof compareData === 'function') compareData(false);
+          });
+          box.appendChild(b);
+        });
+        host.appendChild(box);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.renderComparisonTable === 'function') {
+        const _prevRenderCT = window.renderComparisonTable;
+        window.renderComparisonTable = function () { const r = _prevRenderCT.apply(this, arguments); cmpInjectColTypeChips(); return r; };
+      }
+    });
+
+    // ===== Nhieu cot khoa (khoa ghep) =====
+    function cmpSyncKeyColsUI() {
+      const btn = document.getElementById('cmp-keycols-btn');
+      if (!btn) return;
+      const cols = (Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0]).sort((a, b) => a - b);
+      btn.textContent = 'Khóa: ' + (cols.length ? cols.map(c => getExcelColName(c)).join(', ') : 'A');
+      document.querySelectorAll('#cmp-keycols-list .cmp-keycol-cb').forEach(cb => { cb.checked = cols.includes(Number(cb.value)); });
+    }
+    function cmpRebuildKeyCols() {
+      const list = document.getElementById('cmp-keycols-list');
+      const sel = document.getElementById('keyColumnSelect');
+      if (!list || !sel) return;
+      const avail = Array.from(sel.options).map(o => Number(o.value));
+      let cur = Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.filter(c => avail.includes(c)) : [];
+      if (cur.length === 0) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
+      window.__cmpKeyCols = cur.slice().sort((a, b) => a - b);
+      list.innerHTML = '';
+      Array.from(sel.options).forEach(o => {
+        const lab = document.createElement('label');
+        lab.className = 'flex items-center gap-1.5 px-1 py-0.5 text-xs cursor-pointer t-text-sec';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'cmp-keycol-cb w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500';
+        cb.value = o.value;
+        cb.addEventListener('change', () => {
+          let cols = Array.from(list.querySelectorAll('.cmp-keycol-cb:checked')).map(x => Number(x.value)).sort((a, b) => a - b);
+          if (cols.length === 0) cols = [Number(cb.value)];
+          window.__cmpKeyCols = cols;
+          const s = document.getElementById('keyColumnSelect');
+          if (s) s.value = String(cols[0]);
+          cmpSyncKeyColsUI();
+          if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+        });
+        const sp = document.createElement('span');
+        sp.textContent = o.textContent;
+        lab.appendChild(cb); lab.appendChild(sp);
+        list.appendChild(lab);
+      });
+      cmpSyncKeyColsUI();
+    }
+
+    // ===== Ho so cai dat (profiles) =====
+    const CMP_PROFILES_KEY = 'cmp_profiles_v1';
+    function cmpLoadProfiles() { try { const o = JSON.parse(localStorage.getItem(CMP_PROFILES_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; } }
+    function cmpStoreProfiles(o) { try { localStorage.setItem(CMP_PROFILES_KEY, JSON.stringify(o)); } catch (e) {} }
+    let cmpCurrentProfile = '';
+    function cmpRenderProfiles() {
+      const list = document.getElementById('cmp-profile-list');
+      const empty = document.getElementById('cmp-profile-empty');
+      const nameEl = document.getElementById('cmp-profile-name');
+      if (nameEl) nameEl.textContent = cmpCurrentProfile || 'Hồ sơ…';
+      if (!list) return;
+      const profs = cmpLoadProfiles();
+      const names = Object.keys(profs);
+      if (empty) empty.classList.toggle('hidden', names.length > 0);
+      list.innerHTML = '';
+      names.forEach(n => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-1 px-1.5 py-1';
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'flex-1 text-left px-1.5 py-0.5 rounded text-xs t-text-main truncate' + (n === cmpCurrentProfile ? ' font-bold' : '');
+        b.textContent = n;
+        b.title = 'Áp dụng hồ sơ "' + n + '"';
+        b.addEventListener('click', () => {
+          cmpCurrentProfile = n;
+          cmpApplyProfile(profs[n]);
+          cmpRenderProfiles();
+          const panel = document.getElementById('cmp-profile-panel');
+          if (panel) panel.classList.add('hidden');
+        });
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'px-1.5 py-0.5 rounded text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition shrink-0';
+        x.textContent = '\u2715';
+        x.title = 'Xoá hồ sơ "' + n + '"';
+        x.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!window.confirm('Xoá hồ sơ "' + n + '"?')) return;
+          const all = cmpLoadProfiles();
+          delete all[n];
+          cmpStoreProfiles(all);
+          if (cmpCurrentProfile === n) cmpCurrentProfile = '';
+          cmpRenderProfiles();
+          if (typeof showToast === 'function') showToast('Đã xoá hồ sơ "' + n + '"');
+        });
+        row.appendChild(b); row.appendChild(x);
+        list.appendChild(row);
+      });
+    }
+    function cmpCollectProfile() {
+      const g = id => { const el = document.getElementById(id); return el ? !!el.checked : false; };
+      const modeEl = document.querySelector('input[name="compareMode"]:checked');
+      const ks = document.getElementById('keyColumnSelect');
+      return {
+        mode: modeEl ? modeEl.value : 'cell',
+        keyCol: ks ? ks.value : '0',
+        keyCols: Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0],
+        header: g('optHeader'), trim: g('optTrim'), caseSensitive: g('optCase'),
+        skipEmpty: g('optSkipEmpty'), autoCollapse: g('optAutoCollapse'),
+        colMapOn: g('optColMap'),
+        colMapManual: (typeof colMapManual !== 'undefined' && colMapManual) ? JSON.parse(JSON.stringify(colMapManual)) : null
+      };
+    }
+    function cmpSetChk(id, v) { const el = document.getElementById(id); if (el) el.checked = !!v; }
+    function cmpApplyProfile(p) {
+      if (!p) return;
+      cmpSetChk('optHeader', p.header); cmpSetChk('optTrim', p.trim); cmpSetChk('optCase', p.caseSensitive);
+      cmpSetChk('optSkipEmpty', p.skipEmpty); cmpSetChk('optAutoCollapse', p.autoCollapse);
+      const radio = document.querySelector('input[name="compareMode"][value="' + (p.mode || 'cell') + '"]');
+      if (radio) radio.checked = true;
+      if (typeof handleModeChange === 'function') handleModeChange();
+      if (Array.isArray(p.keyCols) && p.keyCols.length > 0) window.__cmpKeyCols = p.keyCols.slice();
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+      colMapManual = p.colMapManual ? JSON.parse(JSON.stringify(p.colMapManual)) : null;
+      cmpSetChk('optColMap', p.colMapOn);
+      if (typeof handleColMapToggle === 'function') handleColMapToggle();
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+      const ks = document.getElementById('keyColumnSelect');
+      if (ks) ks.value = String((Array.isArray(p.keyCols) && p.keyCols.length > 0) ? p.keyCols[0] : (p.keyCol || '0'));
+      cmpSyncKeyColsUI();
+      if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+      if (typeof showToast === 'function') showToast('Đã áp dụng hồ sơ cài đặt');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Ban doc lap: giu mac dinh "Tu dong thu gon" theo ban So-Sanh-Excel (khong ep bat)
+      if (typeof currentViewMode !== 'undefined') currentViewMode = 'merged';
+
+      // Boc parseExcelText: bo cac dong trong khi o tick "Bo dong trong" dang bat
+      if (typeof window.parseExcelText === 'function') {
+        const _origParse = window.parseExcelText;
+        window.parseExcelText = function () {
+          const g = _origParse.apply(this, arguments);
+          const cbSkip = document.getElementById('optSkipEmpty');
+          if (cbSkip && cbSkip.checked && Array.isArray(g)) {
+            return g.filter(row => row.some(cell => String(cell == null ? '' : cell).trim() !== ''));
+          }
+          return g;
+        };
+      }
+      // Boc updateDimensionsAndDropdown: dong bo lai danh sach cot khoa sau moi lan cap nhat
+      if (typeof window.updateDimensionsAndDropdown === 'function') {
+        const _origUpd = window.updateDimensionsAndDropdown;
+        window.updateDimensionsAndDropdown = function () {
+          const r = _origUpd.apply(this, arguments);
+          cmpRebuildKeyCols();
+          return r;
+        };
+      }
+      // An o chon khoa don cu, thay bang dieu khien chon nhieu khoa
+      const _ks0 = document.getElementById('keyColumnSelect');
+      if (_ks0) _ks0.style.display = 'none';
+      window.__cmpKeyCols = [0];
+      cmpRebuildKeyCols();
+      const _kbtn = document.getElementById('cmp-keycols-btn');
+      const _kpanel = document.getElementById('cmp-keycols-panel');
+      if (_kbtn && _kpanel) {
+        _kbtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (_kpanel.classList.contains('hidden')) { cmpRebuildKeyCols(); _kpanel.classList.remove('hidden'); }
+          else { _kpanel.classList.add('hidden'); }
+        });
+        document.addEventListener('click', (e) => {
+          const box = document.getElementById('cmp-keycols');
+          if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
+        });
+      }
+      const cmpSyncKeyContainer = () => {
+        const kc = document.getElementById('keyColumnContainer');
+        if (!kc) return;
+        const m = document.querySelector('input[name="compareMode"]:checked');
+        kc.classList.remove('invisible');
+        kc.style.display = (m && m.value === 'key') ? '' : 'none';
+      };
+      if (typeof window.handleModeChange === 'function') {
+        const _origMode = window.handleModeChange;
+        window.handleModeChange = function () {
+          const r = _origMode.apply(this, arguments);
+          const m = document.querySelector('input[name="compareMode"]:checked');
+          if (m && m.value === 'key') cmpRebuildKeyCols();
+          cmpSyncKeyContainer();
+          return r;
+        };
+      }
+      cmpSyncKeyContainer();
+      // Bang ghep cot lech thanh popover noi ngay duoi o tick — khong chiem them dong lam viec.
+      // Tick o Ghep cot lech = bat tinh nang + mo popover; nut chevron canh o tick mo/dong popover;
+      // bam ra ngoai hoac bam Ap dung thi popover tu dong lai.
+      const _anchor = document.getElementById('cmp-colmap-anchor');
+      const _panel = document.getElementById('colMapPanel');
+      if (_anchor && _panel) {
+        _anchor.appendChild(_panel);
+        _panel.classList.add('cmp-popover');
+        const _applyBtn = Array.from(_panel.querySelectorAll('button')).find(b => b.textContent.trim() === 'Áp dụng');
+        if (_applyBtn) _applyBtn.addEventListener('click', () => { _panel.classList.add('hidden'); });
+      }
+      const _openBtn = document.getElementById('cmp-colmap-open');
+      if (_openBtn) _openBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const cb = document.getElementById('optColMap');
+        const panel = document.getElementById('colMapPanel');
+        if (!cb || !panel) return;
+        if (!cb.checked) { cb.checked = true; if (typeof handleColMapToggle === 'function') handleColMapToggle(); return; }
+        if (panel.classList.contains('hidden')) { panel.classList.remove('hidden'); if (typeof renderColMapPanel === 'function') renderColMapPanel(); }
+        else { panel.classList.add('hidden'); }
+      });
+      document.addEventListener('click', (e) => {
+        const anchor = document.getElementById('cmp-colmap-anchor');
+        const panel = document.getElementById('colMapPanel');
+        if (anchor && panel && !anchor.contains(e.target)) panel.classList.add('hidden');
+      });
+      // O ghi chu ngan canh nhan OLD / NEW — tu luu vao trinh duyet
+      [['cmp-note-old', 'cmp_note_old'], ['cmp-note-new', 'cmp_note_new']].forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        try { el.value = localStorage.getItem(key) || ''; } catch (e) {}
+        el.addEventListener('input', () => { try { localStorage.setItem(key, el.value); } catch (e) {} });
+      });
+      // Sau khi so sanh xong, bam Delete (khi khong dang go trong o nhap) de xoa het du lieu
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Delete') return;
+        const tab = document.getElementById('tab-compare');
+        if (!tab || tab.classList.contains('hidden')) return;
+        const t = e.target;
+        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+        if (typeof hasCompared !== 'undefined' && hasCompared && typeof clearAll === 'function') { e.preventDefault(); clearAll(); }
+      });
+      // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
+      cmpRenderProfiles();
+      const _pbtn = document.getElementById('cmp-profile-btn');
+      const _ppanel = document.getElementById('cmp-profile-panel');
+      if (_pbtn && _ppanel) {
+        _pbtn.addEventListener('click', (e) => { e.stopPropagation(); _ppanel.classList.toggle('hidden'); });
+        document.addEventListener('click', (e) => {
+          const box = document.getElementById('cmp-profile');
+          if (box && !box.contains(e.target)) _ppanel.classList.add('hidden');
+        });
+      }
+      const _psave = document.getElementById('cmp-profile-save');
+      if (_psave) _psave.addEventListener('click', () => {
+        const name = (window.prompt('Đặt tên cho hồ sơ cài đặt:', cmpCurrentProfile || '') || '').trim();
+        if (!name) return;
+        const profs = cmpLoadProfiles();
+        profs[name] = cmpCollectProfile();
+        cmpStoreProfiles(profs);
+        cmpCurrentProfile = name;
+        cmpRenderProfiles();
+        if (typeof showToast === 'function') showToast('Đã lưu hồ sơ "' + name + '"');
+      });
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+
+      const wrap = document.getElementById('tableWrapper');
+      if (wrap) {
+        wrap.addEventListener('mousedown', (e) => {
+          const td = e.target.closest('td');
+          if (!td || e.button !== 0) return;
+          const tr = td.parentElement;
+          const r = tr.sectionRowIndex, c = td.cellIndex;
+          cmpSel.dragMode = (c <= 1) ? 'row' : 'cell';
+          cmpSel.additive = !!(e.ctrlKey || e.metaKey);
+          if (cmpSel.additive) {
+            if (cmpSel.dragMode === 'row') {
+              if (cmpSel.rows.has(r)) cmpSel.rows.delete(r); else cmpSel.rows.add(r);
+            } else {
+              const k = cmpCellKey(r, c);
+              if (cmpSel.cells.has(k)) cmpSel.cells.delete(k); else cmpSel.cells.add(k);
+            }
+            cmpSel.anchor = null; cmpSel.focus = null; cmpSel.dragging = false;
+            cmpApplySelection();
+            return;
+          }
+          cmpSel.anchor = { r: r, c: c }; cmpSel.focus = { r: r, c: c };
+          cmpSel.dragging = true;
+          cmpRectToSelection();
+          e.preventDefault();
+        });
+        wrap.addEventListener('mouseover', (e) => {
+          if (!cmpSel.dragging) return;
+          const td = e.target.closest('td');
+          if (!td) return;
+          cmpSel.focus = { r: td.parentElement.sectionRowIndex, c: td.cellIndex };
+          cmpRectToSelection();
+        });
+        document.addEventListener('mouseup', () => { cmpSel.dragging = false; });
+      }
+      document.addEventListener('keydown', (e) => {
+        const tab = document.getElementById('tab-compare');
+        if (!tab || tab.classList.contains('hidden')) return;
+        if (e.key === 'Escape') { cmpClearSelection(); return; }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowDown' || e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          const t = e.target;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+          const tbody = cmpTableBody();
+          if (!tbody || tbody.rows.length === 0) return;
+          if (!cmpSel.focus && cmpSel.cells.size === 0 && cmpSel.rows.size === 0) return;
+          let cur = cmpSel.focus;
+          if (!cur) {
+            if (cmpSel.rows.size) { cur = { r: Math.max(...cmpSel.rows), c: 0 }; }
+            else { let best = null; cmpSel.cells.forEach(k => { const [r, c] = k.split(',').map(Number); if (!best || r > best.r || (r === best.r && c > best.c)) best = { r, c }; }); cur = best || { r: 0, c: 0 }; }
+          }
+          const dr = e.key === 'ArrowUp' ? -1 : e.key === 'ArrowDown' ? 1 : 0;
+          const dc = e.key === 'ArrowLeft' ? -1 : e.key === 'ArrowRight' ? 1 : 0;
+          const nr = Math.max(0, Math.min(tbody.rows.length - 1, cur.r + dr));
+          const nc = Math.max(0, Math.min(tbody.rows[nr].cells.length - 1, cur.c + dc));
+          e.preventDefault();
+          if (dc !== 0 && cmpSel.dragMode === 'row') cmpSel.dragMode = 'cell';
+          if (e.shiftKey) {
+            if (!cmpSel.anchor) cmpSel.anchor = { r: cur.r, c: cur.c };
+            cmpSel.focus = { r: nr, c: nc };
+            cmpSel.additive = false;
+            cmpRectToSelection();
+          } else {
+            cmpSel.anchor = { r: nr, c: nc };
+            cmpSel.focus = { r: nr, c: nc };
+            cmpSel.additive = false;
+            cmpSel.cells.clear(); cmpSel.rows.clear();
+            if (cmpSel.dragMode === 'row') cmpSel.rows.add(nr); else cmpSel.cells.add(cmpCellKey(nr, nc));
+            cmpApplySelection();
+          }
+          const td = tbody.rows[nr] && tbody.rows[nr].cells[nc];
+          if (td && typeof td.scrollIntoView === 'function') { try { td.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (err) {} }
+          return;
+        }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+          const t = e.target;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+          if (cmpSel.cells.size === 0 && cmpSel.rows.size === 0) return;
+          e.preventDefault();
+          cmpCopySelection();
+        }
+      });
+      if (typeof window.renderComparisonTable === 'function') {
+        const _origRender = window.renderComparisonTable;
+        window.renderComparisonTable = function () {
+          const r = _origRender.apply(this, arguments);
+          cmpClearSelection();
+          return r;
+        };
+      }
+      const clr = document.getElementById('cmp-selclear');
+      if (clr) clr.addEventListener('click', cmpClearSelection);
+    });
+
     </script>
 </body>
 </html>
