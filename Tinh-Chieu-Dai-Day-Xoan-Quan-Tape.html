@@ -1231,16 +1231,6 @@
                         </button>
                     </div>
 
-                    <!-- View Switcher: Merged vs Split -->
-                    <div class="inline-flex p-0.5 t-subtle border t-border rounded-lg">
-                        <button id="btnViewMerged" onclick="setViewMode('merged')" class="px-2.5 py-1 text-xs font-semibold rounded-md bg-emerald-600 text-white transition">
-                            Bảng gộp (Cũ → Mới)
-                        </button>
-                        <button id="btnViewSplit" onclick="setViewMode('split')" class="px-2.5 py-1 text-xs font-semibold rounded-md t-text-sec hover:opacity-80 transition">
-                            Song song (2 bảng)
-                        </button>
-                    </div>
-
                     <!-- Export Actions -->
                     <button onclick="copyResultToClipboard()" class="px-2.5 py-1 t-subtle hover:opacity-80 t-text-main border t-border text-xs font-semibold rounded-lg transition flex items-center space-x-1" title="Copy kết quả hiện tại để dán vào Excel">
                         <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
@@ -4849,6 +4839,7 @@
     document.addEventListener('DOMContentLoaded', () => {
       const _cbAuto = document.getElementById('optAutoCollapse');
       if (_cbAuto) _cbAuto.checked = true;
+      if (typeof currentViewMode !== 'undefined') currentViewMode = 'merged';
     });
   </script>
 
