@@ -26,8 +26,16 @@
       font-size: 13.5px;
       font-weight: 600;
       text-align: left;
+      line-height: 1.3;
       transition: all 0.15s ease;
       color: #cbd5e1;
+    }
+    .nav-btn .nav-badge {
+      flex-shrink: 0;
+    }
+    .nav-btn > span:last-child {
+      min-width: 0;
+      overflow-wrap: break-word;
     }
     .nav-btn:hover {
       background: #1e293b;
@@ -231,34 +239,34 @@
         </div>
       </div>
 
-      <button onclick="switchTab('twist')" id="nav-twist" class="nav-btn active whitespace-nowrap">
+      <button onclick="switchTab('twist')" id="nav-twist" class="nav-btn active">
         <span class="nav-badge">1</span>
         <span data-i18n="k2">Xoắn Dây (2 / Nhiều dây)</span>
       </button>
 
-      <button onclick="switchTab('circle-tape')" id="nav-circle-tape" class="nav-btn whitespace-nowrap">
+      <button onclick="switchTab('circle-tape')" id="nav-circle-tape" class="nav-btn">
         <span class="nav-badge">2</span>
         <span data-i18n="k3">Quấn Tape Tròn (2D)</span>
       </button>
 
-      <button onclick="switchTab('spiral-tape')" id="nav-spiral-tape" class="nav-btn whitespace-nowrap">
+      <button onclick="switchTab('spiral-tape')" id="nav-spiral-tape" class="nav-btn">
         <span class="nav-badge">3</span>
         <span data-i18n="k4">Quấn Tape Chéo (3D)</span>
       </button>
 
-      <button onclick="switchTab('bundle')" id="nav-bundle" class="nav-btn whitespace-nowrap">
+      <button onclick="switchTab('bundle')" id="nav-bundle" class="nav-btn">
         <span class="nav-badge">4</span>
         <span data-i18n="k5">Tính ĐK Bó Dây Tự Động</span>
       </button>
 
-      <button onclick="switchTab('awg')" id="nav-awg" class="nav-btn whitespace-nowrap">
+      <button onclick="switchTab('awg')" id="nav-awg" class="nav-btn">
         <span class="nav-badge">5</span>
         <span data-i18n="k6">Đổi AWG ↔ mm ↔ mm²</span>
       </button>
 
       <div class="hidden md:block pt-2 mt-1 border-t border-slate-800"></div>
 
-      <button onclick="switchTab('theory')" id="nav-theory" class="nav-btn whitespace-nowrap">
+      <button onclick="switchTab('theory')" id="nav-theory" class="nav-btn">
         <span class="nav-badge">6</span>
         <span data-i18n="k7">Lý Thuyết &amp; Công Thức</span>
       </button>
