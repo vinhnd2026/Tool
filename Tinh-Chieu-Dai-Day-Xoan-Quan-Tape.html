@@ -379,8 +379,8 @@
     #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #1e3a8a !important; }
     /* Cum lua chon so sanh: man hep (<lg) an thanh icon, bam vao xo xuong */
     @media (max-width: 1023.98px) {
-      #tab-compare #cmp-opts-pop { display: none; }
-      #tab-compare #cmp-opts-pop.open { display: flex; }
+      #tab-compare #cmp-actions-pop { display: none; }
+      #tab-compare #cmp-actions-pop.open { display: flex; }
     }
     /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
     #tab-compare #colMapPanel.cmp-popover { position: absolute; top: calc(100% + 6px); right: 0; width: min(94vw, 920px); max-height: 64vh; overflow: auto; z-index: 60; border-width: 1px; border-style: solid; border-radius: 12px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
@@ -1105,15 +1105,16 @@
 
             <!-- Right: Quick Actions & Theme Switcher -->
             <div class="flex flex-wrap items-center gap-x-1 gap-y-1">
-                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
-                    <span>OLD⇄NEW</span>
-                </button>
-                <div class="relative inline-flex items-center">
-                    <button type="button" id="cmp-opts-btn" class="lg:hidden px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center" title="Lựa chọn so sánh">
+                <div class="relative" id="cmp-actions-wrap">
+                    <button type="button" id="cmp-menu-btn" class="lg:hidden px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center" title="Tất cả lựa chọn">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="7" cy="17" r="2.2"/></svg>
                     </button>
-                                    <!-- Quick Checkboxes -->
-                <div id="cmp-opts-pop" class="flex flex-wrap items-center gap-x-2 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:t-surface max-lg:border max-lg:t-border max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[200px]">
+                    <div id="cmp-actions-pop" class="flex flex-wrap items-center gap-x-1 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:t-surface max-lg:border max-lg:t-border max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[220px]">
+                        <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
+                            <span>OLD⇄NEW</span>
+                        </button>
+                        <!-- Quick Checkboxes -->
+                        <div id="cmp-opts-pop" class="flex flex-wrap items-center gap-x-2 gap-y-1 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2">
                     <label class="cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
                         <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
                         <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Có tiêu đề</span>
@@ -1143,7 +1144,6 @@
                         <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
                         <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép thông minh</span>
                     </label>
-                </div>
                 </div>
                 <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -1176,6 +1176,8 @@
                     <button onclick="setTheme('dark')" id="themeBtn-dark" class="p-1 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Tối (Dark)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
+                </div>
+                    </div>
                 </div>
             </div>
 
@@ -5395,11 +5397,12 @@
         };
       }
       cmpSyncKeyContainer();
-      const _optsBtn = document.getElementById('cmp-opts-btn');
-      const _optsPop = document.getElementById('cmp-opts-pop');
-      if (_optsBtn && _optsPop) {
-        _optsBtn.addEventListener('click', (e) => { e.stopPropagation(); _optsPop.classList.toggle('open'); });
-        document.addEventListener('click', (e) => { if (!_optsPop.contains(e.target) && !_optsBtn.contains(e.target)) _optsPop.classList.remove('open'); });
+      const _menuBtn = document.getElementById('cmp-menu-btn');
+      const _actPop = document.getElementById('cmp-actions-pop');
+      const _actWrap = document.getElementById('cmp-actions-wrap');
+      if (_menuBtn && _actPop) {
+        _menuBtn.addEventListener('click', (e) => { e.stopPropagation(); _actPop.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (_actWrap && !_actWrap.contains(e.target)) _actPop.classList.remove('open'); });
       }
       // Bang ghep cot lech thanh popover noi ngay duoi o tick — khong chiem them dong lam viec.
       // Tick o Ghep cot lech = bat tinh nang + mo popover; nut chevron canh o tick mo/dong popover;
