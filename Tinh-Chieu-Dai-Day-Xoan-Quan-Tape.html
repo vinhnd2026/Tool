@@ -382,6 +382,8 @@
       #tab-compare #cmp-actions-pop { display: none; background-color: var(--bg-surface); border: 1px solid var(--border-color); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.12); }
       #tab-compare #cmp-actions-pop.open { display: flex; }
     }
+    /* Dong luc keo trung co AWG dang chon o bang doi: to xanh la */
+    #tab-awg tr.awg-pull-hit { background-color: #a7f3d7 !important; }
     /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
     #tab-compare #colMapPanel.cmp-popover { position: absolute; top: calc(100% + 6px); right: 0; width: min(94vw, 920px); max-height: 64vh; overflow: auto; z-index: 60; border-width: 1px; border-style: solid; border-radius: 12px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
   </style>
@@ -931,6 +933,7 @@
             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
               <div class="text-slate-500" data-i18n="k96">Tổng diện tích mặt cắt:</div>
               <div class="text-base font-extrabold text-slate-800 mt-0.5"><span id="bd-total-area">10.76</span> mm<sup>2</sup></div>
+              <button type="button" onclick="bundleAreaToAwg()" class="mt-1.5 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-blue-600 text-white hover:bg-blue-700 transition" data-i18n="k250">→ Gán sang đổi AWG</button>
             </div>
             <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
               <div class="text-emerald-800 font-semibold" data-i18n="k98">Đường kính ngoài bó (<i>D</i>):</div>
@@ -995,17 +998,17 @@
               <tr class="text-slate-500 text-[11px] uppercase border-b"><th class="py-1 text-left font-semibold">AWG</th><th class="py-1 text-left font-semibold">SQ (mm²)</th><th class="py-1 text-right font-semibold">Pull test</th></tr>
             </thead>
             <tbody>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#12</td><td class="py-1">3.0</td><td class="py-1 text-right font-mono-num">490.5</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#14</td><td class="py-1">2.0</td><td class="py-1 text-right font-mono-num">294.3</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#16</td><td class="py-1">1.25</td><td class="py-1 text-right font-mono-num">196.2</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#18</td><td class="py-1">0.75</td><td class="py-1 text-right font-mono-num">127.5</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#20</td><td class="py-1">0.5</td><td class="py-1 text-right font-mono-num">88.3</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#22</td><td class="py-1">0.3</td><td class="py-1 text-right font-mono-num">58.9</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#24</td><td class="py-1">0.2</td><td class="py-1 text-right font-mono-num">49.1</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#26</td><td class="py-1">0.128</td><td class="py-1 text-right font-mono-num">29.4</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#28</td><td class="py-1">0.08</td><td class="py-1 text-right font-mono-num">20.6</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#30</td><td class="py-1">0.051</td><td class="py-1 text-right font-mono-num">10.8</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 font-semibold">#32</td><td class="py-1">0.032</td><td class="py-1 text-right font-mono-num">4.9</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="12"><td class="py-1 font-semibold">#12</td><td class="py-1">3.0</td><td class="py-1 text-right font-mono-num">490.5</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="14"><td class="py-1 font-semibold">#14</td><td class="py-1">2.0</td><td class="py-1 text-right font-mono-num">294.3</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="16"><td class="py-1 font-semibold">#16</td><td class="py-1">1.25</td><td class="py-1 text-right font-mono-num">196.2</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="18"><td class="py-1 font-semibold">#18</td><td class="py-1">0.75</td><td class="py-1 text-right font-mono-num">127.5</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="20"><td class="py-1 font-semibold">#20</td><td class="py-1">0.5</td><td class="py-1 text-right font-mono-num">88.3</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="22"><td class="py-1 font-semibold">#22</td><td class="py-1">0.3</td><td class="py-1 text-right font-mono-num">58.9</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="24"><td class="py-1 font-semibold">#24</td><td class="py-1">0.2</td><td class="py-1 text-right font-mono-num">49.1</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="26"><td class="py-1 font-semibold">#26</td><td class="py-1">0.128</td><td class="py-1 text-right font-mono-num">29.4</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="28"><td class="py-1 font-semibold">#28</td><td class="py-1">0.08</td><td class="py-1 text-right font-mono-num">20.6</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="30"><td class="py-1 font-semibold">#30</td><td class="py-1">0.051</td><td class="py-1 text-right font-mono-num">10.8</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100" data-gauge="32"><td class="py-1 font-semibold">#32</td><td class="py-1">0.032</td><td class="py-1 text-right font-mono-num">4.9</td></tr>
             </tbody>
           </table>
         </div>
@@ -1017,19 +1020,19 @@
         <h2 class="font-bold text-slate-800 text-base border-b pb-2.5" data-i18n="k247">Mã màu dây (Nhật)</h2>
         <table class="w-full text-base mt-2">
             <tbody>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#8B5A2B"></span></td><td class="py-2 font-semibold w-12">茶</td><td class="py-2">チャ</td><td class="py-2 italic text-slate-500">cha</td><td class="py-2 text-right font-medium tracking-wide">BROWN</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#dc2626"></span></td><td class="py-2 font-semibold w-12">赤</td><td class="py-2">アカ</td><td class="py-2 italic text-slate-500">aka</td><td class="py-2 text-right font-medium tracking-wide">RED</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#2563eb"></span></td><td class="py-2 font-semibold w-12">青</td><td class="py-2">アオ</td><td class="py-2 italic text-slate-500">ao</td><td class="py-2 text-right font-medium tracking-wide">BLUE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#16a34a"></span></td><td class="py-2 font-semibold w-12">緑</td><td class="py-2">ミドリ</td><td class="py-2 italic text-slate-500">midori</td><td class="py-2 text-right font-medium tracking-wide">GREEN</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#eab308"></span></td><td class="py-2 font-semibold w-12">黄</td><td class="py-2">キイ</td><td class="py-2 italic text-slate-500">kii</td><td class="py-2 text-right font-medium tracking-wide">YELLOW</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#f97316"></span></td><td class="py-2 font-semibold w-12">橙</td><td class="py-2">ダイダイ</td><td class="py-2 italic text-slate-500">daidai</td><td class="py-2 text-right font-medium tracking-wide">ORANGE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#6b7280"></span></td><td class="py-2 font-semibold w-12">灰</td><td class="py-2">ハイ</td><td class="py-2 italic text-slate-500">hai</td><td class="py-2 text-right font-medium tracking-wide">GRAY</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#7c3aed"></span></td><td class="py-2 font-semibold w-12">紫</td><td class="py-2">ムラ</td><td class="py-2 italic text-slate-500">mura</td><td class="py-2 text-right font-medium tracking-wide">VIOLET</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ec4899"></span></td><td class="py-2 font-semibold w-12">桃</td><td class="py-2">ピンク</td><td class="py-2 italic text-slate-500">pinku</td><td class="py-2 text-right font-medium tracking-wide">PINK</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ffffff"></span></td><td class="py-2 font-semibold w-12">白</td><td class="py-2">シロ</td><td class="py-2 italic text-slate-500">shiro</td><td class="py-2 text-right font-medium tracking-wide">WHITE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#171717"></span></td><td class="py-2 font-semibold w-12">黒</td><td class="py-2">クロ</td><td class="py-2 italic text-slate-500">kuro</td><td class="py-2 text-right font-medium tracking-wide">BLACK</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#38bdf8"></span></td><td class="py-2 font-semibold w-12">水</td><td class="py-2">ソラ</td><td class="py-2 italic text-slate-500">sora</td><td class="py-2 text-right font-medium tracking-wide">SKY BLUE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#84cc16"></span></td><td class="py-2 font-semibold w-12">若草</td><td class="py-2">ワカクサ</td><td class="py-2 italic text-slate-500">wakakusa</td><td class="py-2 text-right font-medium tracking-wide">LIGHT GREEN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#8B5A2B"></span></td><td class="py-2 font-semibold w-12">茶</td><td class="py-2">チャ</td><td class="py-2 italic text-slate-500">cha</td><td class="py-2 text-right font-medium tracking-wide">BROWN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#dc2626"></span></td><td class="py-2 font-semibold w-12">赤</td><td class="py-2">アカ</td><td class="py-2 italic text-slate-500">aka</td><td class="py-2 text-right font-medium tracking-wide">RED</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#2563eb"></span></td><td class="py-2 font-semibold w-12">青</td><td class="py-2">アオ</td><td class="py-2 italic text-slate-500">ao</td><td class="py-2 text-right font-medium tracking-wide">BLUE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#16a34a"></span></td><td class="py-2 font-semibold w-12">緑</td><td class="py-2">ミドリ</td><td class="py-2 italic text-slate-500">midori</td><td class="py-2 text-right font-medium tracking-wide">GREEN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#eab308"></span></td><td class="py-2 font-semibold w-12">黄</td><td class="py-2">キイ</td><td class="py-2 italic text-slate-500">kii</td><td class="py-2 text-right font-medium tracking-wide">YELLOW</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#f97316"></span></td><td class="py-2 font-semibold w-12">橙</td><td class="py-2">ダイダイ</td><td class="py-2 italic text-slate-500">daidai</td><td class="py-2 text-right font-medium tracking-wide">ORANGE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#6b7280"></span></td><td class="py-2 font-semibold w-12">灰</td><td class="py-2">ハイ</td><td class="py-2 italic text-slate-500">hai</td><td class="py-2 text-right font-medium tracking-wide">GRAY</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#7c3aed"></span></td><td class="py-2 font-semibold w-12">紫</td><td class="py-2">ムラ</td><td class="py-2 italic text-slate-500">mura</td><td class="py-2 text-right font-medium tracking-wide">VIOLET</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ec4899"></span></td><td class="py-2 font-semibold w-12">桃</td><td class="py-2">ピンク</td><td class="py-2 italic text-slate-500">pinku</td><td class="py-2 text-right font-medium tracking-wide">PINK</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ffffff"></span></td><td class="py-2 font-semibold w-12">白</td><td class="py-2">シロ</td><td class="py-2 italic text-slate-500">shiro</td><td class="py-2 text-right font-medium tracking-wide">WHITE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#171717"></span></td><td class="py-2 font-semibold w-12">黒</td><td class="py-2">クロ</td><td class="py-2 italic text-slate-500">kuro</td><td class="py-2 text-right font-medium tracking-wide">BLACK</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#38bdf8"></span></td><td class="py-2 font-semibold w-12">水</td><td class="py-2">ソラ</td><td class="py-2 italic text-slate-500">sora</td><td class="py-2 text-right font-medium tracking-wide">SKY BLUE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-sky-100"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#84cc16"></span></td><td class="py-2 font-semibold w-12">若草</td><td class="py-2">ワカクサ</td><td class="py-2 italic text-slate-500">wakakusa</td><td class="py-2 text-right font-medium tracking-wide">LIGHT GREEN</td></tr>
             </tbody>
           </table>
       </div>
@@ -3771,6 +3774,12 @@
 
     // Đồng bộ tất cả các ô từ đường kính d. source = ô người dùng đang gõ — không ghi đè ô đó;
     // mọi ô CÒN LẠI tự cập nhật ngay theo dữ liệu phụ thuộc. Ô AWG luôn hiện cỡ chuẩn gần nhất.
+    function awgMarkPull(g) {
+      document.querySelectorAll('#tab-awg tr[data-gauge]').forEach(tr => {
+        tr.classList.toggle('awg-pull-hit', Number(tr.getAttribute('data-gauge')) === g);
+      });
+    }
+
     function awgSync(d, source) {
       const gaugeEl = document.getElementById('awg-gauge');
       const mmEl = document.getElementById('awg-mm');
@@ -3788,6 +3797,7 @@
           : tt('awgNearest', {g: awgLabel(gRound)});
       }
       awgMarkSelected();
+      awgMarkPull(gRound);
     }
 
     function awgFromGaugeInput() {
@@ -3812,6 +3822,15 @@
       const el = document.getElementById('awg-gauge');
       if (el) el.value = '24';
       awgFromGaugeInput();
+    }
+
+    // Nut o muc Bo day: gan tong dien tich mat cat sang o mm2 cua bang doi AWG roi mo muc AWG
+    function bundleAreaToAwg() {
+      const span = document.getElementById('bd-total-area');
+      const a = span ? parseFloat(String(span.textContent).replace(',', '.')) : 0;
+      const mm2El = document.getElementById('awg-mm2');
+      if (mm2El && a > 0) { mm2El.value = a; awgFromMm2(); }
+      switchTab('awg');
     }
 
     // Bảng chọn cỡ AWG tự dựng (thay datalist mặc định vốn lọc bớt mục theo chữ đã gõ):
@@ -5573,7 +5592,8 @@
       "k246": {"vi": "So Sánh Dữ Liệu", "en": "Data Comparison", "ja": "データ比較"},
       "k247": {"vi": "Mã màu dây (Nhật)", "en": "Wire color codes (JP)", "ja": "線色コード"},
       "k248": {"vi": "Lực kéo (Pull test)", "en": "Pull test", "ja": "引張試験"},
-      "k249": {"vi": "Mã màu dây", "en": "Wire Colors", "ja": "線色"}
+      "k249": {"vi": "Mã màu dây", "en": "Wire Colors", "ja": "線色"},
+      "k250": {"vi": "→ Gán sang đổi AWG", "en": "→ Send to AWG converter", "ja": "→ AWG換算へ送る"}
     });
     Object.assign(DYN, {
       "ctTurnsLabel": {"vi": "Số vòng n = {n} vòng", "en": "Number of turns n = {n}", "ja": "巻き回数 n = {n} 回"},
