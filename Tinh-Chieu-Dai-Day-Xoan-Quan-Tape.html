@@ -4053,6 +4053,35 @@
             return s;
         }
 
+        // Doc mot gia tri thanh so (phuc vu cot gan kieu So): chap nhan 1.5 / 1,5 /
+        // 1.500.000 / 1,500,000 / 1 000; so 0 thua sau dau thap phan tu mat khi so sanh.
+        // Tra null neu khong phai so -> nguoi goi tu quay ve so sanh chu.
+        function cmpParseNum(val) {
+            if (val === undefined || val === null) return null;
+            let s = String(val).trim().replace(/\s+/g, '');
+            if (s === '') return null;
+            let neg = false;
+            if (s.charAt(0) === '+') s = s.slice(1);
+            else if (s.charAt(0) === '-') { neg = true; s = s.slice(1); }
+            if (!/^[0-9.,]+$/.test(s)) return null;
+            const hasDot = s.indexOf('.') !== -1, hasComma = s.indexOf(',') !== -1;
+            if (hasDot && hasComma) {
+                if (s.lastIndexOf(',') > s.lastIndexOf('.')) s = s.replace(/\./g, '').replace(/,/g, '.');
+                else s = s.replace(/,/g, '');
+                if (s.indexOf('.') !== s.lastIndexOf('.')) return null;
+            } else if (hasComma) {
+                if (/^[1-9][0-9]{0,2}(,[0-9]{3})+$/.test(s)) s = s.replace(/,/g, '');
+                else if (s.indexOf(',') === s.lastIndexOf(',')) s = s.replace(',', '.');
+                else return null;
+            } else if (hasDot) {
+                if (/^[1-9][0-9]{0,2}(\.[0-9]{3})+$/.test(s)) s = s.replace(/\./g, '');
+                else if (s.indexOf('.') !== s.lastIndexOf('.')) return null;
+            }
+            if (!/^[0-9]+(\.[0-9]+)?$/.test(s)) return null;
+            const n = parseFloat(s);
+            return isFinite(n) ? (neg ? -n : n) : null;
+        }
+
         function displayValue(val, trimOpt) {
             let s = (val === undefined || val === null) ? '' : String(val);
             return trimOpt ? s.trim() : s;
@@ -4300,7 +4329,13 @@
                 const v2 = p.b !== -1 ? displayValue(r2[p.b], trimOpt) : '';
                 const norm1 = p.a !== -1 ? normalizeValue(r1[p.a], trimOpt, caseOpt) : '';
                 const norm2 = p.b !== -1 ? normalizeValue(r2[p.b], trimOpt, caseOpt) : '';
-                return { isDiff: norm1 !== norm2, cell: { status: norm1 !== norm2 ? 'modified' : 'same', val1: v1, val2: v2 } };
+                let isDiff = norm1 !== norm2;
+                if (isDiff && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[pairs.indexOf(p)] === 'num') {
+                    const n1 = p.a !== -1 ? cmpParseNum(r1[p.a]) : null;
+                    const n2 = p.b !== -1 ? cmpParseNum(r2[p.b]) : null;
+                    if (n1 !== null && n2 !== null) isDiff = Math.abs(n1 - n2) > 1e-9 * Math.max(1, Math.abs(n1), Math.abs(n2));
+                }
+                return { isDiff: isDiff, cell: { status: isDiff ? 'modified' : 'same', val1: v1, val2: v2 } };
             };
             const pairCellsForSingleRow = (row, side, status) => pairs.map(p => {
                 if (side === 'B') {
@@ -4385,7 +4420,14 @@
                 }
                 const cmpKeyOf = (row, idxArr) => idxArr.some(b => b === -1)
                     ? null
-                    : idxArr.map(ci => normalizeValue(row[ci], trimOpt, caseOpt)).join('\u0001');
+                    : idxArr.map((ci, k) => {
+                        const pairIdx = pairs.findIndex(p => p.a === keyIdxA[k]);
+                        if (pairIdx >= 0 && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[pairIdx] === 'num') {
+                            const n = cmpParseNum(row[ci]);
+                            if (n !== null) return 'N:' + n;
+                        }
+                        return normalizeValue(row[ci], trimOpt, caseOpt);
+                    }).join('\u0001');
                 const map2 = new Map();
                 rows2.forEach((r2, idx) => {
                     const _kB = cmpKeyOf(r2, keyIdxB);
@@ -4962,6 +5004,42 @@
         navigator.clipboard.writeText(text).then(done).catch(() => cmpCopyFallback(text, done));
       } else { cmpCopyFallback(text, done); }
     }
+
+    // ===== Kieu du lieu tung cot: 123 = So (so theo gia tri so), abc = Chu (mac dinh) =====
+    window.__cmpColTypes = window.__cmpColTypes || {};
+    function cmpInjectColTypeChips() {
+      const headRow = document.querySelector('#tableWrapper thead tr');
+      if (!headRow) return;
+      const types = window.__cmpColTypes || {};
+      Array.from(headRow.children).forEach((th, thIdx) => {
+        if (thIdx < 2) return;
+        const pairIdx = thIdx - 2;
+        const host = th.querySelector('div') || th;
+        const box = document.createElement('span');
+        box.className = 'cmp-type-chips inline-flex items-center gap-0.5 shrink-0';
+        const cur = types[pairIdx] === 'num' ? 'num' : 'text';
+        [['num', '123'], ['text', 'abc']].forEach(([tp, label]) => {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.textContent = label;
+          b.className = 'px-1 py-px rounded text-[9px] font-bold leading-none ' + (cur === tp ? 'bg-emerald-600 text-white' : 'text-slate-400 hover:text-slate-500');
+          b.addEventListener('mousedown', (e) => e.stopPropagation());
+          b.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (tp === 'num') window.__cmpColTypes[pairIdx] = 'num'; else delete window.__cmpColTypes[pairIdx];
+            if (typeof compareData === 'function') compareData(false);
+          });
+          box.appendChild(b);
+        });
+        host.appendChild(box);
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.renderComparisonTable === 'function') {
+        const _prevRenderCT = window.renderComparisonTable;
+        window.renderComparisonTable = function () { const r = _prevRenderCT.apply(this, arguments); cmpInjectColTypeChips(); return r; };
+      }
+    });
 
     // ===== Nhieu cot khoa (khoa ghep) =====
     function cmpSyncKeyColsUI() {
