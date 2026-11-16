@@ -379,7 +379,7 @@
     #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #1e3a8a !important; }
     /* Cum lua chon so sanh: man hep (<lg) an thanh icon, bam vao xo xuong */
     @media (max-width: 1023.98px) {
-      #tab-compare #cmp-actions-pop { display: none; }
+      #tab-compare #cmp-actions-pop { display: none; background-color: var(--bg-surface); border: 1px solid var(--border-color); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.12); }
       #tab-compare #cmp-actions-pop.open { display: flex; }
     }
     /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
@@ -1109,7 +1109,7 @@
                     <button type="button" id="cmp-menu-btn" class="lg:hidden px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center" title="Tất cả lựa chọn">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="7" cy="17" r="2.2"/></svg>
                     </button>
-                    <div id="cmp-actions-pop" class="flex flex-wrap items-center gap-x-1 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:t-surface max-lg:border max-lg:t-border max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[220px]">
+                    <div id="cmp-actions-pop" class="flex flex-wrap items-center gap-x-1 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[220px]">
                         <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
                             <span>OLD⇄NEW</span>
                         </button>
