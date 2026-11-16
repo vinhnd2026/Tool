@@ -1,9 +1,8 @@
 <!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phần Mềm Tính Chiều Dài Dây Xoắn & Quấn Tape</title>
+<html lang="vi"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phần Mềm Tính Chiều Dài Dây Xoắn &amp; Quấn Tape</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     * { box-sizing: border-box; }
@@ -221,57 +220,64 @@
   <!-- THANH MENU BÊN TRÁI (GỌN GÀNG, TỐI ĐA DIỆN TÍCH LÀM VIỆC) -->
   <aside class="w-full md:w-60 bg-slate-900 text-white flex flex-col justify-between shrink-0 select-none border-b md:border-b-0 md:border-r border-slate-800">
     <div class="p-2.5 md:p-3 flex md:flex-col gap-1.5 overflow-x-auto md:overflow-x-visible">
-      <div class="hidden md:block px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
+      <div class="hidden md:block px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400" data-i18n="k1">
         Công cụ tính toán
+      </div>
+      <div class="px-2 py-1.5 shrink-0">
+        <div class="flex gap-1 bg-slate-800 rounded-lg p-1">
+          <button type="button" data-lang-btn="vi" onclick="applyLanguage('vi')" class="flex-1 text-[11px] font-bold py-1 rounded-md transition">VI</button>
+          <button type="button" data-lang-btn="en" onclick="applyLanguage('en')" class="flex-1 text-[11px] font-bold py-1 rounded-md transition">EN</button>
+          <button type="button" data-lang-btn="ja" onclick="applyLanguage('ja')" class="flex-1 text-[11px] font-bold py-1 rounded-md transition">日本語</button>
+        </div>
       </div>
 
       <button onclick="switchTab('twist')" id="nav-twist" class="nav-btn active whitespace-nowrap">
         <span class="nav-badge">1</span>
-        <span>Xoắn Dây (2 / Nhiều dây)</span>
+        <span data-i18n="k2">Xoắn Dây (2 / Nhiều dây)</span>
       </button>
 
       <button onclick="switchTab('circle-tape')" id="nav-circle-tape" class="nav-btn whitespace-nowrap">
         <span class="nav-badge">2</span>
-        <span>Quấn Tape Tròn (2D)</span>
+        <span data-i18n="k3">Quấn Tape Tròn (2D)</span>
       </button>
 
       <button onclick="switchTab('spiral-tape')" id="nav-spiral-tape" class="nav-btn whitespace-nowrap">
         <span class="nav-badge">3</span>
-        <span>Quấn Tape Chéo (3D)</span>
+        <span data-i18n="k4">Quấn Tape Chéo (3D)</span>
       </button>
 
       <button onclick="switchTab('bundle')" id="nav-bundle" class="nav-btn whitespace-nowrap">
         <span class="nav-badge">4</span>
-        <span>Tính ĐK Bó Dây Tự Động</span>
+        <span data-i18n="k5">Tính ĐK Bó Dây Tự Động</span>
       </button>
 
       <button onclick="switchTab('awg')" id="nav-awg" class="nav-btn whitespace-nowrap">
         <span class="nav-badge">5</span>
-        <span>Đổi AWG ↔ mm ↔ mm²</span>
+        <span data-i18n="k6">Đổi AWG ↔ mm ↔ mm²</span>
       </button>
 
       <div class="hidden md:block pt-2 mt-1 border-t border-slate-800"></div>
 
       <button onclick="switchTab('theory')" id="nav-theory" class="nav-btn whitespace-nowrap">
         <span class="nav-badge">6</span>
-        <span>Lý Thuyết &amp; Công Thức</span>
+        <span data-i18n="k7">Lý Thuyết &amp; Công Thức</span>
       </button>
     </div>
 
     <!-- Thông tin bó dây hiện tại & thao tác nhanh -->
     <div class="hidden md:flex flex-col gap-2 p-3 border-t border-slate-800 bg-slate-950/60">
       <div class="text-xs text-slate-400 flex items-center justify-between px-1">
-        <span>ĐK ngoài bó (<i>D</i>):</span>
+        <span data-i18n="k8">ĐK ngoài bó (<i>D</i>):</span>
         <strong id="sidebar-bundle-d" class="text-emerald-400 font-bold">4.60 mm</strong>
       </div>
       <div class="text-xs text-slate-400 flex items-center justify-between px-1">
-        <span>Vòng tâm xoắn (<i>OD</i>):</span>
+        <span data-i18n="k10">Vòng tâm xoắn (<i>OD</i>):</span>
         <strong id="sidebar-bundle-od" class="text-indigo-400 font-bold">2.70 mm</strong>
       </div>
-      <button onclick="switchTab('bundle')" class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition shadow-sm">
+      <button onclick="switchTab('bundle')" class="w-full py-2 px-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-semibold transition shadow-sm" data-i18n="k12">
         Cấu hình Bó Dây &amp; Áp dụng
       </button>
-      <button onclick="resetDefaults()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition border border-slate-700">
+      <button onclick="resetDefaults()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition border border-slate-700" data-i18n="k13">
         Khôi phục thông số mẫu
       </button>
     </div>
@@ -290,12 +296,12 @@
         <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
             <div class="flex items-center gap-2">
-              <h2 class="font-bold text-slate-800 text-base">Bản Vẽ Kỹ Thuật Xoắn Dây (Trực Quan Động)</h2>
+              <h2 class="font-bold text-slate-800 text-base" data-i18n="k14">Bản Vẽ Kỹ Thuật Xoắn Dây (Trực Quan Động)</h2>
               <span id="twist-live-badge" class="text-xs bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-0.5 rounded-md font-bold">
                 2 dây xoắn
               </span>
             </div>
-            <span class="text-xs text-slate-500">
+            <span class="text-xs text-slate-500" data-i18n="k16">
               Số liệu nhảy trực tiếp trên hình khi nhập
             </span>
           </div>
@@ -307,7 +313,7 @@
 
           <!-- Ghi chú cảnh báo ngay tại phần minh họa, chỉ hiện khi OD được nhập từ mục Tính ĐK Bó Dây:
                số liệu bên Bó Dây là trường hợp dây xếp RẤT SÁT, thực tế xoắn xong dây tở ra nên bó to hơn -->
-          <div id="twist-import-note" class="hidden bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 text-xs text-amber-900 leading-relaxed">
+          <div id="twist-import-note" class="hidden bg-amber-50 border border-amber-300 rounded-lg px-3 py-2.5 text-xs text-amber-900 leading-relaxed" data-i18n="k17">
             <strong>⚠ Lưu ý:</strong> Đường kính lấy từ mục <strong>Tính ĐK Bó Dây</strong> là trường hợp các dây xếp <strong>RẤT SÁT</strong> với nhau (lý tưởng). Thực tế sau khi xoắn, dây bị <strong>tở ra</strong> nên đường kính bó thực tế sẽ <strong>TO HƠN</strong> — cần <strong>xác nhận lại bằng kích thước thực tế</strong>, hoặc tăng <strong>Hệ số tở</strong> ở banner bên dưới cho phù hợp.
           </div>
 
@@ -315,105 +321,105 @@
           <div id="twist-import-banner" class="hidden flex-col gap-2 bg-emerald-50 border border-emerald-300 rounded-lg px-3 py-2.5">
             <div class="flex items-start justify-between gap-3">
               <div class="text-xs text-emerald-900 space-y-0.5">
-                <div class="font-bold text-emerald-800">✓ Đã nhập dữ liệu từ mục 4. Tính ĐK Bó Dây</div>
+                <div class="font-bold text-emerald-800" data-i18n="k18">✓ Đã nhập dữ liệu từ mục 4. Tính ĐK Bó Dây</div>
                 <div id="twist-import-detail" class="font-semibold"></div>
               </div>
-              <button onclick="clearBundleImport()" class="shrink-0 px-2.5 py-1 bg-white border border-emerald-400 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded transition">Nhập tay lại</button>
+              <button onclick="clearBundleImport()" class="shrink-0 px-2.5 py-1 bg-white border border-emerald-400 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold rounded transition" data-i18n="k19">Nhập tay lại</button>
             </div>
             <div class="flex flex-wrap items-center gap-2 text-xs text-emerald-900 border-t border-emerald-200 pt-2">
-              <label class="font-semibold" for="twist-splay-factor">Hệ số tở sau xoắn (<i>k</i>):</label>
-              <input type="number" id="twist-splay-factor" value="1.1" min="1" max="1.5" step="0.01" oninput="applySplayFactor()" class="w-20 px-2 py-1 border border-emerald-400 rounded font-bold text-center bg-white text-emerald-900"/>
-              <span class="text-emerald-700">OD áp dụng = OD xếp sát × <i>k</i> (k = 1 là chưa tính tở; thực tế thường 1,05 – 1,15)</span>
+              <label class="font-semibold" for="twist-splay-factor" data-i18n="k20">Hệ số tở sau xoắn (<i>k</i>):</label>
+              <input type="number" id="twist-splay-factor" value="1.1" min="1" max="1.5" step="0.01" oninput="applySplayFactor()" class="w-20 px-2 py-1 border border-emerald-400 rounded font-bold text-center bg-white text-emerald-900">
+              <span class="text-emerald-700" data-i18n="k21">OD áp dụng = OD xếp sát × <i>k</i> (k = 1 là chưa tính tở; thực tế thường 1,05 – 1,15)</span>
             </div>
           </div>
         </div>
 
         <!-- Cột phải: Bảng nhập thông số & Kết quả -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
-          <h2 class="font-bold text-slate-800 text-base border-b pb-2.5">Bảng Thông Số Cắt Dây Xoắn</h2>
+          <h2 class="font-bold text-slate-800 text-base border-b pb-2.5" data-i18n="k22">Bảng Thông Số Cắt Dây Xoắn</h2>
 
           <div class="space-y-2.5 text-sm">
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Ăn vào housing đầu 1 (<i>h</i><sub>1</sub>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k23">Ăn vào housing đầu 1 (<i>h</i><sub>1</sub>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-h1" value="4.5" step="0.1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-h1" value="4.5" step="0.1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Ăn vào housing đầu 2 (<i>h</i><sub>2</sub>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k25">Ăn vào housing đầu 2 (<i>h</i><sub>2</sub>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-h2" value="4.5" step="0.1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-h2" value="4.5" step="0.1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Cách đầu housing 1 (<i>a</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k26">Cách đầu housing 1 (<i>a</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-a" value="30" step="1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-a" value="30" step="1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Cách đầu housing 2 (<i>b</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k27">Cách đầu housing 2 (<i>b</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-b" value="30" step="1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-b" value="30" step="1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Chiều dài sau xoắn (<i>L</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k28">Chiều dài sau xoắn (<i>L</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-L" value="1110" step="1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-L" value="1110" step="1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Bước xoắn (<i>P</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k29">Bước xoắn (<i>P</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-P" value="24" step="0.5" min="0.1" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-P" value="24" step="0.5" min="0.1" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Outer diameter (<i>OD</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k30">Outer diameter (<i>OD</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="tw-OD" value="1.5" step="0.05" min="0.05" oninput="calculateTwist()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-10">(mm)</span>
+                <input type="number" id="tw-OD" value="1.5" step="0.05" min="0.05" oninput="calculateTwist()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-10" data-i18n="k24">(mm)</span>
               </div>
             </div>
           </div>
 
-          <hr class="border-slate-800 border-t-2 my-3"/>
+          <hr class="border-slate-800 border-t-2 my-3">
 
           <!-- Kết quả chính -->
           <div class="bg-red-50 border border-red-200 rounded-lg p-3.5 text-center">
-            <div class="text-xs font-bold uppercase text-red-700 tracking-wider">CHIỀU DÀI CẮT DÂY</div>
+            <div class="text-xs font-bold uppercase text-red-700 tracking-wider" data-i18n="k31">CHIỀU DÀI CẮT DÂY</div>
             <div class="text-2xl font-extrabold text-red-600 mt-1" id="tw-result">1139.05 mm</div>
           </div>
 
           <!-- Chi tiết từng phần -->
           <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-1.5 border border-slate-200">
             <div class="flex justify-between">
-              <span class="text-slate-600">Chiều dài vùng xoắn (<i>L</i> &minus; <i>a</i> &minus; <i>b</i>):</span>
+              <span class="text-slate-600" data-i18n="k33">Chiều dài vùng xoắn (<i>L</i> − <i>a</i> − <i>b</i>):</span>
               <strong id="tw-zone-len">1050.00 mm</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">Chiều dài dây trong vùng xoắn:</span>
+              <span class="text-slate-600" data-i18n="k35">Chiều dài dây trong vùng xoắn:</span>
               <strong id="tw-helix-len">1070.05 mm</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">Số vòng xoắn ((<i>L</i> &minus; <i>a</i> &minus; <i>b</i>) / <i>P</i>):</span>
+              <span class="text-slate-600" data-i18n="k37">Số vòng xoắn ((<i>L</i> − <i>a</i> − <i>b</i>) / <i>P</i>):</span>
               <strong id="tw-turns">43.75 vòng</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">Độ dôi chiều dài do xoắn:</span>
+              <span class="text-slate-600" data-i18n="k39">Độ dôi chiều dài do xoắn:</span>
               <strong id="tw-extra" class="text-blue-700">+20.05 mm (+1.91%)</strong>
             </div>
           </div>
@@ -421,7 +427,7 @@
           <!-- Kiểm tra giới hạn bước xoắn theo tỷ số xoắn lambda = P / D ngoài bó -->
           <div id="tw-lay-box" class="rounded-lg p-3 text-xs border bg-emerald-50 border-emerald-200 text-emerald-900">
             <div class="flex justify-between">
-              <span>Tỷ số xoắn <i>&lambda;</i> = <i>P</i> / <i>D</i><sub>ngoài bó</sub>:</span>
+              <span data-i18n="k41">Tỷ số xoắn <i>λ</i> = <i>P</i> / <i>D</i><sub>ngoài bó</sub>:</span>
               <strong id="tw-lay-ratio">—</strong>
             </div>
             <p id="tw-lay-msg" class="mt-1.5 leading-relaxed"></p>
@@ -440,9 +446,9 @@
         <!-- Hình vẽ xoắn ốc Archimedes 2D -->
         <div class="lg:col-span-6 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-3">
           <div class="flex items-center justify-between border-b pb-2.5">
-            <h2 class="font-bold text-slate-800 text-base">Mô Hình Quấn Tape Tròn (Đường Xoắn Ốc 2D)</h2>
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k42">Mô Hình Quấn Tape Tròn (Đường Xoắn Ốc 2D)</h2>
             <span class="text-xs font-serif italic bg-slate-100 px-2.5 py-1 rounded text-slate-700">
-              R(&theta;) = r + (T / 2&pi;)&middot;&theta;
+              R(θ) = r + (T / 2π)·θ
             </span>
           </div>
 
@@ -451,68 +457,68 @@
           </div>
 
           <div class="text-xs text-slate-600 bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-1 leading-relaxed">
-            <p><strong>Nguyên lý:</strong> Khi quấn băng keo tròn nhiều vòng chồng lên nhau tại cùng một vị trí, bán kính bắt đầu từ <i>r</i> và mỗi vòng tăng đều một lượng bằng độ dày băng keo <i>T</i>.</p>
-            <p>Chiều dài băng keo được tính bằng tích phân hình thang độ dài cung cực từ &theta; = 0 đến &theta; = 2&pi;<i>n</i>.</p>
+            <p data-i18n="k44"><strong>Nguyên lý:</strong> Khi quấn băng keo tròn nhiều vòng chồng lên nhau tại cùng một vị trí, bán kính bắt đầu từ <i>r</i> và mỗi vòng tăng đều một lượng bằng độ dày băng keo <i>T</i>.</p>
+            <p data-i18n="k45">Chiều dài băng keo được tính bằng tích phân hình thang độ dài cung cực từ θ = 0 đến θ = 2π<i>n</i>.</p>
           </div>
         </div>
 
         <!-- Bảng nhập thông số Quấn Tape Tròn -->
         <div class="lg:col-span-6 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
-            <h2 class="font-bold text-slate-800 text-base">Thông Số Quấn Tape Tròn</h2>
-            <button onclick="useBundleForCircleTape()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow-sm">
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k46">Thông Số Quấn Tape Tròn</h2>
+            <button onclick="useBundleForCircleTape()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow-sm" data-i18n="k47">
               Lấy bán kính <i>r</i> từ Bó Dây
             </button>
           </div>
 
           <div class="space-y-3 text-sm">
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Đường kính bó dây (<i>D</i> = 2<i>r</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k48">Đường kính bó dây (<i>D</i> = 2<i>r</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="ct-D" value="4.8306" step="0.01" oninput="syncCircleTapeFromD()" class="input-cell bg-slate-50"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="ct-D" value="4.8306" step="0.01" oninput="syncCircleTapeFromD()" class="input-cell bg-slate-50">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Bán kính bó dây (<i>r</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k49">Bán kính bó dây (<i>r</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="ct-a" value="2.4153" step="0.0001" oninput="syncCircleTapeFromA()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="ct-a" value="2.4153" step="0.0001" oninput="syncCircleTapeFromA()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Độ dày tape (<i>T</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k50">Độ dày tape (<i>T</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="ct-T" value="0.17" step="0.01" oninput="calculateCircleTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="ct-T" value="0.17" step="0.01" oninput="calculateCircleTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Số vòng quấn (<i>n</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k51">Số vòng quấn (<i>n</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="ct-n" value="2" step="0.5" min="0.5" oninput="calculateCircleTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(vòng)</span>
+                <input type="number" id="ct-n" value="2" step="0.5" min="0.5" oninput="calculateCircleTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k52">(vòng)</span>
               </div>
             </div>
           </div>
 
-          <hr class="border-slate-800 border-t-2 my-3"/>
+          <hr class="border-slate-800 border-t-2 my-3">
 
           <div class="bg-red-50 border border-red-200 rounded-lg p-4 text-center">
-            <div class="text-xs font-bold uppercase text-red-700 tracking-wider">CHIỀU DÀI TAPE</div>
+            <div class="text-xs font-bold uppercase text-red-700 tracking-wider" data-i18n="k53">CHIỀU DÀI TAPE</div>
             <div class="text-2xl font-extrabold text-red-600 mt-1" id="ct-result">32.49 mm</div>
           </div>
 
           <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-1.5 border border-slate-200">
             <div class="flex justify-between">
-              <span class="text-slate-600">Bán kính ngoài sau khi quấn (<i>r</i> + <i>n</i>&middot;<i>T</i>):</span>
+              <span class="text-slate-600" data-i18n="k55">Bán kính ngoài sau khi quấn (<i>r</i> + <i>n</i>·<i>T</i>):</span>
               <strong id="ct-r-out">2.7553 mm</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">Đường kính ngoài sau khi quấn:</span>
+              <span class="text-slate-600" data-i18n="k57">Đường kính ngoài sau khi quấn:</span>
               <strong id="ct-d-out">5.5106 mm</strong>
             </div>
           </div>
@@ -530,8 +536,8 @@
         <!-- Cột trái: Hình vẽ kỹ thuật Quấn Chéo + Overlap -->
         <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 p-4 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
-            <h2 class="font-bold text-slate-800 text-base">Sơ Đồ Quấn Tape Chéo (Khóa Tròn 2 Đầu)</h2>
-            <span class="text-xs bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded font-semibold">
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k59">Sơ Đồ Quấn Tape Chéo (Khóa Tròn 2 Đầu)</h2>
+            <span class="text-xs bg-red-50 text-red-700 border border-red-200 px-2.5 py-0.5 rounded font-semibold" data-i18n="k60">
               Bắt buộc quấn tròn Đầu 1 &amp; Đầu 2
             </span>
           </div>
@@ -544,8 +550,8 @@
           <!-- Phần tính Overlap kèm hình minh họa chồng mí theo đúng tỷ lệ số thực tế -->
           <div class="bg-amber-50/80 border border-amber-200 rounded-lg p-3.5 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <div class="text-xs font-bold text-slate-800">
-                Trường hợp quấn overlap, khoảng cách <span class="text-red-600"><i>h</i> = <i>b</i> &minus; <i>b</i> &times; (% overlapped)</span>
+              <div class="text-xs font-bold text-slate-800" data-i18n="k61">
+                Trường hợp quấn overlap, khoảng cách <span class="text-red-600"><i>h</i> = <i>b</i> − <i>b</i> × (% overlapped)</span>
               </div>
               <span id="st-overlap-mode-tag" class="text-[11px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200">
                 Chồng mí 50%
@@ -557,14 +563,14 @@
 
               <div class="flex-1 min-w-[180px] space-y-2 text-sm">
                 <div class="flex items-center gap-2">
-                  <label class="font-semibold text-slate-700">% overlapped:</label>
-                  <input type="number" id="st-overlap" value="50" min="-200" max="95" step="5" oninput="updateStepFromOverlap()" class="w-24 px-2 py-1 border border-slate-400 rounded font-bold text-center bg-white"/>
+                  <label class="font-semibold text-slate-700" data-i18n="k63">% overlapped:</label>
+                  <input type="number" id="st-overlap" value="50" min="-200" max="95" step="5" oninput="updateStepFromOverlap()" class="w-24 px-2 py-1 border border-slate-400 rounded font-bold text-center bg-white">
                   <span class="font-bold text-slate-600">%</span>
                 </div>
                 <div class="text-slate-800 font-semibold flex items-center gap-2">
-                  <span>&rArr; <i>h</i> =</span>
+                  <span>⇒ <i>h</i> =</span>
                   <span class="px-3 py-0.5 bg-yellow-300 border border-yellow-500 font-extrabold rounded" id="st-h-badge">9.50</span>
-                  <span class="text-xs font-bold text-slate-500">(mm)</span>
+                  <span class="text-xs font-bold text-slate-500" data-i18n="k24">(mm)</span>
                 </div>
                 <div class="text-[11px] text-slate-500 leading-snug" id="st-overlap-desc">
                   Độ rộng chồng mí thực tế: <strong class="text-red-600">9.50 mm</strong> trên bản băng keo rộng <strong class="text-slate-700">19 mm</strong>.
@@ -577,94 +583,94 @@
         <!-- Cột phải: Bảng thông số Quấn Tape Chéo -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3.5">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5">
-            <h2 class="font-bold text-slate-800 text-base">Thông Số Quấn Tape Chéo</h2>
-            <button onclick="useBundleForSpiralTape()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow-sm">
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k66">Thông Số Quấn Tape Chéo</h2>
+            <button onclick="useBundleForSpiralTape()" class="text-xs bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg font-semibold transition shadow-sm" data-i18n="k67">
               Lấy ĐK <i>D</i> từ Bó Dây
             </button>
           </div>
 
           <div class="space-y-2.5 text-sm">
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Độ rộng tape (<i>b</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k68">Độ rộng tape (<i>b</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-b" value="19" step="0.5" min="1" oninput="updateStepFromOverlap()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="st-b" value="19" step="0.5" min="1" oninput="updateStepFromOverlap()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Độ dày tape (<i>T</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k50">Độ dày tape (<i>T</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-T" value="0.25" step="0.01" min="0.01" oninput="calculateSpiralTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="st-T" value="0.25" step="0.01" min="0.01" oninput="calculateSpiralTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Khoảng cách hai vòng tape (<i>h</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k69">Khoảng cách hai vòng tape (<i>h</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-h" value="9.5" step="0.5" min="0.5" oninput="updateOverlapFromStep()" class="input-cell input-highlight"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="st-h" value="9.5" step="0.5" min="0.5" oninput="updateOverlapFromStep()" class="input-cell input-highlight">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Số vòng quấn tròn đầu 1 (<i>n</i><sub>1</sub>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k70">Số vòng quấn tròn đầu 1 (<i>n</i><sub>1</sub>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-n1" value="2" step="0.5" min="0.5" oninput="calculateSpiralTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(vòng)</span>
+                <input type="number" id="st-n1" value="2" step="0.5" min="0.5" oninput="calculateSpiralTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k52">(vòng)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Số vòng quấn tròn đầu 2 (<i>n</i><sub>2</sub>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k71">Số vòng quấn tròn đầu 2 (<i>n</i><sub>2</sub>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-n2" value="2" step="0.5" min="0.5" oninput="calculateSpiralTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(vòng)</span>
+                <input type="number" id="st-n2" value="2" step="0.5" min="0.5" oninput="calculateSpiralTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k52">(vòng)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Đường kính bó dây (<i>D</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k72">Đường kính bó dây (<i>D</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-D" value="2.5" step="0.1" min="0.2" oninput="calculateSpiralTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="st-D" value="2.5" step="0.1" min="0.2" oninput="calculateSpiralTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
 
             <div class="flex items-center justify-between">
-              <label class="font-semibold text-slate-700">Chiều dài sau quấn (<i>c</i>):</label>
+              <label class="font-semibold text-slate-700" data-i18n="k73">Chiều dài sau quấn (<i>c</i>):</label>
               <div class="flex items-center gap-2">
-                <input type="number" id="st-c" value="161" step="1" min="1" oninput="calculateSpiralTape()" class="input-cell"/>
-                <span class="text-xs font-bold text-slate-500 w-12">(mm)</span>
+                <input type="number" id="st-c" value="161" step="1" min="1" oninput="calculateSpiralTape()" class="input-cell">
+                <span class="text-xs font-bold text-slate-500 w-12" data-i18n="k24">(mm)</span>
               </div>
             </div>
           </div>
 
           <!-- Cảnh báo bắt buộc quấn tròn 2 đầu -->
-          <div id="st-warning" class="hidden bg-red-100 border border-red-400 text-red-800 px-3 py-2 rounded text-xs font-semibold">
+          <div id="st-warning" class="hidden bg-red-100 border border-red-400 text-red-800 px-3 py-2 rounded text-xs font-semibold" data-i18n="k74">
             Khi quấn chéo bắt buộc phải có quấn tròn khóa 2 đầu (<i>n</i><sub>1</sub> &gt; 0 và <i>n</i><sub>2</sub> &gt; 0)!
           </div>
 
-          <hr class="border-slate-800 border-t-2 my-2"/>
+          <hr class="border-slate-800 border-t-2 my-2">
 
           <div class="bg-red-50 border border-red-200 rounded-lg p-3.5 text-center">
-            <div class="text-xs font-bold uppercase text-red-700 tracking-wider">CHIỀU DÀI TAPE</div>
+            <div class="text-xs font-bold uppercase text-red-700 tracking-wider" data-i18n="k53">CHIỀU DÀI TAPE</div>
             <div class="text-2xl font-extrabold text-red-600 mt-1" id="st-result">221.96 mm</div>
           </div>
 
           <!-- Bóc tách 3 thành phần -->
           <div class="bg-slate-50 rounded-lg p-3 text-xs space-y-1.5 border border-slate-200">
             <div class="flex justify-between">
-              <span class="text-slate-600">1. Quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng):</span>
+              <span class="text-slate-600" data-i18n="k76">1. Quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng):</span>
               <strong id="st-len-end1">18.86 mm</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">2. Quấn chéo 3D đoạn giữa (<i>c</i> &minus; <i>b</i>):</span>
+              <span class="text-slate-600" data-i18n="k78">2. Quấn chéo 3D đoạn giữa (<i>c</i> − <i>b</i>):</span>
               <strong id="st-len-mid">184.24 mm</strong>
             </div>
             <div class="flex justify-between">
-              <span class="text-slate-600">3. Quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng):</span>
+              <span class="text-slate-600" data-i18n="k80">3. Quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng):</span>
               <strong id="st-len-end2">18.86 mm</strong>
             </div>
           </div>
@@ -682,8 +688,8 @@
         <!-- Cột trái: Nhập danh sách các loại dây trong bó -->
         <div class="lg:col-span-7 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-4">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
-            <h2 class="font-bold text-slate-800 text-base">Khai Báo Các Dây Trong Bó</h2>
-            <button onclick="addWireGroupRow()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k81">Khai Báo Các Dây Trong Bó</h2>
+            <button onclick="addWireGroupRow()" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition shadow-sm" data-i18n="k82">
               + Thêm nhóm dây
             </button>
           </div>
@@ -692,29 +698,29 @@
             <table class="w-full text-sm border-collapse">
               <thead>
                 <tr class="bg-slate-100 text-slate-700 text-xs uppercase font-bold">
-                  <th class="py-2.5 px-3 text-left rounded-tl-lg">Nhóm dây / Cỡ dây</th>
-                  <th class="py-2.5 px-3 text-center">Đường kính <i>d<sub>i</sub></i> (mm)</th>
-                  <th class="py-2.5 px-3 text-center">Số lượng sợi (<i>q<sub>i</sub></i>)</th>
-                  <th class="py-2.5 px-3 text-center">Tiết diện (mm<sup>2</sup>)</th>
-                  <th class="py-2.5 px-2 text-center rounded-tr-lg">Xoá</th>
+                  <th class="py-2.5 px-3 text-left rounded-tl-lg" data-i18n="k83">Nhóm dây / Cỡ dây</th>
+                  <th class="py-2.5 px-3 text-center" data-i18n="k84">Đường kính <i>d<sub>i</sub></i> (mm)</th>
+                  <th class="py-2.5 px-3 text-center" data-i18n="k85">Số lượng sợi (<i>q<sub>i</sub></i>)</th>
+                  <th class="py-2.5 px-3 text-center" data-i18n="k86">Tiết diện (mm<sup>2</sup>)</th>
+                  <th class="py-2.5 px-2 text-center rounded-tr-lg" data-i18n="k87">Xoá</th>
                 </tr>
               </thead>
               <tbody id="wire-groups-tbody" class="divide-y divide-slate-200"></tbody>
             </table>
           </div>
 
-          <p class="text-[11px] text-slate-500 leading-snug">
+          <p class="text-[11px] text-slate-500 leading-snug" data-i18n="k88">
             Số lượng mỗi nhóm từ 1 đến 500 sợi (bản cũ bị giới hạn ngầm ở 60 sợi/nhóm). <strong>Tổng số sợi</strong> ở cột kết quả luôn bằng đúng tổng số lượng của mọi nhóm.
           </p>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
-            <button onclick="applyBundleToTwist()" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            <button onclick="applyBundleToTwist()" class="py-2.5 px-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold transition shadow-sm" data-i18n="k89">
               Áp dụng sang Xoắn Dây (<i>OD</i>)
             </button>
-            <button onclick="applyBundleToCircleTape()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            <button onclick="applyBundleToCircleTape()" class="py-2.5 px-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition shadow-sm" data-i18n="k90">
               Áp dụng sang Tape Tròn (<i>r</i>)
             </button>
-            <button onclick="applyBundleToSpiralTape()" class="py-2.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shadow-sm">
+            <button onclick="applyBundleToSpiralTape()" class="py-2.5 px-3 bg-amber-600 hover:bg-amber-700 text-white rounded-lg text-xs font-bold transition shadow-sm" data-i18n="k91">
               Áp dụng sang Tape Chéo (<i>D</i>)
             </button>
           </div>
@@ -723,10 +729,10 @@
         <!-- Cột phải: Kết quả tính & Mô phỏng mặt cắt bó dây -->
         <div class="lg:col-span-5 bg-white rounded-xl shadow-sm border border-slate-200 p-5 space-y-3.5">
           <div class="flex items-center justify-between gap-2 border-b pb-2.5">
-            <h2 class="font-bold text-slate-800 text-base">Mặt Cắt &amp; Đường Kính Bó Dây</h2>
+            <h2 class="font-bold text-slate-800 text-base" data-i18n="k92">Mặt Cắt &amp; Đường Kính Bó Dây</h2>
             <span id="bd-busy" class="inline-flex invisible items-center gap-2 text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 rounded-full px-3 py-1 shrink-0">
-              <svg class="bd-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c7d2fe" stroke-width="3.5"/><path d="M21 12a9 9 0 0 0-9-9" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round"/></svg>
-              <span id="bd-busy-text">Đang tính…</span>
+              <svg class="bd-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="#c7d2fe" stroke-width="3.5"></circle><path d="M21 12a9 9 0 0 0-9-9" stroke="#4f46e5" stroke-width="3.5" stroke-linecap="round"></path></svg>
+              <span id="bd-busy-text" data-i18n="k93">Đang tính…</span>
             </span>
           </div>
 
@@ -736,25 +742,25 @@
 
           <div class="grid grid-cols-2 gap-2.5 text-xs">
             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-              <div class="text-slate-500">Tổng số sợi dây:</div>
+              <div class="text-slate-500" data-i18n="k94">Tổng số sợi dây:</div>
               <div class="text-base font-extrabold text-slate-800 mt-0.5" id="bd-total-wires">4 sợi</div>
             </div>
             <div class="bg-slate-50 p-2.5 rounded-lg border border-slate-200">
-              <div class="text-slate-500">Tổng diện tích mặt cắt:</div>
+              <div class="text-slate-500" data-i18n="k96">Tổng diện tích mặt cắt:</div>
               <div class="text-base font-extrabold text-slate-800 mt-0.5"><span id="bd-total-area">10.76</span> mm<sup>2</sup></div>
             </div>
             <div class="bg-emerald-50 p-2.5 rounded-lg border border-emerald-200">
-              <div class="text-emerald-800 font-semibold">Đường kính ngoài bó (<i>D</i>):</div>
+              <div class="text-emerald-800 font-semibold" data-i18n="k98">Đường kính ngoài bó (<i>D</i>):</div>
               <div class="text-lg font-extrabold text-emerald-700 mt-0.5" id="bd-outer-d">4.600 mm</div>
             </div>
             <div class="bg-blue-50 p-2.5 rounded-lg border border-blue-200">
-              <div class="text-blue-800 font-semibold">Bán kính bó dây (<i>r</i> = <i>D</i>/2):</div>
+              <div class="text-blue-800 font-semibold" data-i18n="k100">Bán kính bó dây (<i>r</i> = <i>D</i>/2):</div>
               <div class="text-lg font-extrabold text-blue-700 mt-0.5" id="bd-radius-a">2.3000 mm</div>
             </div>
           </div>
 
           <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-200 text-xs flex items-center justify-between">
-            <span class="font-bold text-indigo-950">Đường kính vòng tâm xoắn tương đương (<i>OD</i>):</span>
+            <span class="font-bold text-indigo-950" data-i18n="k102">Đường kính vòng tâm xoắn tương đương (<i>OD</i>):</span>
             <strong id="bd-pitch-od" class="text-base font-extrabold text-indigo-700">2.704 mm</strong>
           </div>
 
@@ -773,30 +779,30 @@
       <!-- Đổi AWG <-> mm <-> mm2 (theo chuẩn AWG, giống RapidTables) — form DỌC:
            nhập vào 1 ô thì các ô còn lại tự động cập nhật ngay -->
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-md mx-auto">
-        <h2 class="font-bold text-slate-800 text-base border-b pb-2.5">Đổi AWG &harr; mm &harr; mm<sup>2</sup></h2>
+        <h2 class="font-bold text-slate-800 text-base border-b pb-2.5" data-i18n="k104">Đổi AWG ↔ mm ↔ mm<sup>2</sup></h2>
         <div class="space-y-3.5 mt-4 text-sm">
           <div id="awg-field-wrap" class="relative">
-            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge">Cỡ dây (AWG #) — gõ hoặc chọn:</label>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-gauge" data-i18n="k105">Cỡ dây (AWG #) — gõ hoặc chọn:</label>
             <div class="relative">
-              <input type="text" id="awg-gauge" value="24" oninput="awgFromGaugeInput()" onfocus="awgOpenPanel()" class="w-full px-3 py-2 pr-11 border border-slate-300 rounded font-bold bg-white"/>
-              <button type="button" onclick="awgTogglePanel(event)" aria-label="Mở bảng chọn cỡ AWG" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md bg-sky-100 hover:bg-sky-200 text-sky-700 text-base font-black transition">&#9662;</button>
+              <input type="text" id="awg-gauge" value="24" oninput="awgFromGaugeInput()" onfocus="awgOpenPanel()" class="w-full px-3 py-2 pr-11 border border-slate-300 rounded font-bold bg-white">
+              <button type="button" onclick="awgTogglePanel(event)" aria-label="Mở bảng chọn cỡ AWG" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 flex items-center justify-center rounded-md bg-sky-100 hover:bg-sky-200 text-sky-700 text-base font-black transition">▾</button>
             </div>
             <div id="awg-panel" class="hidden absolute left-0 right-0 top-full mt-1.5 z-30 bg-white border-2 border-sky-200 rounded-xl shadow-2xl p-2.5">
-              <div class="text-[11px] font-bold text-slate-500 uppercase px-0.5 pb-1.5">Chọn cỡ AWG — luôn hiện đủ 44 cỡ</div>
+              <div class="text-[11px] font-bold text-slate-500 uppercase px-0.5 pb-1.5" data-i18n="k106">Chọn cỡ AWG — luôn hiện đủ 44 cỡ</div>
               <div id="awg-chips" class="grid grid-cols-6 gap-1.5 max-h-60 overflow-y-auto pr-0.5"></div>
             </div>
           </div>
           <div>
-            <label class="block font-medium text-slate-600 mb-1" for="awg-mm">Đường kính (mm):</label>
-            <input type="number" id="awg-mm" step="0.0001" min="0" oninput="awgFromMm()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-mm" data-i18n="k107">Đường kính (mm):</label>
+            <input type="number" id="awg-mm" step="0.0001" min="0" oninput="awgFromMm()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white">
           </div>
           <div>
-            <label class="block font-medium text-slate-600 mb-1" for="awg-mm2">Tiết diện (mm<sup>2</sup>):</label>
-            <input type="number" id="awg-mm2" step="0.0001" min="0" oninput="awgFromMm2()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white"/>
+            <label class="block font-medium text-slate-600 mb-1" for="awg-mm2" data-i18n="k108">Tiết diện (mm<sup>2</sup>):</label>
+            <input type="number" id="awg-mm2" step="0.0001" min="0" oninput="awgFromMm2()" class="w-full px-3 py-2 border border-slate-300 rounded font-bold bg-white">
           </div>
           <div id="awg-equiv" class="text-xs text-slate-500 min-h-[1rem]"></div>
-          <button onclick="awgReset()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-semibold rounded transition">&times; Đặt lại</button>
-          <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5">Công thức chuẩn: <i>d</i> = 0,127 &times; 92<sup>(36 &minus; AWG)/39</sup> mm; <i>A</i> = &pi;<i>d</i><sup>2</sup>/4. Cỡ 0000 = &minus;3, 000 = &minus;2, 00 = &minus;1.</p>
+          <button onclick="awgReset()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-semibold rounded transition" data-i18n="k109">× Đặt lại</button>
+          <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5" data-i18n="k110">Công thức chuẩn: <i>d</i> = 0,127 × 92<sup>(36 − AWG)/39</sup> mm; <i>A</i> = π<i>d</i><sup>2</sup>/4. Cỡ 0000 = −3, 000 = −2, 00 = −1.</p>
         </div>
       </div>
     </section>
@@ -804,36 +810,36 @@
     <section id="tab-theory" class="tab-panel hidden space-y-4 max-w-5xl mx-auto pb-8">
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 space-y-6 text-sm leading-relaxed">
         <div class="border-b pb-3">
-          <h2 class="text-lg font-extrabold text-slate-900">
+          <h2 class="text-lg font-extrabold text-slate-900" data-i18n="k111">
             Cơ Sở Lý Thuyết &amp; Công Thức Tính Chiều Dài Dây Xoắn, Quấn Tape
           </h2>
-          <p class="text-xs text-slate-500 mt-0.5">
+          <p class="text-xs text-slate-500 mt-0.5" data-i18n="k112">
             Trình bày đầy đủ phương trình toán học theo tài liệu kỹ thuật gốc
           </p>
         </div>
 
         <!-- MỤC 1: ĐƯỜNG XOẮN ỐC 2D -->
         <div class="space-y-3">
-          <h3 class="font-bold text-blue-700 text-base">1. Đường xoắn ốc 2D</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k113">1. Đường xoắn ốc 2D</h3>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             <div class="md:col-span-7 space-y-3">
-              <p>Phương trình mô tả đường xoắn ốc trong hệ tọa độ cực:</p>
+              <p data-i18n="k114">Phương trình mô tả đường xoắn ốc trong hệ tọa độ cực:</p>
               <div class="math-card">
                 <div class="math-expr">
-                  <span class="math-var">R</span>(&theta;)
+                  <span class="math-var">R</span>(θ)
                   <span>=</span>
                   <span class="math-var">r</span>
                   <span>+</span>
-                  <span class="math-var">b</span><span>&theta;</span>
+                  <span class="math-var">b</span><span>θ</span>
                 </div>
               </div>
 
               <div class="pl-4 text-xs text-slate-700 space-y-1">
-                <p class="font-semibold text-slate-800">Trong đó:</p>
-                <p>+ <strong><i>R</i>(&theta;)</strong>: Khoảng cách từ gốc <i>O</i> đến điểm trên đường xoắn ốc ở góc &theta;.</p>
-                <p>+ <strong><i>r</i></strong>: Bán kính bó dây tại điểm bắt đầu (&theta; = 0).</p>
-                <p>+ <strong><i>b</i></strong>: Hệ số kiểm soát khoảng cách giữa các vòng.</p>
+                <p class="font-semibold text-slate-800" data-i18n="k116">Trong đó:</p>
+                <p data-i18n="k117">+ <strong><i>R</i>(θ)</strong>: Khoảng cách từ gốc <i>O</i> đến điểm trên đường xoắn ốc ở góc θ.</p>
+                <p data-i18n="k118">+ <strong><i>r</i></strong>: Bán kính bó dây tại điểm bắt đầu (θ = 0).</p>
+                <p data-i18n="k119">+ <strong><i>b</i></strong>: Hệ số kiểm soát khoảng cách giữa các vòng.</p>
               </div>
             </div>
 
@@ -843,20 +849,20 @@
             </div>
           </div>
 
-          <p>Hình xoắn ốc đều có khoảng cách giữa các lớp là 2&pi;<i>b</i>. Chiều dài đường xoắn ốc:</p>
+          <p data-i18n="k120">Hình xoắn ốc đều có khoảng cách giữa các lớp là 2π<i>b</i>. Chiều dài đường xoắn ốc:</p>
           <div class="math-card">
             <div class="math-expr">
               <span class="math-var">L</span>
               <span>=</span>
               <span class="mop-limits">
-                <span class="lim-top">&theta;<sub>2</sub></span>
-                <span class="op-sym">&int;</span>
-                <span class="lim-bot">&theta;<sub>1</sub></span>
+                <span class="lim-top">θ<sub>2</sub></span>
+                <span class="op-sym">∫</span>
+                <span class="lim-bot">θ<sub>1</sub></span>
               </span>
               <span class="msqrt">
                 <span class="msqrt-surd">
                   <svg viewBox="0 0 16 40" preserveAspectRatio="none">
-                    <path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path>
                   </svg>
                 </span>
                 <span class="msqrt-body">
@@ -865,57 +871,57 @@
                   <span class="mbracket">
                     <span class="mfrac">
                       <span class="num"><i class="math-var">dR</i></span>
-                      <span class="den"><i class="math-var">d</i>&theta;</span>
+                      <span class="den"><i class="math-var">d</i>θ</span>
                     </span>
                   </span><sup>2</sup>
                 </span>
               </span>
-              <span><i class="math-var">d</i>&theta;</span>
+              <span><i class="math-var">d</i>θ</span>
             </div>
           </div>
 
-          <p>Gọi <i>T</i> là khoảng cách giữa các lớp (độ dày băng keo) và <i>n</i> là số vòng xoắn. Như vậy <i>T</i> = 2&pi;<i>b</i>:</p>
+          <p data-i18n="k127">Gọi <i>T</i> là khoảng cách giữa các lớp (độ dày băng keo) và <i>n</i> là số vòng xoắn. Như vậy <i>T</i> = 2π<i>b</i>:</p>
           <div class="math-card">
             <div class="math-expr">
-              <span>&rArr;</span>
+              <span>⇒</span>
               <span class="math-var">b</span>
               <span>=</span>
               <span class="mfrac">
                 <span class="num"><i class="math-var">T</i></span>
-                <span class="den">2&pi;</span>
+                <span class="den">2π</span>
               </span>
             </div>
           </div>
 
-          <p>Phương trình đường xoắn ốc được viết lại như sau:</p>
+          <p data-i18n="k131">Phương trình đường xoắn ốc được viết lại như sau:</p>
           <div class="math-card">
             <div class="math-expr">
-              <span class="math-var">R</span>(&theta;)
+              <span class="math-var">R</span>(θ)
               <span>=</span>
               <span class="math-var">r</span>
               <span>+</span>
               <span class="mfrac">
                 <span class="num"><i class="math-var">T</i></span>
-                <span class="den">2&pi;</span>
+                <span class="den">2π</span>
               </span>
-              <span>&theta;</span>
+              <span>θ</span>
             </div>
           </div>
 
-          <p>Chiều dài đường xoắn ốc với <i>n</i> vòng quấn (&theta; chạy từ 0 đến 2&pi;<i>n</i>):</p>
+          <p data-i18n="k133">Chiều dài đường xoắn ốc với <i>n</i> vòng quấn (θ chạy từ 0 đến 2π<i>n</i>):</p>
           <div class="math-card">
             <div class="math-expr">
               <span class="math-var">L</span>
               <span>=</span>
               <span class="mop-limits">
-                <span class="lim-top">2&pi;<i class="math-var">n</i></span>
-                <span class="op-sym">&int;</span>
+                <span class="lim-top">2π<i class="math-var">n</i></span>
+                <span class="op-sym">∫</span>
                 <span class="lim-bot">0</span>
               </span>
               <span class="msqrt">
                 <span class="msqrt-surd">
                   <svg viewBox="0 0 16 60" preserveAspectRatio="none">
-                    <path d="M 1 36 L 5 32 L 10 58 L 15.5 0.6" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <path d="M 1 36 L 5 32 L 10 58 L 15.5 0.6" fill="none" stroke="#0f172a" stroke-width="1.5"></path>
                   </svg>
                 </span>
                 <span class="msqrt-body">
@@ -923,8 +929,8 @@
                     <span class="math-var">r</span>
                     <span>&nbsp;+&nbsp;</span>
                     <span class="mfrac">
-                      <span class="num"><i class="math-var">T</i>&theta;</span>
-                      <span class="den">2&pi;</span>
+                      <span class="num"><i class="math-var">T</i>θ</span>
+                      <span class="den">2π</span>
                     </span>
                   </span><sup>2</sup>
                   <span>+</span>
@@ -936,62 +942,62 @@
                           <span class="math-var">r</span>
                           <span>&nbsp;+&nbsp;</span>
                           <span class="mfrac">
-                            <span class="num"><i class="math-var">T</i>&theta;</span>
-                            <span class="den">2&pi;</span>
+                            <span class="num"><i class="math-var">T</i>θ</span>
+                            <span class="den">2π</span>
                           </span>
                         </span>
                       </span>
-                      <span class="den"><i class="math-var">d</i>&theta;</span>
+                      <span class="den"><i class="math-var">d</i>θ</span>
                     </span>
                   </span><sup>2</sup>
                 </span>
               </span>
-              <span><i class="math-var">d</i>&theta;</span>
+              <span><i class="math-var">d</i>θ</span>
 
               <span class="mx-2">=</span>
 
               <span class="mop-limits">
-                <span class="lim-top">2&pi;<i class="math-var">n</i></span>
-                <span class="op-sym">&int;</span>
+                <span class="lim-top">2π<i class="math-var">n</i></span>
+                <span class="op-sym">∫</span>
                 <span class="lim-bot">0</span>
               </span>
               <span class="msqrt">
                 <span class="msqrt-surd">
                   <svg viewBox="0 0 16 44" preserveAspectRatio="none">
-                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path>
                   </svg>
                 </span>
                 <span class="msqrt-body">
                   <span><i class="math-var">r</i><sup>2</sup></span>
                   <span>+</span>
                   <span class="mfrac">
-                    <span class="num"><i class="math-var">rT</i>&theta;</span>
-                    <span class="den">&pi;</span>
+                    <span class="num"><i class="math-var">rT</i>θ</span>
+                    <span class="den">π</span>
                   </span>
                   <span>+</span>
                   <span class="mfrac">
-                    <span class="num"><i class="math-var">T</i><sup>2</sup>&theta;<sup>2</sup></span>
-                    <span class="den">4&pi;<sup>2</sup></span>
+                    <span class="num"><i class="math-var">T</i><sup>2</sup>θ<sup>2</sup></span>
+                    <span class="den">4π<sup>2</sup></span>
                   </span>
                   <span>+</span>
                   <span class="mfrac">
                     <span class="num"><i class="math-var">T</i><sup>2</sup></span>
-                    <span class="den">4&pi;<sup>2</sup></span>
+                    <span class="den">4π<sup>2</sup></span>
                   </span>
                 </span>
               </span>
-              <span><i class="math-var">d</i>&theta;</span>
+              <span><i class="math-var">d</i>θ</span>
             </div>
           </div>
         </div>
 
         <!-- MỤC 2: ĐƯỜNG XOẮN ỐC KHÔNG GIAN 3 CHIỀU -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">2. Đường xoắn ốc không gian 3 chiều</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k143">2. Đường xoắn ốc không gian 3 chiều</h3>
 
           <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
             <div class="md:col-span-7 space-y-3">
-              <p>Phương trình mô tả trong không gian 3 chiều:</p>
+              <p data-i18n="k144">Phương trình mô tả trong không gian 3 chiều:</p>
               <div class="math-card">
                 <div class="math-expr">
                   <span><i class="math-var">x</i>(<i class="math-var">t</i>)</span>
@@ -999,13 +1005,13 @@
                   <span class="mbracket">
                     <span><i class="math-var">A</i> cos</span>
                     <span class="mfrac">
-                      <span class="num">2&pi;<i class="math-var">t</i></span>
-                      <span class="den">&lambda;</span>
+                      <span class="num">2π<i class="math-var">t</i></span>
+                      <span class="den">λ</span>
                     </span>
                     <span>,&nbsp;&nbsp;<i class="math-var">A</i> sin</span>
                     <span class="mfrac">
-                      <span class="num">2&pi;<i class="math-var">t</i></span>
-                      <span class="den">&lambda;</span>
+                      <span class="num">2π<i class="math-var">t</i></span>
+                      <span class="den">λ</span>
                     </span>
                     <span>,&nbsp;&nbsp;<i class="math-var">t</i></span>
                   </span>
@@ -1013,10 +1019,10 @@
               </div>
 
               <div class="pl-4 text-xs text-slate-700 space-y-1">
-                <p class="font-semibold text-slate-800">Trong đó:</p>
-                <p>+ <strong><i>A</i></strong> là bán kính đường xoắn ốc (<i>A</i> = <i>OD</i>/2 khi xoắn dây, hoặc <i>A</i> = <i>D</i>/2 khi quấn tape).</p>
-                <p>+ <strong>&lambda;</strong> là chiều dài một bước xoắn (&lambda; = <i>P</i> khi xoắn dây, hoặc &lambda; = <i>h</i> khi quấn tape chéo).</p>
-                <p>+ <strong><i>z</i> = <i>t</i></strong> là tọa độ dọc theo trục bó dây (xuất phát từ mặt phẳng gốc <i>z</i> = 0).</p>
+                <p class="font-semibold text-slate-800" data-i18n="k116">Trong đó:</p>
+                <p data-i18n="k151">+ <strong><i>A</i></strong> là bán kính đường xoắn ốc (<i>A</i> = <i>OD</i>/2 khi xoắn dây, hoặc <i>A</i> = <i>D</i>/2 khi quấn tape).</p>
+                <p data-i18n="k152">+ <strong>λ</strong> là chiều dài một bước xoắn (λ = <i>P</i> khi xoắn dây, hoặc λ = <i>h</i> khi quấn tape chéo).</p>
+                <p data-i18n="k153">+ <strong><i>z</i> = <i>t</i></strong> là tọa độ dọc theo trục bó dây (xuất phát từ mặt phẳng gốc <i>z</i> = 0).</p>
               </div>
             </div>
 
@@ -1026,33 +1032,33 @@
             </div>
           </div>
 
-          <p>Chiều dài của đường xoắn ốc trên đoạn dọc trục từ <i>a</i> đến <i>b</i>:</p>
+          <p data-i18n="k154">Chiều dài của đường xoắn ốc trên đoạn dọc trục từ <i>a</i> đến <i>b</i>:</p>
           <div class="math-card">
             <div class="math-expr">
               <span class="math-var">L</span>
               <span>=</span>
               <span class="mop-limits">
                 <span class="lim-top"><i class="math-var">b</i></span>
-                <span class="op-sym">&int;</span>
+                <span class="op-sym">∫</span>
                 <span class="lim-bot"><i class="math-var">a</i></span>
               </span>
               <span>||<i class="math-var">x</i>'(<i class="math-var">t</i>)|| <i class="math-var">dt</i></span>
               <span>=</span>
               <span class="mop-limits">
                 <span class="lim-top"><i class="math-var">b</i></span>
-                <span class="op-sym">&int;</span>
+                <span class="op-sym">∫</span>
                 <span class="lim-bot"><i class="math-var">a</i></span>
               </span>
               <span class="msqrt">
                 <span class="msqrt-surd">
                   <svg viewBox="0 0 16 44" preserveAspectRatio="none">
-                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path>
                   </svg>
                 </span>
                 <span class="msqrt-body">
                   <span class="mfrac">
-                    <span class="num">4&pi;<sup>2</sup><i class="math-var">A</i><sup>2</sup></span>
-                    <span class="den">&lambda;<sup>2</sup></span>
+                    <span class="num">4π<sup>2</sup><i class="math-var">A</i><sup>2</sup></span>
+                    <span class="den">λ<sup>2</sup></span>
                   </span>
                   <span>+</span>
                   <span>1</span>
@@ -1060,17 +1066,17 @@
               </span>
               <span><i class="math-var">dt</i></span>
               <span>=</span>
-              <span>(<i class="math-var">b</i> &minus; <i class="math-var">a</i>) &middot;</span>
+              <span>(<i class="math-var">b</i> − <i class="math-var">a</i>) ·</span>
               <span class="msqrt">
                 <span class="msqrt-surd">
                   <svg viewBox="0 0 16 44" preserveAspectRatio="none">
-                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/>
+                    <path d="M 1 26 L 5 23 L 10 42 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path>
                   </svg>
                 </span>
                 <span class="msqrt-body">
                   <span class="mfrac">
-                    <span class="num">4&pi;<sup>2</sup><i class="math-var">A</i><sup>2</sup></span>
-                    <span class="den">&lambda;<sup>2</sup></span>
+                    <span class="num">4π<sup>2</sup><i class="math-var">A</i><sup>2</sup></span>
+                    <span class="den">λ<sup>2</sup></span>
                   </span>
                   <span>+</span>
                   <span>1</span>
@@ -1082,18 +1088,18 @@
 
         <!-- MỤC 3: TÍNH TÍCH PHÂN GẦN ĐÚNG -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">3. Tính tích phân gần đúng</h3>
-          <p>Chia đoạn [<i>a</i>, <i>b</i>] thành <i>n</i> đoạn bằng nhau [<i>x</i><sub>0</sub>; <i>x</i><sub>1</sub>], ... với <i>n</i> + 1 nút nội suy cách đều. Tích phân được tính gần đúng theo công thức hình thang:</p>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k161">3. Tính tích phân gần đúng</h3>
+          <p data-i18n="k162">Chia đoạn [<i>a</i>, <i>b</i>] thành <i>n</i> đoạn bằng nhau [<i>x</i><sub>0</sub>; <i>x</i><sub>1</sub>], ... với <i>n</i> + 1 nút nội suy cách đều. Tích phân được tính gần đúng theo công thức hình thang:</p>
 
           <div class="math-card">
             <div class="math-expr">
               <span class="mop-limits">
                 <span class="lim-top"><i class="math-var">b</i></span>
-                <span class="op-sym">&int;</span>
+                <span class="op-sym">∫</span>
                 <span class="lim-bot"><i class="math-var">a</i></span>
               </span>
               <span><i class="math-var">f</i>(<i class="math-var">x</i>)<i class="math-var">dx</i></span>
-              <span>&approx;</span>
+              <span>≈</span>
               <span class="mfrac">
                 <span class="num"><i class="math-var">h</i></span>
                 <span class="den">2</span>
@@ -1101,8 +1107,8 @@
               <span class="msqbracket">
                 <span><i class="math-var">f</i>(<i class="math-var">a</i>) + <i class="math-var">f</i>(<i class="math-var">b</i>) + 2</span>
                 <span class="mop-limits">
-                  <span class="lim-top"><i class="math-var">n</i>&minus;1</span>
-                  <span class="op-sum">&sum;</span>
+                  <span class="lim-top"><i class="math-var">n</i>−1</span>
+                  <span class="op-sum">∑</span>
                   <span class="lim-bot"><i class="math-var">i</i>=1</span>
                 </span>
                 <span><i class="math-var">f</i>(<i class="math-var">x<sub>i</sub></i>)</span>
@@ -1112,25 +1118,25 @@
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="math-card">
-              <div class="text-xs font-sans text-slate-500 mb-1">Bước chia đều trên đoạn [<i>a</i>, <i>b</i>]:</div>
+              <div class="text-xs font-sans text-slate-500 mb-1" data-i18n="k169">Bước chia đều trên đoạn [<i>a</i>, <i>b</i>]:</div>
               <div class="math-expr">
                 <span class="math-var">h</span>
                 <span>=</span>
                 <span class="mfrac">
-                  <span class="num"><i class="math-var">b</i> &minus; <i class="math-var">a</i></span>
+                  <span class="num"><i class="math-var">b</i> − <i class="math-var">a</i></span>
                   <span class="den"><i class="math-var">n</i></span>
                 </span>
               </div>
             </div>
             <div class="math-card">
-              <div class="text-xs font-sans text-slate-500 mb-1">Đánh giá sai số (với <i>M</i> = max |<i>f</i>&Prime;(<i>x</i>)|):</div>
+              <div class="text-xs font-sans text-slate-500 mb-1" data-i18n="k172">Đánh giá sai số (với <i>M</i> = max |<i>f</i>″(<i>x</i>)|):</div>
               <div class="math-expr">
-                <span>&varepsilon; &lt;</span>
+                <span>ϵ &lt;</span>
                 <span class="mfrac">
-                  <span class="num"><i class="math-var">M</i>(<i class="math-var">b</i> &minus; <i class="math-var">a</i>)</span>
+                  <span class="num"><i class="math-var">M</i>(<i class="math-var">b</i> − <i class="math-var">a</i>)</span>
                   <span class="den">12</span>
                 </span>
-                <span>&times; <i class="math-var">h</i><sup>2</sup></span>
+                <span>× <i class="math-var">h</i><sup>2</sup></span>
               </div>
             </div>
           </div>
@@ -1138,67 +1144,67 @@
 
         <!-- MỤC 4: ÁP DỤNG VÀO TÍNH DÂY XOẮN & TAPE -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">4. Áp dụng vào tính dây xoắn và quấn tape</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k176">4. Áp dụng vào tính dây xoắn và quấn tape</h3>
           <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
-            <li>
-              <strong>Tính chiều dài cắt dây khi xoắn:</strong> Áp dụng công thức đường xoắn ốc 3 chiều (Mục 2) cho đoạn xoắn (<i>L</i> &minus; <i>a</i> &minus; <i>b</i>) với đường kính tâm xoắn 2<i>A</i> = <i>OD</i> và bước xoắn &lambda; = <i>P</i>, cộng với phần dây thẳng hai đầu (<i>a</i> + <i>b</i> + <i>h</i><sub>1</sub> + <i>h</i><sub>2</sub>).
+            <li data-i18n="k177">
+              <strong>Tính chiều dài cắt dây khi xoắn:</strong> Áp dụng công thức đường xoắn ốc 3 chiều (Mục 2) cho đoạn xoắn (<i>L</i> − <i>a</i> − <i>b</i>) với đường kính tâm xoắn 2<i>A</i> = <i>OD</i> và bước xoắn λ = <i>P</i>, cộng với phần dây thẳng hai đầu (<i>a</i> + <i>b</i> + <i>h</i><sub>1</sub> + <i>h</i><sub>2</sub>).
             </li>
-            <li>
+            <li data-i18n="k178">
               <strong>Tính chiều dài quấn tape:</strong> Chiều dài tape được đo theo một cạnh duy nhất, khi đó có thể coi cạnh tape là một đường chuẩn.
-              <br/>+ Trường hợp <strong>quấn tròn</strong> tại một vị trí được tính theo công thức xoắn ốc 2D (Mục 1) kết hợp tích phân số (Mục 3).
-              <br/>+ Trường hợp <strong>quấn chéo</strong> bắt buộc có khóa tròn 2 đầu: tổng chiều dài bằng chiều dài quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng) + chiều dài đường xoắn ốc 3D trên đoạn hiệu dụng (<i>c</i> &minus; <i>b</i>) + chiều dài quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng).
+              <br>+ Trường hợp <strong>quấn tròn</strong> tại một vị trí được tính theo công thức xoắn ốc 2D (Mục 1) kết hợp tích phân số (Mục 3).
+              <br>+ Trường hợp <strong>quấn chéo</strong> bắt buộc có khóa tròn 2 đầu: tổng chiều dài bằng chiều dài quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng) + chiều dài đường xoắn ốc 3D trên đoạn hiệu dụng (<i>c</i> − <i>b</i>) + chiều dài quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng).
             </li>
           </ul>
         </div>
 
         <!-- MỤC 5: ĐƯỜNG KÍNH NGOÀI CỦA BÓ DÂY -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">5. Đường kính ngoài của bó dây (<i>D</i>)</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k179">5. Đường kính ngoài của bó dây (<i>D</i>)</h3>
 
-          <p><strong>5.1. Tổng tiết diện của bó.</strong> Bó dây gồm nhiều nhóm, nhóm <i>i</i> có <i>q<sub>i</sub></i> sợi đường kính <i>d<sub>i</sub></i>. Tổng số sợi và tổng tiết diện kim loại/vỏ tính như sau:</p>
+          <p data-i18n="k180"><strong>5.1. Tổng tiết diện của bó.</strong> Bó dây gồm nhiều nhóm, nhóm <i>i</i> có <i>q<sub>i</sub></i> sợi đường kính <i>d<sub>i</sub></i>. Tổng số sợi và tổng tiết diện kim loại/vỏ tính như sau:</p>
           <div class="math-card">
             <div class="math-expr">
-              <span class="math-var">N</span><span>=</span><span>&Sigma;<i class="math-var">q<sub>i</sub></i></span>
+              <span class="math-var">N</span><span>=</span><span>Σ<i class="math-var">q<sub>i</sub></i></span>
               <span class="mx-3">;</span>
-              <span class="math-var">A</span><span>=</span><span>&Sigma;</span>
-              <span class="mbracket"><span><i class="math-var">q<sub>i</sub></i> &middot;</span>
-              <span class="mfrac"><span class="num">&pi;<i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den">4</span></span></span>
+              <span class="math-var">A</span><span>=</span><span>Σ</span>
+              <span class="mbracket"><span><i class="math-var">q<sub>i</sub></i> ·</span>
+              <span class="mfrac"><span class="num">π<i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den">4</span></span></span>
             </div>
           </div>
-          <p class="text-xs text-slate-600"><i>N</i> ở đây là tổng đúng của mọi nhóm đã khai báo — phần mềm không tự bớt sợi nào (giới hạn kỹ thuật duy nhất là 500 sợi/nhóm để mô phỏng vẫn chạy mượt, và ô nhập sẽ hiện rõ giới hạn đó nếu nhập quá).</p>
+          <p class="text-xs text-slate-600" data-i18n="k187"><i>N</i> ở đây là tổng đúng của mọi nhóm đã khai báo — phần mềm không tự bớt sợi nào (giới hạn kỹ thuật duy nhất là 500 sợi/nhóm để mô phỏng vẫn chạy mượt, và ô nhập sẽ hiện rõ giới hạn đó nếu nhập quá).</p>
 
-          <p><strong>5.2. Công thức diện tích và hệ số lấp đầy <i>&eta;</i>.</strong> Mặt cắt bó dây là hình tròn đường kính <i>D</i> nhưng không bao giờ được lấp kín 100% bởi các dây tròn — luôn có khe hở giữa các dây. Tỉ lệ phần diện tích được lấp được gọi là hệ số lấp đầy:</p>
+          <p data-i18n="k188"><strong>5.2. Công thức diện tích và hệ số lấp đầy <i>η</i>.</strong> Mặt cắt bó dây là hình tròn đường kính <i>D</i> nhưng không bao giờ được lấp kín 100% bởi các dây tròn — luôn có khe hở giữa các dây. Tỉ lệ phần diện tích được lấp được gọi là hệ số lấp đầy:</p>
           <div class="math-card">
             <div class="math-expr">
-              <span class="math-var">&eta;</span><span>=</span>
-              <span class="mfrac"><span class="num"><i class="math-var">A</i></span><span class="den">&pi;<i class="math-var">D</i><sup>2</sup>/4</span></span>
+              <span class="math-var">η</span><span>=</span>
+              <span class="mfrac"><span class="num"><i class="math-var">A</i></span><span class="den">π<i class="math-var">D</i><sup>2</sup>/4</span></span>
               <span>=</span>
-              <span class="mfrac"><span class="num">&Sigma;<i class="math-var">q<sub>i</sub></i><i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den"><i class="math-var">D</i><sup>2</sup></span></span>
-              <span class="mx-2">&rArr;</span>
+              <span class="mfrac"><span class="num">Σ<i class="math-var">q<sub>i</sub></i><i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den"><i class="math-var">D</i><sup>2</sup></span></span>
+              <span class="mx-2">⇒</span>
               <span class="math-var">D</span><span>=</span>
-              <span class="msqrt"><span class="msqrt-surd"><svg viewBox="0 0 16 40" preserveAspectRatio="none"><path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/></svg></span><span class="msqrt-body"><span class="mfrac"><span class="num">&Sigma;<i class="math-var">q<sub>i</sub></i><i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den"><i class="math-var">&eta;</i></span></span></span></span>
+              <span class="msqrt"><span class="msqrt-surd"><svg viewBox="0 0 16 40" preserveAspectRatio="none"><path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path></svg></span><span class="msqrt-body"><span class="mfrac"><span class="num">Σ<i class="math-var">q<sub>i</sub></i><i class="math-var">d<sub>i</sub></i><sup>2</sup></span><span class="den"><i class="math-var">η</i></span></span></span></span>
             </div>
           </div>
           <div class="pl-4 text-xs text-slate-700 space-y-1">
-            <p>+ Vì <i>&eta;</i> &lt; 1 nên luôn có giới hạn dưới tuyệt đối: <strong><i>D</i> &gt; &radic;(&Sigma;<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>)</strong> — mọi kết quả tính ra nhỏ hơn số này đều sai.</p>
-            <p>+ <i>&eta;</i> &asymp; <strong>0,907</strong> (xếp lục giác đều của các vòng tròn bằng nhau) là giới hạn hình học cao nhất, chỉ đạt gần đúng với bó rất nhiều sợi đều nhau.</p>
-            <p>+ <i>&eta;</i> &asymp; <strong>0,73&ndash;0,78</strong>: bó xếp chặt mô phỏng trên máy (ví dụ bó 7 sợi đều cho &eta; = 0,778; bó 102 sợi ở Mục 5.5 cho &eta; &asymp; 0,737).</p>
-            <p>+ <i>&eta;</i> &asymp; <strong>0,694</strong> tương đương công thức kinh nghiệm hay dùng trong sản xuất <i>D</i> &asymp; 1,2&middot;&radic;(&Sigma;<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) — công thức này đã gồm một phần dự phòng tở.</p>
-            <p>+ <i>&eta;</i> &lt; <strong>0,65</strong>: bó lỏng, có dây độn (filler) hoặc nhiều cỡ dây chênh nhau — nên đo bó mẫu thực tế để hiệu chuẩn.</p>
+            <p data-i18n="k193">+ Vì <i>η</i> &lt; 1 nên luôn có giới hạn dưới tuyệt đối: <strong><i>D</i> &gt; √(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>)</strong> — mọi kết quả tính ra nhỏ hơn số này đều sai.</p>
+            <p data-i18n="k194">+ <i>η</i> ≈ <strong>0,907</strong> (xếp lục giác đều của các vòng tròn bằng nhau) là giới hạn hình học cao nhất, chỉ đạt gần đúng với bó rất nhiều sợi đều nhau.</p>
+            <p data-i18n="k195">+ <i>η</i> ≈ <strong>0,73–0,78</strong>: bó xếp chặt mô phỏng trên máy (ví dụ bó 7 sợi đều cho η = 0,778; bó 102 sợi ở Mục 5.5 cho η ≈ 0,737).</p>
+            <p data-i18n="k196">+ <i>η</i> ≈ <strong>0,694</strong> tương đương công thức kinh nghiệm hay dùng trong sản xuất <i>D</i> ≈ 1,2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) — công thức này đã gồm một phần dự phòng tở.</p>
+            <p data-i18n="k197">+ <i>η</i> &lt; <strong>0,65</strong>: bó lỏng, có dây độn (filler) hoặc nhiều cỡ dây chênh nhau — nên đo bó mẫu thực tế để hiệu chuẩn.</p>
           </div>
 
-          <p><strong>5.3. Cách phần mềm tính <i>D</i> (mô phỏng xếp hình tròn + đường tròn bao nhỏ nhất).</strong> Phần mềm không tra <i>&eta;</i> cố định mà xếp thật từng sợi trên mặt cắt:</p>
+          <p data-i18n="k198"><strong>5.3. Cách phần mềm tính <i>D</i> (mô phỏng xếp hình tròn + đường tròn bao nhỏ nhất).</strong> Phần mềm không tra <i>η</i> cố định mà xếp thật từng sợi trên mặt cắt:</p>
           <ul class="list-disc pl-5 text-xs text-slate-700 space-y-1.5">
-            <li>Mỗi sợi là một hình tròn đường kính <i>d<sub>i</sub></i>; các hình tròn được đặt <strong>tiếp xúc nhau và không chồng lấp</strong>, thử nhiều chiến lược (xếp tham lam theo 3 thứ tự lớn&rarr;nhỏ / nhỏ&rarr;lớn / xen kẽ, xếp lưới vuông, xếp lưới lục giác, xếp vòng quanh 1 sợi tâm khi các dây bằng nhau) và giữ cấu hình tốt nhất.</li>
-            <li>Với mỗi cấu hình, tìm <strong>đường tròn bao nhỏ nhất</strong> (Minimum Enclosing Circle) chứa mọi sợi; đường kính ngoài của bó là <i>D</i> = 2<i>R</i><sub>bao</sub>.</li>
-            <li>Vì là mô phỏng xếp chặt, kết quả là <strong>ước lượng sát cận dưới</strong> của bó thật: bó thật không bao giờ nhỏ hơn hẳn giá trị này, và thường lớn hơn do độ tở khi xoắn (xem Mục 5.6).</li>
+            <li data-i18n="k199">Mỗi sợi là một hình tròn đường kính <i>d<sub>i</sub></i>; các hình tròn được đặt <strong>tiếp xúc nhau và không chồng lấp</strong>, thử nhiều chiến lược (xếp tham lam theo 3 thứ tự lớn→nhỏ / nhỏ→lớn / xen kẽ, xếp lưới vuông, xếp lưới lục giác, xếp vòng quanh 1 sợi tâm khi các dây bằng nhau) và giữ cấu hình tốt nhất.</li>
+            <li data-i18n="k200">Với mỗi cấu hình, tìm <strong>đường tròn bao nhỏ nhất</strong> (Minimum Enclosing Circle) chứa mọi sợi; đường kính ngoài của bó là <i>D</i> = 2<i>R</i><sub>bao</sub>.</li>
+            <li data-i18n="k201">Vì là mô phỏng xếp chặt, kết quả là <strong>ước lượng sát cận dưới</strong> của bó thật: bó thật không bao giờ nhỏ hơn hẳn giá trị này, và thường lớn hơn do độ tở khi xoắn (xem Mục 5.6).</li>
           </ul>
-          <p>Đối chiếu với các cách xếp tối ưu đã biết cho bó dây đều đường kính <i>d</i> (kiểm chứng độc lập, không dùng chính thuật toán của phần mềm):</p>
+          <p data-i18n="k202">Đối chiếu với các cách xếp tối ưu đã biết cho bó dây đều đường kính <i>d</i> (kiểm chứng độc lập, không dùng chính thuật toán của phần mềm):</p>
           <div class="overflow-x-auto">
             <table class="w-full text-xs border-collapse">
               <thead>
                 <tr class="bg-slate-100 text-slate-700 font-bold">
-                  <th class="py-2 px-3 text-center border border-slate-200">Số sợi <i>N</i></th>
+                  <th class="py-2 px-3 text-center border border-slate-200" data-i18n="k203">Số sợi <i>N</i></th>
                   <th class="py-2 px-3 text-center border border-slate-200">2</th>
                   <th class="py-2 px-3 text-center border border-slate-200">3</th>
                   <th class="py-2 px-3 text-center border border-slate-200">4</th>
@@ -1212,7 +1218,7 @@
               </thead>
               <tbody>
                 <tr>
-                  <td class="py-2 px-3 text-center border border-slate-200 font-bold">Tối ưu đã biết (<i>D</i>/<i>d</i>)</td>
+                  <td class="py-2 px-3 text-center border border-slate-200 font-bold" data-i18n="k204">Tối ưu đã biết (<i>D</i>/<i>d</i>)</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,000</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,155</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,414</td>
@@ -1224,7 +1230,7 @@
                   <td class="py-2 px-3 text-center border border-slate-200">9,000</td>
                 </tr>
                 <tr>
-                  <td class="py-2 px-3 text-center border border-slate-200 font-bold">Phần mềm tính (<i>D</i>/<i>d</i>)</td>
+                  <td class="py-2 px-3 text-center border border-slate-200 font-bold" data-i18n="k205">Phần mềm tính (<i>D</i>/<i>d</i>)</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,000</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,155</td>
                   <td class="py-2 px-3 text-center border border-slate-200">2,414</td>
@@ -1238,70 +1244,70 @@
               </tbody>
             </table>
           </div>
-          <p class="text-xs text-slate-600">Riêng trường hợp <i>N</i> = 10 sợi đều, phần mềm cho <i>D</i>/<i>d</i> = 3,924 so với tối ưu đã biết 3,813 (lệch +2,9%) — đây là giới hạn của thuật toán xếp heuristic: kết quả luôn <em>đúng về định nghĩa</em> (đường tròn bao của một cách xếp khả thi) nhưng với một số cấu hình đặc biệt có thể cao hơn tối ưu tuyệt đối vài phần trăm.</p>
+          <p class="text-xs text-slate-600" data-i18n="k206">Riêng trường hợp <i>N</i> = 10 sợi đều, phần mềm cho <i>D</i>/<i>d</i> = 3,924 so với tối ưu đã biết 3,813 (lệch +2,9%) — đây là giới hạn của thuật toán xếp heuristic: kết quả luôn <em>đúng về định nghĩa</em> (đường tròn bao của một cách xếp khả thi) nhưng với một số cấu hình đặc biệt có thể cao hơn tối ưu tuyệt đối vài phần trăm.</p>
 
-          <p><strong>5.4. Đường kính vòng tâm xoắn tương đương (<i>OD</i>).</strong> Sau khi xếp mặt cắt, phần mềm tính khoảng cách từ tâm bó tới tâm của sợi xa nhất:</p>
+          <p data-i18n="k207"><strong>5.4. Đường kính vòng tâm xoắn tương đương (<i>OD</i>).</strong> Sau khi xếp mặt cắt, phần mềm tính khoảng cách từ tâm bó tới tâm của sợi xa nhất:</p>
           <div class="math-card">
             <div class="math-expr">
-              <span class="math-var">OD</span><span>=</span><span>2 &middot; max</span>
-              <span class="msqrt"><span class="msqrt-surd"><svg viewBox="0 0 16 40" preserveAspectRatio="none"><path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"/></svg></span><span class="msqrt-body"><span><i class="math-var">x<sub>j</sub></i><sup>2</sup> + <i class="math-var">y<sub>j</sub></i><sup>2</sup></span></span></span>
-              <span class="mx-2">(</span><span>trên mọi sợi <i class="math-var">j</i></span><span>)</span>
+              <span class="math-var">OD</span><span>=</span><span>2 · max</span>
+              <span class="msqrt"><span class="msqrt-surd"><svg viewBox="0 0 16 40" preserveAspectRatio="none"><path d="M 1 24 L 5 21 L 10 38 L 15.5 0.8" fill="none" stroke="#0f172a" stroke-width="1.5"></path></svg></span><span class="msqrt-body"><span><i class="math-var">x<sub>j</sub></i><sup>2</sup> + <i class="math-var">y<sub>j</sub></i><sup>2</sup></span></span></span>
+              <span class="mx-2">(</span><span data-i18n="k211">trên mọi sợi <i class="math-var">j</i></span><span>)</span>
             </div>
           </div>
           <div class="pl-4 text-xs text-slate-700 space-y-1">
-            <p>+ Bó chỉ có 1 sợi: <i>OD</i> = <i>d</i> (theo quy ước của công thức xoắn 2 dây).</p>
-            <p>+ Nếu sợi ở ngoài cùng cũng là sợi chạm đường tròn bao thì <i>OD</i> &asymp; <i>D</i> &minus; <i>d</i><sub>ngoài</sub>; công thức này chỉ là gần đúng, phần mềm tính <i>OD</i> trực tiếp từ tọa độ nên chính xác hơn.</p>
-            <p>+ Khi xoắn cả bó, sợi ở xa tâm nhất đi đường dài nhất; dùng <i>OD</i> này trong công thức chiều dài xoắn (Mục 2) cho kết quả thiên về an toàn (dây cắt không bị thiếu).</p>
+            <p data-i18n="k212">+ Bó chỉ có 1 sợi: <i>OD</i> = <i>d</i> (theo quy ước của công thức xoắn 2 dây).</p>
+            <p data-i18n="k213">+ Nếu sợi ở ngoài cùng cũng là sợi chạm đường tròn bao thì <i>OD</i> ≈ <i>D</i> − <i>d</i><sub>ngoài</sub>; công thức này chỉ là gần đúng, phần mềm tính <i>OD</i> trực tiếp từ tọa độ nên chính xác hơn.</p>
+            <p data-i18n="k214">+ Khi xoắn cả bó, sợi ở xa tâm nhất đi đường dài nhất; dùng <i>OD</i> này trong công thức chiều dài xoắn (Mục 2) cho kết quả thiên về an toàn (dây cắt không bị thiếu).</p>
           </div>
 
-          <p><strong>5.5. Ví dụ kiểm chứng đầy đủ.</strong> Bó gồm 100 sợi &Oslash;1,25 mm và 2 sợi &Oslash;2,3 mm:</p>
+          <p data-i18n="k215"><strong>5.5. Ví dụ kiểm chứng đầy đủ.</strong> Bó gồm 100 sợi Ø1,25 mm và 2 sợi Ø2,3 mm:</p>
           <div class="pl-4 text-xs text-slate-700 space-y-1">
-            <p>+ Tổng số sợi: <i>N</i> = 100 + 2 = <strong>102 sợi</strong>.</p>
-            <p>+ &Sigma;<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup> = 100&times;1,25<sup>2</sup> + 2&times;2,3<sup>2</sup> = 156,25 + 10,58 = <strong>166,83 mm<sup>2</sup></strong> &rArr; tổng tiết diện <i>A</i> = &pi;/4 &times; 166,83 = <strong>131,03 mm<sup>2</sup></strong>.</p>
-            <p>+ Giới hạn dưới tuyệt đối của <i>D</i>: &radic;166,83 = <strong>12,92 mm</strong> (không cách xếp nào nhỏ hơn được).</p>
-            <p>+ Mô phỏng xếp của phần mềm: <i>D</i> = <strong>15,05 mm</strong>, tương ứng <i>&eta;</i> = 166,83 / <i>D</i><sup>2</sup> &asymp; <strong>0,737</strong> — nằm trong vùng xếp chặt hợp lý 0,73&ndash;0,78.</p>
-            <p>+ Công thức kinh nghiệm dự phòng 1,2&middot;&radic;(&Sigma;<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) = 1,2 &times; 12,92 = <strong>15,50 mm</strong>, cao hơn mô phỏng khoảng 3% — đúng vai trò của một hệ số an toàn khi đặt hàng/chọn ống bọc.</p>
+            <p data-i18n="k216">+ Tổng số sợi: <i>N</i> = 100 + 2 = <strong>102 sợi</strong>.</p>
+            <p data-i18n="k217">+ Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup> = 100×1,25<sup>2</sup> + 2×2,3<sup>2</sup> = 156,25 + 10,58 = <strong>166,83 mm<sup>2</sup></strong> ⇒ tổng tiết diện <i>A</i> = π/4 × 166,83 = <strong>131,03 mm<sup>2</sup></strong>.</p>
+            <p data-i18n="k218">+ Giới hạn dưới tuyệt đối của <i>D</i>: √166,83 = <strong>12,92 mm</strong> (không cách xếp nào nhỏ hơn được).</p>
+            <p data-i18n="k219">+ Mô phỏng xếp của phần mềm: <i>D</i> = <strong>15,05 mm</strong>, tương ứng <i>η</i> = 166,83 / <i>D</i><sup>2</sup> ≈ <strong>0,737</strong> — nằm trong vùng xếp chặt hợp lý 0,73–0,78.</p>
+            <p data-i18n="k220">+ Công thức kinh nghiệm dự phòng 1,2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) = 1,2 × 12,92 = <strong>15,50 mm</strong>, cao hơn mô phỏng khoảng 3% — đúng vai trò của một hệ số an toàn khi đặt hàng/chọn ống bọc.</p>
           </div>
 
-          <p><strong>5.6. Từ mô phỏng ra bó thật.</strong></p>
+          <p><strong data-i18n="k221">5.6. Từ mô phỏng ra bó thật.</strong></p>
           <ul class="list-disc pl-5 text-xs text-slate-700 space-y-1.5">
-            <li><strong>Độ tở và độ ô-van khi xoắn:</strong> bó xoắn thực tế luôn &ldquo;nở&rdquo; hơn mặt cắt xếp chặt; khi dùng <i>D</i> để chọn tape, ống co hay đầu nối, nên lấy <i>D</i><sub>thiết kế</sub> = <i>k</i> &middot; <i>D</i><sub>mô phỏng</sub> với <i>k</i> = 1,05&ndash;1,15 tùy mức xoắn chặt (đây cũng là vai trò của hệ số tở <i>k</i> ở mục Xoắn Dây).</li>
-            <li><strong>Dung sai đường kính vỏ dây:</strong> <i>d<sub>i</sub></i> nên lấy theo giá trị lớn nhất trong dung sai (ví dụ dây ghi 1,25 &plusmn; 0,05 thì tính với 1,30) nếu kết quả dùng để chọn kích thước bao ngoài.</li>
-            <li><strong>Sau khi quấn tape:</strong> mỗi lớp tape quấn tròn làm đường kính tăng thêm 2<i>T</i>; quấn <i>n</i> vòng khóa đầu thì đường kính ngoài tại đầu là <i>D</i> + 2<i>nT</i> (xem Mục 1).</li>
-            <li><strong>Hiệu chuẩn bằng mẫu:</strong> với bó sản xuất hàng loạt, đo đường kính bó mẫu đầu tiên và suy ra <i>&eta;</i> thực tế = &Sigma;<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>/<i>D</i><sub>đo</sub><sup>2</sup>; nếu <i>&eta;</i> đo được thấp hơn hẳn mô phỏng, các lần tính sau nên dùng công thức diện tích (Mục 5.2) với <i>&eta;</i> đó.</li>
+            <li data-i18n="k222"><strong>Độ tở và độ ô-van khi xoắn:</strong> bó xoắn thực tế luôn “nở” hơn mặt cắt xếp chặt; khi dùng <i>D</i> để chọn tape, ống co hay đầu nối, nên lấy <i>D</i><sub>thiết kế</sub> = <i>k</i> · <i>D</i><sub>mô phỏng</sub> với <i>k</i> = 1,05–1,15 tùy mức xoắn chặt (đây cũng là vai trò của hệ số tở <i>k</i> ở mục Xoắn Dây).</li>
+            <li data-i18n="k223"><strong>Dung sai đường kính vỏ dây:</strong> <i>d<sub>i</sub></i> nên lấy theo giá trị lớn nhất trong dung sai (ví dụ dây ghi 1,25 ± 0,05 thì tính với 1,30) nếu kết quả dùng để chọn kích thước bao ngoài.</li>
+            <li data-i18n="k224"><strong>Sau khi quấn tape:</strong> mỗi lớp tape quấn tròn làm đường kính tăng thêm 2<i>T</i>; quấn <i>n</i> vòng khóa đầu thì đường kính ngoài tại đầu là <i>D</i> + 2<i>nT</i> (xem Mục 1).</li>
+            <li data-i18n="k225"><strong>Hiệu chuẩn bằng mẫu:</strong> với bó sản xuất hàng loạt, đo đường kính bó mẫu đầu tiên và suy ra <i>η</i> thực tế = Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>/<i>D</i><sub>đo</sub><sup>2</sup>; nếu <i>η</i> đo được thấp hơn hẳn mô phỏng, các lần tính sau nên dùng công thức diện tích (Mục 5.2) với <i>η</i> đó.</li>
           </ul>
         </div>
 
         <!-- MỤC 6: GIẢ THIẾT & GIỚI HẠN CỦA CÁC CÔNG THỨC CÒN LẠI -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">6. Giả thiết và giới hạn cần biết khi dùng các công thức trên</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k226">6. Giả thiết và giới hạn cần biết khi dùng các công thức trên</h3>
           <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
-            <li><strong>Chiều dài cắt dây khi xoắn (Mục 2):</strong> một vòng xoắn khi trải phẳng là cạnh huyền của tam giác có hai cạnh &pi;<i>OD</i> và <i>P</i>, nên chiều dài một vòng = &radic;((&pi;<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>). Trong đó <i>OD</i> là <strong>đường kính vòng qua tâm các dây</strong>, không phải đường kính ngoài của bó. Công thức <i>OD</i> = <i>d</i>/sin(&pi;/<i>N</i>) chỉ đúng khi <i>N</i> dây đều nhau xếp thành <strong>một vòng duy nhất</strong> quanh tâm (ví dụ <i>N</i> = 7 xếp vòng cho <i>D</i><sub>bó</sub> lớn hơn kiểu 1 tâm + 6 vòng quanh); bó nhiều lớp hoặc nhiều cỡ dây phải lấy <i>OD</i> từ mô phỏng mặt cắt ở Mục 5.4.</li>
-            <li><strong>Quấn tape tròn (Mục 1):</strong> chiều dài tính theo đường tham chiếu bắt đầu ở bán kính bó <i>r</i>, mỗi vòng bán kính tăng đúng một độ dày tape <i>T</i> nên bán kính ngoài sau <i>n</i> vòng là <i>r</i> + <i>nT</i>. Kết quả không gồm phần tape thừa để cầm/gập mép khi thao tác.</li>
-            <li><strong>Quấn tape chéo (Mục 1 + 2):</strong> bước tiến mỗi vòng <i>h</i> = <i>b</i>(1 &minus; % chồng mí); đoạn chéo được tính trên chiều dài hiệu dụng <i>c</i> &minus; <i>b</i> theo quy ước của tài liệu gốc (phần khóa tròn ở hai đầu chiếm chỗ một bề rộng tape), và đường xoắn đoạn giữa tính trên <strong>đường kính tâm tape hiệu dụng</strong> đã cộng độ dày tape và số lớp tape chồng nhau do chồng mí (Mục 7.2). Hai đầu khóa tròn tính riêng bằng công thức xoắn ốc 2D với số vòng <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub>.</li>
-            <li><strong>Tích phân số (Mục 3):</strong> phần mềm chia đoạn tích phân thành 1.000 bước hình thang; với các hàm trơn như độ dài cung xoắn ốc, sai số ở mức dưới 0,01% — nhỏ hơn nhiều so với sai số do độ tở và dung sai vật liệu, nên không cần tăng thêm bước chia.</li>
-            <li><strong>Nguyên tắc chung:</strong> mọi công thức trong phần mềm tính cho dây/tape <em>không co giãn, không trượt</em> và mặt cắt tròn đều. Khi kết quả dùng để đặt vật tư, hãy cộng dự phòng theo Mục 5.6 thay vì dùng thẳng số mô phỏng.</li>
+            <li data-i18n="k227"><strong>Chiều dài cắt dây khi xoắn (Mục 2):</strong> một vòng xoắn khi trải phẳng là cạnh huyền của tam giác có hai cạnh π<i>OD</i> và <i>P</i>, nên chiều dài một vòng = √((π<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>). Trong đó <i>OD</i> là <strong>đường kính vòng qua tâm các dây</strong>, không phải đường kính ngoài của bó. Công thức <i>OD</i> = <i>d</i>/sin(π/<i>N</i>) chỉ đúng khi <i>N</i> dây đều nhau xếp thành <strong>một vòng duy nhất</strong> quanh tâm (ví dụ <i>N</i> = 7 xếp vòng cho <i>D</i><sub>bó</sub> lớn hơn kiểu 1 tâm + 6 vòng quanh); bó nhiều lớp hoặc nhiều cỡ dây phải lấy <i>OD</i> từ mô phỏng mặt cắt ở Mục 5.4.</li>
+            <li data-i18n="k228"><strong>Quấn tape tròn (Mục 1):</strong> chiều dài tính theo đường tham chiếu bắt đầu ở bán kính bó <i>r</i>, mỗi vòng bán kính tăng đúng một độ dày tape <i>T</i> nên bán kính ngoài sau <i>n</i> vòng là <i>r</i> + <i>nT</i>. Kết quả không gồm phần tape thừa để cầm/gập mép khi thao tác.</li>
+            <li data-i18n="k229"><strong>Quấn tape chéo (Mục 1 + 2):</strong> bước tiến mỗi vòng <i>h</i> = <i>b</i>(1 − % chồng mí); đoạn chéo được tính trên chiều dài hiệu dụng <i>c</i> − <i>b</i> theo quy ước của tài liệu gốc (phần khóa tròn ở hai đầu chiếm chỗ một bề rộng tape), và đường xoắn đoạn giữa tính trên <strong>đường kính tâm tape hiệu dụng</strong> đã cộng độ dày tape và số lớp tape chồng nhau do chồng mí (Mục 7.2). Hai đầu khóa tròn tính riêng bằng công thức xoắn ốc 2D với số vòng <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub>.</li>
+            <li data-i18n="k230"><strong>Tích phân số (Mục 3):</strong> phần mềm chia đoạn tích phân thành 1.000 bước hình thang; với các hàm trơn như độ dài cung xoắn ốc, sai số ở mức dưới 0,01% — nhỏ hơn nhiều so với sai số do độ tở và dung sai vật liệu, nên không cần tăng thêm bước chia.</li>
+            <li data-i18n="k231"><strong>Nguyên tắc chung:</strong> mọi công thức trong phần mềm tính cho dây/tape <em>không co giãn, không trượt</em> và mặt cắt tròn đều. Khi kết quả dùng để đặt vật tư, hãy cộng dự phòng theo Mục 5.6 thay vì dùng thẳng số mô phỏng.</li>
           </ul>
         </div>
 
         <!-- MỤC 7: GIỚI HẠN BƯỚC XOẮN & HIỆU CHỈNH CHỒNG MÍ QUẤN CHÉO -->
         <div class="space-y-3 pt-4 border-t border-slate-200">
-          <h3 class="font-bold text-blue-700 text-base">7. Giới hạn bước xoắn &amp; hiệu chỉnh chồng mí khi quấn chéo</h3>
+          <h3 class="font-bold text-blue-700 text-base" data-i18n="k232">7. Giới hạn bước xoắn &amp; hiệu chỉnh chồng mí khi quấn chéo</h3>
           <div class="space-y-2">
-            <p><strong>7.1. Tỷ số xoắn <i>&lambda;</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> — giới hạn bước xoắn theo tiêu chuẩn bện dây.</strong> Trong sản xuất dây cáp, bước xoắn không chọn tùy ý mà bị chặn bởi <strong>tỷ số xoắn</strong> <i>&lambda;</i> = <i>P</i> / <i>D</i><sub>ngoài</sub> (<i>D</i><sub>ngoài</sub> = đường kính ngoài của bó/cáp thành phẩm, KHÔNG phải đường kính vòng tâm <i>OD</i>):</p>
-            <div class="formula-box">8 &le; <i>&lambda;</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> &le; 16&nbsp;&nbsp;&rArr;&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>ngoài</sub>,&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>ngoài</sub></div>
+            <p data-i18n="k233"><strong>7.1. Tỷ số xoắn <i>λ</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> — giới hạn bước xoắn theo tiêu chuẩn bện dây.</strong> Trong sản xuất dây cáp, bước xoắn không chọn tùy ý mà bị chặn bởi <strong>tỷ số xoắn</strong> <i>λ</i> = <i>P</i> / <i>D</i><sub>ngoài</sub> (<i>D</i><sub>ngoài</sub> = đường kính ngoài của bó/cáp thành phẩm, KHÔNG phải đường kính vòng tâm <i>OD</i>):</p>
+            <div class="formula-box" data-i18n="k234">8 ≤ <i>λ</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> ≤ 16&nbsp;&nbsp;⇒&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>ngoài</sub>,&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>ngoài</sub></div>
             <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
-              <li><strong>Nguồn chuẩn:</strong> ASTM B496 và B835 ghi rõ "chiều dài bước xoắn không nhỏ hơn 8 và không lớn hơn 16 lần đường kính ngoài của ruột dẫn hoàn chỉnh"; cùng dải 8–16 áp dụng trong ASTM B8 (đồng trần bện đồng tâm) và tiêu chuẩn quốc gia PNS 1207 cho lớp ngoài. Riêng nhôm trần ASTM B399: lớp AA dùng 10–16, lớp A dùng 8–16. Thực hành sản xuất thường chọn 10–14.</li>
-              <li><strong>Theo từng loại dây:</strong> dây đồng/nhôm trần bện đồng tâm theo dải chuẩn trên. Dây mềm nhiều sợi nhỏ (ruột lớp 5/6) thường chọn <i>&lambda;</i> ở nửa dưới của dải (8–12) để mềm và bền uốn. Dây <strong>bọc cách điện</strong> xoắn đôi/xoắn chùm (làm dây nhánh, harness) càng phải giữ <i>P</i> &ge; 8<i>D</i><sub>ngoài</sub>: xoắn ngắn hơn làm vỏ cách điện bị ép nhăn, biến dạng, có thể nứt ở phía ngoài vòng xoắn.</li>
-              <li><strong>Vì sao không được nhỏ hơn 8:</strong> khi <i>P</i> nhỏ, dây đi đường xoắn dài hơn hẳn (hệ số &radic;(1 + (&pi;<i>OD</i>/<i>P</i>)<sup>2</sup>) — ví dụ xoắn 2 dây ở <i>&lambda;</i> = 8 dây dài thêm &asymp; 1,9%, ở <i>&lambda;</i> = 5 dài thêm &asymp; 4,8% — kéo theo điện trở tăng tương ứng, sợi bị biến dạng dẻo nhiều, dễ đứt khi xoắn và bó bị cứng, khó uốn. Phần mềm tự kiểm tra <i>&lambda;</i> mỗi lần tính và <strong>cảnh báo đỏ kèm <i>P</i><sub>min</sub></strong> khi <i>P</i> &lt; 8<i>D</i><sub>ngoài</sub>; <i>D</i><sub>ngoài</sub> lấy từ đường kính bó đã nhập sang (đã nhân hệ số tở), hoặc = 2<i>OD</i> khi nhập tay theo hình 2 dây.</li>
-              <li><strong>Phía trên 16:</strong> bó xoắn quá lỏng, không giữ form, các sợi dễ tở ra và bung khi uốn cong — phần mềm hiện lưu ý màu hổ phách nhưng không coi là lỗi cứng như phía dưới 8.</li>
+              <li data-i18n="k235"><strong>Nguồn chuẩn:</strong> ASTM B496 và B835 ghi rõ "chiều dài bước xoắn không nhỏ hơn 8 và không lớn hơn 16 lần đường kính ngoài của ruột dẫn hoàn chỉnh"; cùng dải 8–16 áp dụng trong ASTM B8 (đồng trần bện đồng tâm) và tiêu chuẩn quốc gia PNS 1207 cho lớp ngoài. Riêng nhôm trần ASTM B399: lớp AA dùng 10–16, lớp A dùng 8–16. Thực hành sản xuất thường chọn 10–14.</li>
+              <li data-i18n="k236"><strong>Theo từng loại dây:</strong> dây đồng/nhôm trần bện đồng tâm theo dải chuẩn trên. Dây mềm nhiều sợi nhỏ (ruột lớp 5/6) thường chọn <i>λ</i> ở nửa dưới của dải (8–12) để mềm và bền uốn. Dây <strong>bọc cách điện</strong> xoắn đôi/xoắn chùm (làm dây nhánh, harness) càng phải giữ <i>P</i> ≥ 8<i>D</i><sub>ngoài</sub>: xoắn ngắn hơn làm vỏ cách điện bị ép nhăn, biến dạng, có thể nứt ở phía ngoài vòng xoắn.</li>
+              <li data-i18n="k237"><strong>Vì sao không được nhỏ hơn 8:</strong> khi <i>P</i> nhỏ, dây đi đường xoắn dài hơn hẳn (hệ số √(1 + (π<i>OD</i>/<i>P</i>)<sup>2</sup>) — ví dụ xoắn 2 dây ở <i>λ</i> = 8 dây dài thêm ≈ 1,9%, ở <i>λ</i> = 5 dài thêm ≈ 4,8% — kéo theo điện trở tăng tương ứng, sợi bị biến dạng dẻo nhiều, dễ đứt khi xoắn và bó bị cứng, khó uốn. Phần mềm tự kiểm tra <i>λ</i> mỗi lần tính và <strong>cảnh báo đỏ kèm <i>P</i><sub>min</sub></strong> khi <i>P</i> &lt; 8<i>D</i><sub>ngoài</sub>; <i>D</i><sub>ngoài</sub> lấy từ đường kính bó đã nhập sang (đã nhân hệ số tở), hoặc = 2<i>OD</i> khi nhập tay theo hình 2 dây.</li>
+              <li data-i18n="k238"><strong>Phía trên 16:</strong> bó xoắn quá lỏng, không giữ form, các sợi dễ tở ra và bung khi uốn cong — phần mềm hiện lưu ý màu hổ phách nhưng không coi là lỗi cứng như phía dưới 8.</li>
             </ul>
-            <p><strong>7.2. Quấn chéo chồng mí lớn — vì sao phải đổi đường kính tính toán.</strong> Công thức gốc tính đoạn chéo trên đúng đường kính bó <i>D</i>, tức giả thiết tape luôn quấn trên mặt trụ đường kính <i>D</i>. Thực tế khi có chồng mí (<i>h</i> &lt; <i>b</i>), vòng tape sau <strong>nằm đè lên các lớp tape trước</strong>: tại một điểm trên bó có trung bình <i>L</i> = <i>b</i>/<i>h</i> lớp tape chồng nhau, vòng trên cùng tựa trên (<i>L</i> &minus; 1) lớp nên đường kính vòng xoắn của nó lớn hơn hẳn <i>D</i>. Phần mềm đã hiệu chỉnh bằng <strong>đường kính tâm tape hiệu dụng</strong>:</p>
-            <div class="formula-box"><i>L</i> = <i>b</i>/<i>h</i> (số lớp tape hiệu dụng, lấy tối thiểu 1)&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> &minus; 1)</div>
+            <p data-i18n="k239"><strong>7.2. Quấn chéo chồng mí lớn — vì sao phải đổi đường kính tính toán.</strong> Công thức gốc tính đoạn chéo trên đúng đường kính bó <i>D</i>, tức giả thiết tape luôn quấn trên mặt trụ đường kính <i>D</i>. Thực tế khi có chồng mí (<i>h</i> &lt; <i>b</i>), vòng tape sau <strong>nằm đè lên các lớp tape trước</strong>: tại một điểm trên bó có trung bình <i>L</i> = <i>b</i>/<i>h</i> lớp tape chồng nhau, vòng trên cùng tựa trên (<i>L</i> − 1) lớp nên đường kính vòng xoắn của nó lớn hơn hẳn <i>D</i>. Phần mềm đã hiệu chỉnh bằng <strong>đường kính tâm tape hiệu dụng</strong>:</p>
+            <div class="formula-box" data-i18n="k240"><i>L</i> = <i>b</i>/<i>h</i> (số lớp tape hiệu dụng, lấy tối thiểu 1)&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> − 1)</div>
             <ul class="list-disc pl-5 text-xs text-slate-700 space-y-2">
-              <li>Kiểm tra các mốc: quấn sát mép/hở (<i>L</i> = 1) cho <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> — đúng tâm tape khi chỉ có 1 lớp; chồng mí 50% (<i>L</i> = 2) cho <i>D</i> + 3<i>T</i>; chồng mí 75% (<i>L</i> = 4) cho <i>D</i> + 7<i>T</i>.</li>
-              <li>Ví dụ theo thông số mặc định của phần mềm (<i>D</i> = 2,5; <i>T</i> = 0,25; <i>b</i> = 19; <i>h</i> = 9,5 &rarr; <i>L</i> = 2): <i>D</i><sub>cl</sub> = 3,25 mm và chiều dài đoạn giữa tăng &asymp; 13% so với công thức cũ — chồng mí càng lớn, tape càng dày hoặc bó càng nhỏ thì độ chênh càng lớn.</li>
-              <li>Giả thiết của hiệu chỉnh: trạng thái chồng lớp ổn định trên toàn đoạn giữa; đoạn chuyển tiếp dài khoảng một bề rộng tape ở hai đầu đoạn giữa (nơi số lớp tăng dần từ 0 lên <i>L</i>) được tính gộp theo trạng thái ổn định nên có sai số nhỏ. Hai đầu khóa tròn không đổi vì vốn đã tính bán kính tăng dần sau mỗi vòng.</li>
+              <li data-i18n="k241">Kiểm tra các mốc: quấn sát mép/hở (<i>L</i> = 1) cho <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> — đúng tâm tape khi chỉ có 1 lớp; chồng mí 50% (<i>L</i> = 2) cho <i>D</i> + 3<i>T</i>; chồng mí 75% (<i>L</i> = 4) cho <i>D</i> + 7<i>T</i>.</li>
+              <li data-i18n="k242">Ví dụ theo thông số mặc định của phần mềm (<i>D</i> = 2,5; <i>T</i> = 0,25; <i>b</i> = 19; <i>h</i> = 9,5 → <i>L</i> = 2): <i>D</i><sub>cl</sub> = 3,25 mm và chiều dài đoạn giữa tăng ≈ 13% so với công thức cũ — chồng mí càng lớn, tape càng dày hoặc bó càng nhỏ thì độ chênh càng lớn.</li>
+              <li data-i18n="k243">Giả thiết của hiệu chỉnh: trạng thái chồng lớp ổn định trên toàn đoạn giữa; đoạn chuyển tiếp dài khoảng một bề rộng tape ở hai đầu đoạn giữa (nơi số lớp tăng dần từ 0 lên <i>L</i>) được tính gộp theo trạng thái ổn định nên có sai số nhỏ. Hai đầu khóa tròn không đổi vì vốn đã tính bán kính tăng dần sau mỗi vòng.</li>
             </ul>
           </div>
         </div>
@@ -1526,7 +1532,7 @@
       const numWires = Math.max(2, Math.min(12, actualWires));
 
       const badge = document.getElementById('twist-live-badge');
-      if (badge) badge.textContent = actualWires > numWires ? `${actualWires} dây trong bó` : `${numWires} dây xoắn`;
+      if (badge) badge.textContent = actualWires > numWires ? tt('wiresInBundle', {n: actualWires}) : tt('wiresTwisted', {n: numWires});
 
       // Hàng 2 (Dưới): Phóng to chi tiết OD (trái) + Mặt cắt vòng tâm (phải) — vẽ TO
       const zoomY = 352;
@@ -1624,7 +1630,7 @@
         <line x1="12" y1="228" x2="748" y2="228" stroke="#e2e8f0" stroke-width="1.5"/>
 
         <!-- HÀNG 2 TRÁI: Chi tiết phóng to OD -->
-        <text x="14" y="262" font-size="13" font-weight="bold" fill="#334155">Chi tiết tâm xoắn OD (${actualWires} dây)</text>
+        <text x="14" y="262" font-size="13" font-weight="bold" fill="#334155">${tt('zoomTitle', {n: actualWires})}</text>
         ${zoomHelixSvg}
         ${zoomWaveSvg}
         <line x1="${zoomXStart + 35}" y1="${topCenterY}" x2="336" y2="${topCenterY}" stroke="#dc2626" stroke-width="1.15" stroke-dasharray="4,2.5"/>
@@ -1635,10 +1641,10 @@
         <text x="${odDimX}" y="${botCenterY + 44}" text-anchor="middle" font-size="14" font-weight="bold" fill="#dc2626">OD = ${formatNumClean(OD, 3)} mm</text>
 
         <!-- HÀNG 2 PHẢI: Mặt cắt vòng tâm OD -->
-        <text x="${csX}" y="262" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">Mặt cắt vòng tâm OD (${actualWires} sợi)</text>
+        <text x="${csX}" y="262" text-anchor="middle" font-size="13" font-weight="bold" fill="#334155">${tt('csTitle', {n: actualWires})}</text>
         ${csWiresSvg}
         <circle cx="${csX}" cy="${csY}" r="${csR}" fill="none" stroke="#dc2626" stroke-width="1.4" stroke-dasharray="4,3"/>
-        <text x="${csX}" y="${csY + csR + 46}" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">Vòng tròn qua tâm các dây — đường kính OD</text>
+        <text x="${csX}" y="${csY + csR + 46}" text-anchor="middle" font-size="12" font-weight="600" fill="#475569">${tt('csCaption')}</text>
       `;
     }
 
@@ -1661,7 +1667,7 @@
       document.getElementById('tw-result').textContent = totalCutLen.toFixed(2) + ' mm';
       document.getElementById('tw-zone-len').textContent = twistZone.toFixed(2) + ' mm';
       document.getElementById('tw-helix-len').textContent = helixLen.toFixed(2) + ' mm';
-      document.getElementById('tw-turns').textContent = (twistZone / P).toFixed(2) + ' vòng';
+      document.getElementById('tw-turns').textContent = (twistZone / P).toFixed(2) + tt('turnsSuffix');
       document.getElementById('tw-extra').textContent = `+${extra.toFixed(2)} mm (+${extraPct.toFixed(2)}%)`;
 
       // Kiểm tra giới hạn bước xoắn theo tỷ số xoắn lambda = P / D_ngoài.
@@ -1675,17 +1681,17 @@
         const pMin = 8 * Douter, pMax = 16 * Douter;
         const ratioEl = document.getElementById('tw-lay-ratio');
         const msgEl = document.getElementById('tw-lay-msg');
-        if (ratioEl) ratioEl.textContent = `${lam.toFixed(2)} (D ngoài ≈ ${Douter.toFixed(2)} mm)`;
+        if (ratioEl) ratioEl.textContent = `${lam.toFixed(2)} ${tt('layDOuter', {d: Douter.toFixed(2)})}`;
         let cls, msg;
         if (lam < 8) {
           cls = 'bg-red-50 border-red-300 text-red-900';
-          msg = `⚠ <strong>Bước xoắn P = ${formatNumClean(P, 2)} mm NHỎ HƠN giới hạn dưới</strong> của dải chuẩn: P<sub>min</sub> = 8 × D = <strong>${pMin.toFixed(1)} mm</strong>. Xoắn quá chặt dễ đứt dây khi xoắn, biến dạng/nứt vỏ cách điện và tăng điện trở vì dây bị kéo dài thêm nhiều. Nên tăng P lên ít nhất ${pMin.toFixed(1)} mm.`;
+          msg = tt('layLow', {p: formatNumClean(P, 2), pmin: pMin.toFixed(1)});
         } else if (lam > 16) {
           cls = 'bg-amber-50 border-amber-300 text-amber-900';
-          msg = `Bước xoắn dài hơn dải chuẩn 8–16 (P<sub>max</sub> = 16 × D = ${pMax.toFixed(1)} mm): bó xoắn sẽ lỏng, không giữ được form, dây dễ tở/bung khi uốn. Cân nhắc giảm P nếu cần bó chặt.`;
+          msg = tt('layHigh', {pmax: pMax.toFixed(1)});
         } else {
           cls = 'bg-emerald-50 border-emerald-200 text-emerald-900';
-          msg = `Bước xoắn nằm trong dải chuẩn 8–16 lần đường kính ngoài của bó (ASTM B8/B496/B835) — xoắn chặt vừa phải, bó giữ form tốt.`;
+          msg = tt('layOk');
         }
         layBox.className = `rounded-lg p-3 text-xs border ${cls}`;
         if (msgEl) msgEl.innerHTML = msg;
@@ -1711,7 +1717,7 @@
       if (detail) {
         const appliedOD = bundleImportInfo.pitchOD * bundleSplayFactor;
         const appliedD = bundleImportInfo.outerD * bundleSplayFactor;
-        detail.textContent = `OD xếp sát = ${bundleImportInfo.pitchOD.toFixed(3)} mm × hệ số tở ${bundleSplayFactor.toFixed(2)} = OD áp dụng ${appliedOD.toFixed(3)} mm (đã gán vào ô OD) · ĐK bó xếp sát = ${bundleImportInfo.outerD.toFixed(3)} mm → sau tở ≈ ${appliedD.toFixed(3)} mm · Tổng số sợi trong bó = ${bundleImportInfo.totalWires} sợi`;
+        detail.textContent = tt('bannerDetail', {pitch: bundleImportInfo.pitchOD.toFixed(3), k: bundleSplayFactor.toFixed(2), appliedOD: appliedOD.toFixed(3), outerD: bundleImportInfo.outerD.toFixed(3), appliedD: appliedD.toFixed(3), total: bundleImportInfo.totalWires});
       }
       banner.classList.remove('hidden');
       banner.classList.add('flex');
@@ -1868,7 +1874,7 @@
           b = ${formatNumClean(rOutReal, 3)}
         </text>
         <text x="18" y="26" font-size="12.5" font-weight="bold" fill="#0f172a">
-          Số vòng n = ${formatNumClean(n, 2)} vòng
+          ${tt('ctTurnsLabel', {n: formatNumClean(n, 2)})}
         </text>
       `;
     }
@@ -1938,22 +1944,22 @@
 
       if (modeTag && descEl) {
         if (overlapMm > 0.001) {
-          modeTag.textContent = `Chồng mí ${formatNumClean(overlapPct, 1)}%`;
+          modeTag.textContent = tt('ovTag', {pct: formatNumClean(overlapPct, 1)});
           modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-red-100 text-red-700 border border-red-200';
-          descEl.innerHTML = `Độ rộng chồng mí thực tế: <strong class="text-red-600">${formatNumClean(overlapMm, 2)} mm</strong> (${formatNumClean(overlapPct, 1)}%) trên bản băng keo rộng <strong class="text-slate-700">${formatNumClean(b, 2)} mm</strong>.`;
+          descEl.innerHTML = tt('ovDesc', {mm: formatNumClean(overlapMm, 2), pct: formatNumClean(overlapPct, 1), b: formatNumClean(b, 2)});
         } else if (Math.abs(overlapMm) <= 0.001) {
-          modeTag.textContent = 'Quấn sát mép (0%)';
+          modeTag.textContent = tt('ovTagFlush');
           modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-blue-100 text-blue-700 border border-blue-200';
-          descEl.innerHTML = `Quấn sát mép không chồng mí (<i>h</i> = <i>b</i> = <strong>${formatNumClean(b, 2)} mm</strong>).`;
+          descEl.innerHTML = tt('ovDescFlush', {b: formatNumClean(b, 2)});
         } else {
-          modeTag.textContent = `Quấn hở (h > b)`;
+          modeTag.textContent = tt('ovTagGap');
           modeTag.className = 'text-[11px] font-bold px-2 py-0.5 rounded bg-amber-100 text-amber-800 border border-amber-300';
-          descEl.innerHTML = `Quấn cách quãng hở: khoảng trống giữa 2 vòng liên tiếp là <strong class="text-amber-700">${formatNumClean(h - b, 2)} mm</strong>.`;
+          descEl.innerHTML = tt('ovDescGap', {gap: formatNumClean(h - b, 2)});
         }
       }
 
       if (descEl) {
-        descEl.innerHTML += `<br/>Đường kính tâm tape ở đoạn giữa: <strong class="text-slate-700">${formatNumClean(Dcl, 2)} mm</strong> (số lớp tape chồng hiệu dụng L = ${formatNumClean(layerCount, 2)} — chi tiết ở Mục 7 phần Lý thuyết).`;
+        descEl.innerHTML += tt('dclLine', {dcl: formatNumClean(Dcl, 2), layers: formatNumClean(layerCount, 2)});
       }
 
       drawSpiralTapeDiagrams(b, h, n1, n2, D, c);
@@ -2149,7 +2155,7 @@
         <!-- Quấn tròn khóa Đầu 1 (số vòng = 0 thì không vẽ khối tape đầu này) -->
         ${n1 > 0 ? `
         <text x="${xEnd1L + 4}" y="${yTop - 12}" text-anchor="start" font-size="12.5" font-weight="bold" fill="#dc2626">
-          Đầu 1 (${formatNumClean(n1, 1)} vòng)
+          ${tt('spEnd1', {n: formatNumClean(n1, 1)})}
         </text>
         <rect x="${xEnd1L}" y="${yTop - extra1}" width="${blockW1}" height="${bundleH + 2 * extra1}"
               fill="#bae6fd" stroke="#0284c7" stroke-width="1.6"/>
@@ -2159,7 +2165,7 @@
         <!-- Quấn tròn khóa Đầu 2 (số vòng = 0 thì không vẽ khối tape đầu này) -->
         ${n2 > 0 ? `
         <text x="${(xEnd2L + xEnd2R) / 2}" y="${yTop - 12}" text-anchor="middle" font-size="12.5" font-weight="bold" fill="#dc2626">
-          Đầu 2 (${formatNumClean(n2, 1)} vòng)
+          ${tt('spEnd2', {n: formatNumClean(n2, 1)})}
         </text>
         <rect x="${xEnd2L}" y="${yTop - extra2}" width="${blockW2}" height="${bundleH + 2 * extra2}"
               fill="#bae6fd" stroke="#0284c7" stroke-width="1.6"/>
@@ -2480,7 +2486,7 @@
           </td>
           <td class="py-2 px-3 text-center font-bold text-slate-700">${area.toFixed(2)}</td>
           <td class="py-2 px-2 text-center">
-            <button onclick="removeWireGroup(${idx})" class="text-red-500 hover:text-red-700 font-bold text-base px-2 leading-none" title="Xoá nhóm dây">&times;</button>
+            <button onclick="removeWireGroup(${idx})" class="text-red-500 hover:text-red-700 font-bold text-base px-2 leading-none" title="${tt('removeGroup')}">&times;</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -2493,7 +2499,7 @@
       bundleDirty = true;
       const nextIdx = wireGroups.length;
       wireGroups.push({
-        name: `Dây đơn chuẩn ${nextIdx + 1}`,
+        name: tt('groupName', {n: nextIdx + 1}),
         d: 1.5,
         qty: 2,
         color: GROUP_DEFAULT_COLORS[nextIdx % GROUP_DEFAULT_COLORS.length]
@@ -2529,7 +2535,7 @@
       let fastWires = 0, fastArea = 0;
       wireGroups.forEach(g => { fastWires += g.qty; fastArea += g.qty * Math.PI * Math.pow(g.d / 2, 2); });
       const fwEl = document.getElementById('bd-total-wires');
-      if (fwEl) fwEl.textContent = fastWires + ' sợi';
+      if (fwEl) fwEl.textContent = fastWires + tt('wireUnitSuffix');
       const faEl = document.getElementById('bd-total-area');
       if (faEl) faEl.textContent = fastArea.toFixed(2);
       // Cập nhật lại tiết diện trên bảng mà không làm mất focus ô đang gõ
@@ -2969,7 +2975,7 @@
 
     // Ghi kết quả hình học bó dây ra giao diện + vẽ mặt cắt + lưu cache
     function applyBundleResult(result) {
-      document.getElementById('bd-total-wires').textContent = result.totalWires + ' sợi';
+      document.getElementById('bd-total-wires').textContent = result.totalWires + tt('wireUnitSuffix');
       document.getElementById('bd-total-area').textContent = result.totalArea.toFixed(2);
       document.getElementById('bd-outer-d').textContent = result.outerD.toFixed(3) + ' mm';
       document.getElementById('bd-radius-a').textContent = result.radiusA.toFixed(4) + ' mm';
@@ -3200,8 +3206,8 @@
       if (source !== 'gauge' && gaugeEl) gaugeEl.value = awgLabel(gRound);
       if (eqEl) {
         eqEl.textContent = (Math.abs(gExact - gRound) < 0.05)
-          ? `Đúng cỡ chuẩn AWG ${awgLabel(gRound)}`
-          : `Không đúng cỡ chuẩn — cỡ AWG gần nhất: ${awgLabel(gRound)}`;
+          ? tt('awgExact', {g: awgLabel(gRound)})
+          : tt('awgNearest', {g: awgLabel(gRound)});
       }
       awgMarkSelected();
     }
@@ -3301,5 +3307,70 @@
       scheduleBundleGeometry();
     });
   </script>
-</body>
-</html>
+
+
+  <script>
+    // ===== Da ngon ngu: Viet (mac dinh) / English / Japanese =====
+    const I18N = {"k1": {"vi": "Công cụ tính toán", "en": "Calculation Tool", "ja": "計算ツール"}, "k2": {"vi": "Xoắn Dây (2 / Nhiều dây)", "en": "Wire Twisting (2 / Multiple Wires)", "ja": "ワイヤツイスト（2本／複数本）"}, "k3": {"vi": "Quấn Tape Tròn (2D)", "en": "Round Tape Wrapping (2D)", "ja": "テープ円形巻き（2D）"}, "k4": {"vi": "Quấn Tape Chéo (3D)", "en": "Spiral Tape Wrapping (3D)", "ja": "テープ斜め巻き（3D）"}, "k5": {"vi": "Tính ĐK Bó Dây Tự Động", "en": "Automatic Bundle Diameter", "ja": "束径の自動計算"}, "k6": {"vi": "Đổi AWG ↔ mm ↔ mm²", "en": "Convert AWG ↔ mm ↔ mm²", "ja": "AWG ↔ mm ↔ mm² 変換"}, "k7": {"vi": "Lý Thuyết &amp; Công Thức", "en": "Theory &amp; Formulas", "ja": "理論と計算式"}, "k8": {"vi": "ĐK ngoài bó (<i>D</i>):", "en": "Bundle outer dia. (<i>D</i>):", "ja": "束の外径（<i>D</i>）："}, "k10": {"vi": "Vòng tâm xoắn (<i>OD</i>):", "en": "Twist pitch circle (<i>OD</i>):", "ja": "ツイスト中心円（<i>OD</i>）："}, "k12": {"vi": "Cấu hình Bó Dây &amp; Áp dụng", "en": "Bundle Configuration &amp; Apply", "ja": "束の構成と適用"}, "k13": {"vi": "Khôi phục thông số mẫu", "en": "Restore sample parameters", "ja": "サンプル値に戻す"}, "k14": {"vi": "Bản Vẽ Kỹ Thuật Xoắn Dây (Trực Quan Động)", "en": "Wire Twisting Technical Drawing (Live Visual)", "ja": "ワイヤツイスト技術図（ライブ表示）"}, "k16": {"vi": "Số liệu nhảy trực tiếp trên hình khi nhập", "en": "Values update live on the drawing as you type", "ja": "入力すると図上の数値がその場で更新されます"}, "k17": {"vi": "<strong>⚠ Lưu ý:</strong> Đường kính lấy từ mục <strong>Tính ĐK Bó Dây</strong> là trường hợp các dây xếp <strong>RẤT SÁT</strong> với nhau (lý tưởng). Thực tế sau khi xoắn, dây bị <strong>tở ra</strong> nên đường kính bó thực tế sẽ <strong>TO HƠN</strong> — cần <strong>xác nhận lại bằng kích thước thực tế</strong>, hoặc tăng <strong>Hệ số tở</strong> ở banner bên dưới cho phù hợp.", "en": "<strong>⚠ Note:</strong> The diameter taken from the <strong>Bundle Diameter</strong> section assumes the wires are packed <strong>VERY TIGHTLY</strong> together (ideal). In reality, after twisting the wires <strong>splay out</strong>, so the actual bundle diameter will be <strong>LARGER</strong> — <strong>verify against the real dimensions</strong>, or increase the <strong>Splay factor</strong> in the banner below to match.", "ja": "<strong>⚠ 注意：</strong>「束径の計算」から取得した径は、ワイヤが<strong>非常に密に</strong>詰まった（理想）状態の値です。実際はツイスト後にワイヤが<strong>広がる</strong>ため、実際の束径は<strong>大きくなります</strong>。——<strong>実寸で再確認</strong>するか、下のバナーの<strong>広がり係数</strong>を実態に合わせて上げてください。"}, "k18": {"vi": "✓ Đã nhập dữ liệu từ mục 4. Tính ĐK Bó Dây", "en": "✓ Data imported from section 4. Bundle Diameter", "ja": "✓ セクション4「束径の計算」からデータを取り込みました"}, "k19": {"vi": "Nhập tay lại", "en": "Enter manually again", "ja": "手入力に戻す"}, "k20": {"vi": "Hệ số tở sau xoắn (<i>k</i>):", "en": "Splay factor after twisting (<i>k</i>):", "ja": "ツイスト後の広がり係数（<i>k</i>）："}, "k21": {"vi": "OD áp dụng = OD xếp sát × <i>k</i> (k = 1 là chưa tính tở; thực tế thường 1,05 – 1,15)", "en": "Applied OD = tightly-packed OD × <i>k</i> (k = 1 means no splay allowed for; in practice usually 1.05 – 1.15)", "ja": "適用OD ＝ 密着時のOD × <i>k</i>（k = 1 は広がり未考慮。通常は 1.05 ～ 1.15）"}, "k22": {"vi": "Bảng Thông Số Cắt Dây Xoắn", "en": "Twisted Wire Cutting Parameters", "ja": "ツイストワイヤ切断パラメータ"}, "k23": {"vi": "Ăn vào housing đầu 1 (<i>h</i><sub>1</sub>):", "en": "Into housing, end 1 (<i>h</i><sub>1</sub>):", "ja": "ハウジングへの差し込み・端1（<i>h</i><sub>1</sub>）："}, "k24": {"vi": "(mm)", "en": "(mm)", "ja": "（mm）"}, "k25": {"vi": "Ăn vào housing đầu 2 (<i>h</i><sub>2</sub>):", "en": "Into housing, end 2 (<i>h</i><sub>2</sub>):", "ja": "ハウジングへの差し込み・端2（<i>h</i><sub>2</sub>）："}, "k26": {"vi": "Cách đầu housing 1 (<i>a</i>):", "en": "From housing 1 (<i>a</i>):", "ja": "ハウジング1からの距離（<i>a</i>）："}, "k27": {"vi": "Cách đầu housing 2 (<i>b</i>):", "en": "From housing 2 (<i>b</i>):", "ja": "ハウジング2からの距離（<i>b</i>）："}, "k28": {"vi": "Chiều dài sau xoắn (<i>L</i>):", "en": "Length after twisting (<i>L</i>):", "ja": "ツイスト後の長さ（<i>L</i>）："}, "k29": {"vi": "Bước xoắn (<i>P</i>):", "en": "Twist pitch (<i>P</i>):", "ja": "ツイストピッチ（<i>P</i>）："}, "k30": {"vi": "Outer diameter (<i>OD</i>):", "en": "Outer diameter (<i>OD</i>):", "ja": "外径（<i>OD</i>）："}, "k31": {"vi": "CHIỀU DÀI CẮT DÂY", "en": "WIRE CUTTING LENGTH", "ja": "ワイヤ切断長"}, "k33": {"vi": "Chiều dài vùng xoắn (<i>L</i> − <i>a</i> − <i>b</i>):", "en": "Twisted zone length (<i>L</i> − <i>a</i> − <i>b</i>):", "ja": "ツイスト区間の長さ（<i>L</i> − <i>a</i> − <i>b</i>）："}, "k35": {"vi": "Chiều dài dây trong vùng xoắn:", "en": "Wire length within the twisted zone:", "ja": "ツイスト区間内のワイヤ長："}, "k37": {"vi": "Số vòng xoắn ((<i>L</i> − <i>a</i> − <i>b</i>) / <i>P</i>):", "en": "Number of twists ((<i>L</i> − <i>a</i> − <i>b</i>) / <i>P</i>):", "ja": "ツイスト回数（（<i>L</i> − <i>a</i> − <i>b</i>） / <i>P</i>）："}, "k39": {"vi": "Độ dôi chiều dài do xoắn:", "en": "Extra length due to twisting:", "ja": "ツイストによる長さの増加分："}, "k41": {"vi": "Tỷ số xoắn <i>λ</i> = <i>P</i> / <i>D</i><sub>ngoài bó</sub>:", "en": "Lay ratio <i>λ</i> = <i>P</i> / <i>D</i><sub>bundle outer</sub>:", "ja": "撚り比 <i>λ</i> = <i>P</i> / <i>D</i><sub>束外径</sub>："}, "k42": {"vi": "Mô Hình Quấn Tape Tròn (Đường Xoắn Ốc 2D)", "en": "Round Tape Wrapping Model (2D Spiral)", "ja": "テープ円形巻きモデル（2Dスパイラル）"}, "k44": {"vi": "<strong>Nguyên lý:</strong> Khi quấn băng keo tròn nhiều vòng chồng lên nhau tại cùng một vị trí, bán kính bắt đầu từ <i>r</i> và mỗi vòng tăng đều một lượng bằng độ dày băng keo <i>T</i>.", "en": "<strong>Principle:</strong> When tape is wrapped round in many turns stacked at the same position, the radius starts at <i>r</i> and each turn increases evenly by the tape thickness <i>T</i>.", "ja": "<strong>原理：</strong>同じ位置にテープを何重にも円形に巻くと、半径は <i>r</i> から始まり、1周ごとにテープ厚 <i>T</i> ずつ均等に増加します。"}, "k45": {"vi": "Chiều dài băng keo được tính bằng tích phân hình thang độ dài cung cực từ θ = 0 đến θ = 2π<i>n</i>.", "en": "The tape length is calculated by the trapezoidal integral of the polar arc length from θ = 0 to θ = 2π<i>n</i>.", "ja": "テープ長は、θ = 0 から θ = 2π<i>n</i> までの極座標弧長を台形積分で計算します。"}, "k46": {"vi": "Thông Số Quấn Tape Tròn", "en": "Round Tape Wrapping Parameters", "ja": "テープ円形巻きパラメータ"}, "k47": {"vi": "Lấy bán kính <i>r</i> từ Bó Dây", "en": "Get radius <i>r</i> from Bundle", "ja": "束から半径 <i>r</i> を取得"}, "k48": {"vi": "Đường kính bó dây (<i>D</i> = 2<i>r</i>):", "en": "Bundle diameter (<i>D</i> = 2<i>r</i>):", "ja": "束の直径（<i>D</i> = 2<i>r</i>）："}, "k49": {"vi": "Bán kính bó dây (<i>r</i>):", "en": "Bundle radius (<i>r</i>):", "ja": "束の半径（<i>r</i>）："}, "k50": {"vi": "Độ dày tape (<i>T</i>):", "en": "Tape thickness (<i>T</i>):", "ja": "テープ厚（<i>T</i>）："}, "k51": {"vi": "Số vòng quấn (<i>n</i>):", "en": "Number of turns (<i>n</i>):", "ja": "巻き回数（<i>n</i>）："}, "k52": {"vi": "(vòng)", "en": "(turns)", "ja": "（回）"}, "k53": {"vi": "CHIỀU DÀI TAPE", "en": "TAPE LENGTH", "ja": "テープ長"}, "k55": {"vi": "Bán kính ngoài sau khi quấn (<i>r</i> + <i>n</i>·<i>T</i>):", "en": "Outer radius after wrapping (<i>r</i> + <i>n</i>·<i>T</i>):", "ja": "巻き後の外半径（<i>r</i> + <i>n</i>·<i>T</i>）："}, "k57": {"vi": "Đường kính ngoài sau khi quấn:", "en": "Outer diameter after wrapping:", "ja": "巻き後の外径："}, "k59": {"vi": "Sơ Đồ Quấn Tape Chéo (Khóa Tròn 2 Đầu)", "en": "Spiral Tape Wrapping Diagram (Round-Locked at Both Ends)", "ja": "テープ斜め巻き図（両端円形ロック）"}, "k60": {"vi": "Bắt buộc quấn tròn Đầu 1 &amp; Đầu 2", "en": "Round wrapping required at End 1 &amp; End 2", "ja": "端1・端2の円形巻きが必須です"}, "k61": {"vi": "Trường hợp quấn overlap, khoảng cách <span class=\"text-red-600\"><i>h</i> = <i>b</i> − <i>b</i> × (% overlapped)</span>", "en": "For overlapped wrapping, the spacing <span class=\"text-red-600\"><i>h</i> = <i>b</i> − <i>b</i> × (% overlapped)</span>", "ja": "オーバーラップ巻きの場合、間隔 <span class=\"text-red-600\"><i>h</i> = <i>b</i> − <i>b</i> × （% overlapped）</span>"}, "k63": {"vi": "% overlapped:", "en": "% overlapped:", "ja": "% overlapped："}, "k66": {"vi": "Thông Số Quấn Tape Chéo", "en": "Spiral Tape Wrapping Parameters", "ja": "テープ斜め巻きパラメータ"}, "k67": {"vi": "Lấy ĐK <i>D</i> từ Bó Dây", "en": "Get dia. <i>D</i> from Bundle", "ja": "束から径 <i>D</i> を取得"}, "k68": {"vi": "Độ rộng tape (<i>b</i>):", "en": "Tape width (<i>b</i>):", "ja": "テープ幅（<i>b</i>）："}, "k69": {"vi": "Khoảng cách hai vòng tape (<i>h</i>):", "en": "Spacing between tape turns (<i>h</i>):", "ja": "テープ巻き間隔（<i>h</i>）："}, "k70": {"vi": "Số vòng quấn tròn đầu 1 (<i>n</i><sub>1</sub>):", "en": "Round turns at end 1 (<i>n</i><sub>1</sub>):", "ja": "端1の円形巻き回数（<i>n</i><sub>1</sub>）："}, "k71": {"vi": "Số vòng quấn tròn đầu 2 (<i>n</i><sub>2</sub>):", "en": "Round turns at end 2 (<i>n</i><sub>2</sub>):", "ja": "端2の円形巻き回数（<i>n</i><sub>2</sub>）："}, "k72": {"vi": "Đường kính bó dây (<i>D</i>):", "en": "Bundle diameter (<i>D</i>):", "ja": "束の直径（<i>D</i>）："}, "k73": {"vi": "Chiều dài sau quấn (<i>c</i>):", "en": "Length after wrapping (<i>c</i>):", "ja": "巻き後の長さ（<i>c</i>）："}, "k74": {"vi": "Khi quấn chéo bắt buộc phải có quấn tròn khóa 2 đầu (<i>n</i><sub>1</sub> &gt; 0 và <i>n</i><sub>2</sub> &gt; 0)!", "en": "Spiral wrapping requires round locking turns at both ends (<i>n</i><sub>1</sub> &gt; 0 and <i>n</i><sub>2</sub> &gt; 0)!", "ja": "斜め巻きには両端の円形ロック巻きが必須です（<i>n</i><sub>1</sub> &gt; 0 かつ <i>n</i><sub>2</sub> &gt; 0）！"}, "k76": {"vi": "1. Quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng):", "en": "1. Round wrapping, End 1 (<i>n</i><sub>1</sub> turns):", "ja": "1. 円形巻き・端1（<i>n</i><sub>1</sub> 回）："}, "k78": {"vi": "2. Quấn chéo 3D đoạn giữa (<i>c</i> − <i>b</i>):", "en": "2. 3D spiral wrapping, middle section (<i>c</i> − <i>b</i>):", "ja": "2. 3D斜め巻き・中央部（<i>c</i> − <i>b</i>）："}, "k80": {"vi": "3. Quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng):", "en": "3. Round wrapping, End 2 (<i>n</i><sub>2</sub> turns):", "ja": "3. 円形巻き・端2（<i>n</i><sub>2</sub> 回）："}, "k81": {"vi": "Khai Báo Các Dây Trong Bó", "en": "Declare the Wires in the Bundle", "ja": "束内のワイヤを登録"}, "k82": {"vi": "+ Thêm nhóm dây", "en": "+ Add wire group", "ja": "+ ワイヤグループを追加"}, "k83": {"vi": "Nhóm dây / Cỡ dây", "en": "Wire group / Wire size", "ja": "ワイヤグループ／ワイヤサイズ"}, "k84": {"vi": "Đường kính <i>d<sub>i</sub></i> (mm)", "en": "Diameter <i>d<sub>i</sub></i> (mm)", "ja": "直径 <i>d<sub>i</sub></i>（mm）"}, "k85": {"vi": "Số lượng sợi (<i>q<sub>i</sub></i>)", "en": "Number of wires (<i>q<sub>i</sub></i>)", "ja": "本数（<i>q<sub>i</sub></i>）"}, "k86": {"vi": "Tiết diện (mm<sup>2</sup>)", "en": "Cross-section (mm<sup>2</sup>)", "ja": "断面積（mm<sup>2</sup>）"}, "k87": {"vi": "Xoá", "en": "Delete", "ja": "削除"}, "k88": {"vi": "Số lượng mỗi nhóm từ 1 đến 500 sợi (bản cũ bị giới hạn ngầm ở 60 sợi/nhóm). <strong>Tổng số sợi</strong> ở cột kết quả luôn bằng đúng tổng số lượng của mọi nhóm.", "en": "Each group may have from 1 to 500 wires (the old version was silently limited to 60 wires/group). The <strong>total number of wires</strong> in the results column always equals the exact sum of all groups.", "ja": "各グループは1～500本まで（旧版は暗黙に60本/グループに制限されていました）。結果欄の<strong>総本数</strong>は常に全グループの合計と正確に一致します。"}, "k89": {"vi": "Áp dụng sang Xoắn Dây (<i>OD</i>)", "en": "Apply to Wire Twisting (<i>OD</i>)", "ja": "ワイヤツイストに適用（<i>OD</i>）"}, "k90": {"vi": "Áp dụng sang Tape Tròn (<i>r</i>)", "en": "Apply to Round Tape (<i>r</i>)", "ja": "円形テープに適用（<i>r</i>）"}, "k91": {"vi": "Áp dụng sang Tape Chéo (<i>D</i>)", "en": "Apply to Spiral Tape (<i>D</i>)", "ja": "斜めテープに適用（<i>D</i>）"}, "k92": {"vi": "Mặt Cắt &amp; Đường Kính Bó Dây", "en": "Cross-Section &amp; Bundle Diameter", "ja": "断面と束径"}, "k93": {"vi": "Đang tính…", "en": "Calculating…", "ja": "計算中…"}, "k94": {"vi": "Tổng số sợi dây:", "en": "Total number of wires:", "ja": "ワイヤ総本数："}, "k96": {"vi": "Tổng diện tích mặt cắt:", "en": "Total cross-sectional area:", "ja": "総断面積："}, "k98": {"vi": "Đường kính ngoài bó (<i>D</i>):", "en": "Bundle outer diameter (<i>D</i>):", "ja": "束の外径（<i>D</i>）："}, "k100": {"vi": "Bán kính bó dây (<i>r</i> = <i>D</i>/2):", "en": "Bundle radius (<i>r</i> = <i>D</i>/2):", "ja": "束の半径（<i>r</i> = <i>D</i>/2）："}, "k102": {"vi": "Đường kính vòng tâm xoắn tương đương (<i>OD</i>):", "en": "Equivalent twist pitch-circle diameter (<i>OD</i>):", "ja": "等価ツイスト中心円径（<i>OD</i>）："}, "k104": {"vi": "Đổi AWG ↔ mm ↔ mm<sup>2</sup>", "en": "Convert AWG ↔ mm ↔ mm<sup>2</sup>", "ja": "AWG ↔ mm ↔ mm<sup>2</sup> 変換"}, "k105": {"vi": "Cỡ dây (AWG #) — gõ hoặc chọn:", "en": "Wire size (AWG #) — type or select:", "ja": "ワイヤサイズ（AWG #）— 入力または選択："}, "k106": {"vi": "Chọn cỡ AWG — luôn hiện đủ 44 cỡ", "en": "Select AWG size — all 44 sizes always shown", "ja": "AWGサイズを選択 — 常に44サイズ全て表示"}, "k107": {"vi": "Đường kính (mm):", "en": "Diameter (mm):", "ja": "直径（mm）："}, "k108": {"vi": "Tiết diện (mm<sup>2</sup>):", "en": "Cross-section (mm<sup>2</sup>):", "ja": "断面積（mm<sup>2</sup>）："}, "k109": {"vi": "× Đặt lại", "en": "× Reset", "ja": "× リセット"}, "k110": {"vi": "Công thức chuẩn: <i>d</i> = 0,127 × 92<sup>(36 − AWG)/39</sup> mm; <i>A</i> = π<i>d</i><sup>2</sup>/4. Cỡ 0000 = −3, 000 = −2, 00 = −1.", "en": "Standard formula: <i>d</i> = 0.127 × 92<sup>(36 − AWG)/39</sup> mm; <i>A</i> = π<i>d</i><sup>2</sup>/4. Sizes 0000 = −3, 000 = −2, 00 = −1.", "ja": "標準式：<i>d</i> = 0.127 × 92<sup>(36 − AWG)/39</sup> mm；<i>A</i> = π<i>d</i><sup>2</sup>/4。サイズ 0000 = −3、000 = −2、00 = −1。"}, "k111": {"vi": "Cơ Sở Lý Thuyết &amp; Công Thức Tính Chiều Dài Dây Xoắn, Quấn Tape", "en": "Theoretical Basis &amp; Formulas for Twisted Wire and Tape Wrapping Lengths", "ja": "ツイストワイヤ長・テープ巻き長の理論的基礎と計算式"}, "k112": {"vi": "Trình bày đầy đủ phương trình toán học theo tài liệu kỹ thuật gốc", "en": "Full presentation of the mathematics from the original technical document", "ja": "元の技術資料に基づく数式の完全な解説"}, "k113": {"vi": "1. Đường xoắn ốc 2D", "en": "1. The 2D spiral", "ja": "1. 2Dスパイラル"}, "k114": {"vi": "Phương trình mô tả đường xoắn ốc trong hệ tọa độ cực:", "en": "Equation describing the spiral in polar coordinates:", "ja": "極座標におけるスパイラルの方程式："}, "k116": {"vi": "Trong đó:", "en": "Where:", "ja": "ここで："}, "k117": {"vi": "+ <strong><i>R</i>(θ)</strong>: Khoảng cách từ gốc <i>O</i> đến điểm trên đường xoắn ốc ở góc θ.", "en": "+ <strong><i>R</i>(θ)</strong>: Distance from the origin <i>O</i> to a point on the spiral at angle θ.", "ja": "+ <strong><i>R</i>(θ)</strong>：原点 <i>O</i> から角度 θ におけるスパイラル上の点までの距離。"}, "k118": {"vi": "+ <strong><i>r</i></strong>: Bán kính bó dây tại điểm bắt đầu (θ = 0).", "en": "+ <strong><i>r</i></strong>: Bundle radius at the starting point (θ = 0).", "ja": "+ <strong><i>r</i></strong>：開始点（θ = 0）における束の半径。"}, "k119": {"vi": "+ <strong><i>b</i></strong>: Hệ số kiểm soát khoảng cách giữa các vòng.", "en": "+ <strong><i>b</i></strong>: Coefficient controlling the spacing between turns.", "ja": "+ <strong><i>b</i></strong>：巻き間隔を制御する係数。"}, "k120": {"vi": "Hình xoắn ốc đều có khoảng cách giữa các lớp là 2π<i>b</i>. Chiều dài đường xoắn ốc:", "en": "A uniform spiral has a spacing between layers of 2π<i>b</i>. Length of the spiral:", "ja": "均一なスパイラルでは層間隔は 2π<i>b</i> です。スパイラルの長さ："}, "k127": {"vi": "Gọi <i>T</i> là khoảng cách giữa các lớp (độ dày băng keo) và <i>n</i> là số vòng xoắn. Như vậy <i>T</i> = 2π<i>b</i>:", "en": "Let <i>T</i> be the spacing between layers (tape thickness) and <i>n</i> the number of turns. Then <i>T</i> = 2π<i>b</i>:", "ja": "<i>T</i> を層間隔（テープ厚）、<i>n</i> を巻き回数とすると、<i>T</i> = 2π<i>b</i>："}, "k131": {"vi": "Phương trình đường xoắn ốc được viết lại như sau:", "en": "The spiral equation is rewritten as follows:", "ja": "スパイラルの方程式は次のように書き換えられます："}, "k133": {"vi": "Chiều dài đường xoắn ốc với <i>n</i> vòng quấn (θ chạy từ 0 đến 2π<i>n</i>):", "en": "Length of the spiral with <i>n</i> turns (θ runs from 0 to 2π<i>n</i>):", "ja": "<i>n</i> 回巻いたスパイラルの長さ（θ は 0 から 2π<i>n</i> まで）："}, "k143": {"vi": "2. Đường xoắn ốc không gian 3 chiều", "en": "2. The 3D spatial helix", "ja": "2. 3次元空間らせん"}, "k144": {"vi": "Phương trình mô tả trong không gian 3 chiều:", "en": "Equations describing it in 3D space:", "ja": "3次元空間における方程式："}, "k151": {"vi": "+ <strong><i>A</i></strong> là bán kính đường xoắn ốc (<i>A</i> = <i>OD</i>/2 khi xoắn dây, hoặc <i>A</i> = <i>D</i>/2 khi quấn tape).", "en": "+ <strong><i>A</i></strong> is the helix radius (<i>A</i> = <i>OD</i>/2 when twisting wires, or <i>A</i> = <i>D</i>/2 when wrapping tape).", "ja": "+ <strong><i>A</i></strong> はらせんの半径（ワイヤツイスト時は <i>A</i> = <i>OD</i>/2、テープ巻き時は <i>A</i> = <i>D</i>/2）。"}, "k152": {"vi": "+ <strong>λ</strong> là chiều dài một bước xoắn (λ = <i>P</i> khi xoắn dây, hoặc λ = <i>h</i> khi quấn tape chéo).", "en": "+ <strong>λ</strong> is the length of one twist pitch (λ = <i>P</i> when twisting wires, or λ = <i>h</i> for spiral tape wrapping).", "ja": "+ <strong>λ</strong> はツイスト1ピッチの長さ（ワイヤツイスト時は λ = <i>P</i>、テープ斜め巻き時は λ = <i>h</i>）。"}, "k153": {"vi": "+ <strong><i>z</i> = <i>t</i></strong> là tọa độ dọc theo trục bó dây (xuất phát từ mặt phẳng gốc <i>z</i> = 0).", "en": "+ <strong><i>z</i> = <i>t</i></strong> is the coordinate along the bundle axis (starting from the origin plane <i>z</i> = 0).", "ja": "+ <strong><i>z</i> = <i>t</i></strong> は束の軸方向の座標（原点平面 <i>z</i> = 0 から）。"}, "k154": {"vi": "Chiều dài của đường xoắn ốc trên đoạn dọc trục từ <i>a</i> đến <i>b</i>:", "en": "Length of the helix over the axial segment from <i>a</i> to <i>b</i>:", "ja": "軸方向区間 <i>a</i> から <i>b</i> までのらせんの長さ："}, "k161": {"vi": "3. Tính tích phân gần đúng", "en": "3. Numerical integration approximation", "ja": "3. 数値積分の近似"}, "k162": {"vi": "Chia đoạn [<i>a</i>, <i>b</i>] thành <i>n</i> đoạn bằng nhau [<i>x</i><sub>0</sub>; <i>x</i><sub>1</sub>], ... với <i>n</i> + 1 nút nội suy cách đều. Tích phân được tính gần đúng theo công thức hình thang:", "en": "Divide the segment [<i>a</i>, <i>b</i>] into <i>n</i> equal parts [<i>x</i><sub>0</sub>; <i>x</i><sub>1</sub>], ... with <i>n</i> + 1 equally spaced interpolation nodes. The integral is approximated by the trapezoidal rule:", "ja": "区間 [<i>a</i>, <i>b</i>] を <i>n</i> 等分し、[<i>x</i><sub>0</sub>; <i>x</i><sub>1</sub>], ... と <i>n</i> + 1 個の等間隔の補間節点を用います。積分は台形公式で近似します："}, "k169": {"vi": "Bước chia đều trên đoạn [<i>a</i>, <i>b</i>]:", "en": "Equal step size on the segment [<i>a</i>, <i>b</i>]:", "ja": "区間 [<i>a</i>, <i>b</i>] 上の等分ステップ："}, "k172": {"vi": "Đánh giá sai số (với <i>M</i> = max |<i>f</i>″(<i>x</i>)|):", "en": "Error estimate (with <i>M</i> = max |<i>f</i>″(<i>x</i>)|):", "ja": "誤差評価（<i>M</i> = max |<i>f</i>″(<i>x</i>)| とする）："}, "k176": {"vi": "4. Áp dụng vào tính dây xoắn và quấn tape", "en": "4. Application to twisted wire and tape wrapping calculations", "ja": "4. ツイストワイヤとテープ巻き計算への応用"}, "k177": {"vi": "<strong>Tính chiều dài cắt dây khi xoắn:</strong> Áp dụng công thức đường xoắn ốc 3 chiều (Mục 2) cho đoạn xoắn (<i>L</i> − <i>a</i> − <i>b</i>) với đường kính tâm xoắn 2<i>A</i> = <i>OD</i> và bước xoắn λ = <i>P</i>, cộng với phần dây thẳng hai đầu (<i>a</i> + <i>b</i> + <i>h</i><sub>1</sub> + <i>h</i><sub>2</sub>).", "en": "<strong>Wire cutting length when twisting:</strong> Apply the 3D helix formula (Section 2) to the twisted segment (<i>L</i> − <i>a</i> − <i>b</i>) with pitch-circle diameter 2<i>A</i> = <i>OD</i> and twist pitch λ = <i>P</i>, plus the straight wire portions at both ends (<i>a</i> + <i>b</i> + <i>h</i><sub>1</sub> + <i>h</i><sub>2</sub>).", "ja": "<strong>ツイスト時のワイヤ切断長：</strong>3次元らせんの式（セクション2）をツイスト区間（<i>L</i> − <i>a</i> − <i>b</i>）に適用します。中心円径 2<i>A</i> = <i>OD</i>、ツイストピッチ λ = <i>P</i> とし、両端の直線部（<i>a</i> + <i>b</i> + <i>h</i><sub>1</sub> + <i>h</i><sub>2</sub>）を加えます。"}, "k178": {"vi": "<strong>Tính chiều dài quấn tape:</strong> Chiều dài tape được đo theo một cạnh duy nhất, khi đó có thể coi cạnh tape là một đường chuẩn.\n              <br>+ Trường hợp <strong>quấn tròn</strong> tại một vị trí được tính theo công thức xoắn ốc 2D (Mục 1) kết hợp tích phân số (Mục 3).\n              <br>+ Trường hợp <strong>quấn chéo</strong> bắt buộc có khóa tròn 2 đầu: tổng chiều dài bằng chiều dài quấn tròn Đầu 1 (<i>n</i><sub>1</sub> vòng) + chiều dài đường xoắn ốc 3D trên đoạn hiệu dụng (<i>c</i> − <i>b</i>) + chiều dài quấn tròn Đầu 2 (<i>n</i><sub>2</sub> vòng).", "en": "<strong>Tape wrapping length:</strong> Tape length is measured along a single edge, so that edge can be treated as a reference line.\n              <br>+ The <strong>round wrapping</strong> case at one position is calculated with the 2D spiral formula (Section 1) combined with numerical integration (Section 3).\n              <br>+ The <strong>spiral wrapping</strong> case requires round locking at both ends: total length = round wrapping length at End 1 (<i>n</i><sub>1</sub> turns) + 3D helix length over the effective segment (<i>c</i> − <i>b</i>) + round wrapping length at End 2 (<i>n</i><sub>2</sub> turns).", "ja": "<strong>テープ巻き長：</strong>テープ長は一方の端辺に沿って測るため、その端辺を基準線とみなすことができます。\n              <br>+ 同一位置での<strong>円形巻き</strong>は、2Dスパイラルの式（セクション1）と数値積分（セクション3）を組み合わせて計算します。\n              <br>+ <strong>斜め巻き</strong>は両端の円形ロックが必須で、全長 ＝ 端1の円形巻き長（<i>n</i><sub>1</sub> 回）＋ 有効区間（<i>c</i> − <i>b</i>）上の3次元らせん長 ＋ 端2の円形巻き長（<i>n</i><sub>2</sub> 回）です。"}, "k179": {"vi": "5. Đường kính ngoài của bó dây (<i>D</i>)", "en": "5. Bundle outer diameter (<i>D</i>)", "ja": "5. 束の外径（<i>D</i>）"}, "k180": {"vi": "<strong>5.1. Tổng tiết diện của bó.</strong> Bó dây gồm nhiều nhóm, nhóm <i>i</i> có <i>q<sub>i</sub></i> sợi đường kính <i>d<sub>i</sub></i>. Tổng số sợi và tổng tiết diện kim loại/vỏ tính như sau:", "en": "<strong>5.1. Total cross-section of the bundle.</strong> The bundle has several groups; group <i>i</i> has <i>q<sub>i</sub></i> wires of diameter <i>d<sub>i</sub></i>. Total wire count and total metal/sheath cross-section are:", "ja": "<strong>5.1. 束の総断面積。</strong>束は複数のグループからなり、グループ <i>i</i> は直径 <i>d<sub>i</sub></i> のワイヤが <i>q<sub>i</sub></i> 本あります。総本数と金属／被覆の総断面積は次の通りです："}, "k187": {"vi": "<i>N</i> ở đây là tổng đúng của mọi nhóm đã khai báo — phần mềm không tự bớt sợi nào (giới hạn kỹ thuật duy nhất là 500 sợi/nhóm để mô phỏng vẫn chạy mượt, và ô nhập sẽ hiện rõ giới hạn đó nếu nhập quá).", "en": "<i>N</i> here is the exact total of all declared groups — the software never drops any wire (the only technical limit is 500 wires/group so the simulation stays smooth, and the input box clearly shows that limit if exceeded).", "ja": "ここでの <i>N</i> は登録された全グループの正確な合計です。ソフトウェアがワイヤを勝手に減らすことはありません（唯一の技術的制限は、シミュレーションを滑らかに保つための500本/グループで、超過した場合は入力欄にその制限が明示されます）。"}, "k188": {"vi": "<strong>5.2. Công thức diện tích và hệ số lấp đầy <i>η</i>.</strong> Mặt cắt bó dây là hình tròn đường kính <i>D</i> nhưng không bao giờ được lấp kín 100% bởi các dây tròn — luôn có khe hở giữa các dây. Tỉ lệ phần diện tích được lấp được gọi là hệ số lấp đầy:", "en": "<strong>5.2. Area formula and fill factor <i>η</i>.</strong> The bundle cross-section is a circle of diameter <i>D</i> but is never 100% filled by the round wires — there are always gaps between wires. The filled fraction of the area is called the fill factor:", "ja": "<strong>5.2. 面積の式と充填率 <i>η</i>。</strong>束の断面は直径 <i>D</i> の円ですが、丸いワイヤで100%埋まることはなく、常にワイヤ間に隙間があります。面積が埋まる割合を充填率と呼びます："}, "k193": {"vi": "+ Vì <i>η</i> &lt; 1 nên luôn có giới hạn dưới tuyệt đối: <strong><i>D</i> &gt; √(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>)</strong> — mọi kết quả tính ra nhỏ hơn số này đều sai.", "en": "+ Since <i>η</i> &lt; 1 there is always an absolute lower bound: <strong><i>D</i> &gt; √(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>)</strong> — any calculated result smaller than this is wrong.", "ja": "+ <i>η</i> &lt; 1 のため、絶対的な下限が常に存在します：<strong><i>D</i> &gt; √(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>)</strong> —— これより小さい計算結果はすべて誤りです。"}, "k194": {"vi": "+ <i>η</i> ≈ <strong>0,907</strong> (xếp lục giác đều của các vòng tròn bằng nhau) là giới hạn hình học cao nhất, chỉ đạt gần đúng với bó rất nhiều sợi đều nhau.", "en": "+ <i>η</i> ≈ <strong>0.907</strong> (regular hexagonal packing of equal circles) is the highest geometric limit, approached only with very many equal wires.", "ja": "+ <i>η</i> ≈ <strong>0.907</strong>（等しい円の正六角形充填）は幾何学的な上限で、多数の等しいワイヤの場合にのみ近づきます。"}, "k195": {"vi": "+ <i>η</i> ≈ <strong>0,73–0,78</strong>: bó xếp chặt mô phỏng trên máy (ví dụ bó 7 sợi đều cho η = 0,778; bó 102 sợi ở Mục 5.5 cho η ≈ 0,737).", "en": "+ <i>η</i> ≈ <strong>0.73–0.78</strong>: tightly packed bundles as simulated (e.g. a 7-wire equal bundle gives η = 0.778; the 102-wire bundle in Section 5.5 gives η ≈ 0.737).", "ja": "+ <i>η</i> ≈ <strong>0.73–0.78</strong>：シミュレーションで密に詰めた束（例：等しい7本の束で η = 0.778、セクション5.5の102本の束で η ≈ 0.737）。"}, "k196": {"vi": "+ <i>η</i> ≈ <strong>0,694</strong> tương đương công thức kinh nghiệm hay dùng trong sản xuất <i>D</i> ≈ 1,2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) — công thức này đã gồm một phần dự phòng tở.", "en": "+ <i>η</i> ≈ <strong>0.694</strong> corresponds to the shop rule of thumb <i>D</i> ≈ 1.2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) — this formula already includes part of the splay allowance.", "ja": "+ <i>η</i> ≈ <strong>0.694</strong> は、生産現場の経験式 <i>D</i> ≈ 1.2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) に対応します —— この式には広がり代の一部が既に含まれています。"}, "k197": {"vi": "+ <i>η</i> &lt; <strong>0,65</strong>: bó lỏng, có dây độn (filler) hoặc nhiều cỡ dây chênh nhau — nên đo bó mẫu thực tế để hiệu chuẩn.", "en": "+ <i>η</i> &lt; <strong>0.65</strong>: a loose bundle, with filler wires or widely differing wire sizes — measure a real sample bundle to calibrate.", "ja": "+ <i>η</i> &lt; <strong>0.65</strong>：緩い束、フィラーワイヤ入り、またはサイズ差の大きいワイヤの混在 —— 実際のサンプル束を測って較正してください。"}, "k198": {"vi": "<strong>5.3. Cách phần mềm tính <i>D</i> (mô phỏng xếp hình tròn + đường tròn bao nhỏ nhất).</strong> Phần mềm không tra <i>η</i> cố định mà xếp thật từng sợi trên mặt cắt:", "en": "<strong>5.3. How the software computes <i>D</i> (circle-packing simulation + minimum enclosing circle).</strong> The software does not look up a fixed <i>η</i> but actually places every wire on the cross-section:", "ja": "<strong>5.3. ソフトウェアの <i>D</i> の計算方法（円充填シミュレーション＋最小包含円）。</strong>ソフトウェアは固定の <i>η</i> を参照せず、実際に全ワイヤを断面上に配置します："}, "k199": {"vi": "Mỗi sợi là một hình tròn đường kính <i>d<sub>i</sub></i>; các hình tròn được đặt <strong>tiếp xúc nhau và không chồng lấp</strong>, thử nhiều chiến lược (xếp tham lam theo 3 thứ tự lớn→nhỏ / nhỏ→lớn / xen kẽ, xếp lưới vuông, xếp lưới lục giác, xếp vòng quanh 1 sợi tâm khi các dây bằng nhau) và giữ cấu hình tốt nhất.", "en": "Each wire is a circle of diameter <i>d<sub>i</sub></i>; the circles are placed <strong>tangent to each other without overlapping</strong>, trying several strategies (greedy packing in 3 orders large→small / small→large / alternating, square lattice, hexagonal lattice, ring around 1 core wire when wires are equal) and keeping the best configuration.", "ja": "各ワイヤは直径 <i>d<sub>i</sub></i> の円です。円同士が<strong>接し、重ならない</strong>ように配置し、複数の戦略（大→小／小→大／交互の3順序での貪欲配置、正方形格子、六角格子、等しいワイヤの場合は中心1本の周りのリング配置）を試して最良の構成を保持します。"}, "k200": {"vi": "Với mỗi cấu hình, tìm <strong>đường tròn bao nhỏ nhất</strong> (Minimum Enclosing Circle) chứa mọi sợi; đường kính ngoài của bó là <i>D</i> = 2<i>R</i><sub>bao</sub>.", "en": "For each configuration, find the <strong>minimum enclosing circle</strong> (Minimum Enclosing Circle) containing all wires; the bundle outer diameter is <i>D</i> = 2<i>R</i><sub>enc</sub>.", "ja": "各構成について、全ワイヤを含む<strong>最小包含円</strong>（Minimum Enclosing Circle）を求め、束の外径を <i>D</i> = 2<i>R</i><sub>包</sub> とします。"}, "k201": {"vi": "Vì là mô phỏng xếp chặt, kết quả là <strong>ước lượng sát cận dưới</strong> của bó thật: bó thật không bao giờ nhỏ hơn hẳn giá trị này, và thường lớn hơn do độ tở khi xoắn (xem Mục 5.6).", "en": "Because it is a tight-packing simulation, the result is an <strong>estimate hugging the lower bound</strong> of the real bundle: a real bundle is never significantly smaller than this value, and is usually larger due to splay when twisting (see Section 5.6).", "ja": "密な充填シミュレーションであるため、結果は実際の束の<strong>下限に近い推定値</strong>です。実際の束がこの値を大幅に下回ることはなく、ツイスト時の広がりのため通常は大きくなります（セクション5.6参照）。"}, "k202": {"vi": "Đối chiếu với các cách xếp tối ưu đã biết cho bó dây đều đường kính <i>d</i> (kiểm chứng độc lập, không dùng chính thuật toán của phần mềm):", "en": "Comparison with known optimal packings for bundles of equal wires of diameter <i>d</i> (independently verified, not using the software's own algorithm):", "ja": "直径 <i>d</i> の等しいワイヤの束について、既知の最適充填との比較（ソフトウェア自身のアルゴリズムを使わない独立検証）："}, "k203": {"vi": "Số sợi <i>N</i>", "en": "Wire count <i>N</i>", "ja": "ワイヤ本数 <i>N</i>"}, "k204": {"vi": "Tối ưu đã biết (<i>D</i>/<i>d</i>)", "en": "Known optimum (<i>D</i>/<i>d</i>)", "ja": "既知の最適値（<i>D</i>/<i>d</i>）"}, "k205": {"vi": "Phần mềm tính (<i>D</i>/<i>d</i>)", "en": "Software result (<i>D</i>/<i>d</i>)", "ja": "ソフトウェアの計算値（<i>D</i>/<i>d</i>）"}, "k206": {"vi": "Riêng trường hợp <i>N</i> = 10 sợi đều, phần mềm cho <i>D</i>/<i>d</i> = 3,924 so với tối ưu đã biết 3,813 (lệch +2,9%) — đây là giới hạn của thuật toán xếp heuristic: kết quả luôn <em>đúng về định nghĩa</em> (đường tròn bao của một cách xếp khả thi) nhưng với một số cấu hình đặc biệt có thể cao hơn tối ưu tuyệt đối vài phần trăm.", "en": "For the specific case of <i>N</i> = 10 equal wires, the software gives <i>D</i>/<i>d</i> = 3.924 versus the known optimum 3.813 (+2.9% difference) — this is the limit of the heuristic packing algorithm: the result is always <em>correct by definition</em> (the enclosing circle of a feasible packing) but for some special configurations may be a few percent above the absolute optimum.", "ja": "等しいワイヤ <i>N</i> = 10 本の場合、ソフトウェアは <i>D</i>/<i>d</i> = 3.924 を出し、既知の最適値 3.813 と比べて +2.9% の差があります。これはヒューリスティックな充填アルゴリズムの限界です。結果は常に<em>定義上正しい</em>（実現可能な配置の包含円）ですが、特殊な構成では絶対最適より数%大きくなることがあります。"}, "k207": {"vi": "<strong>5.4. Đường kính vòng tâm xoắn tương đương (<i>OD</i>).</strong> Sau khi xếp mặt cắt, phần mềm tính khoảng cách từ tâm bó tới tâm của sợi xa nhất:", "en": "<strong>5.4. Equivalent twist pitch-circle diameter (<i>OD</i>).</strong> After packing the cross-section, the software computes the distance from the bundle center to the center of the farthest wire:", "ja": "<strong>5.4. 等価ツイスト中心円径（<i>OD</i>）。</strong>断面を配置した後、ソフトウェアは束の中心から最も遠いワイヤの中心までの距離を計算します："}, "k211": {"vi": "trên mọi sợi <i class=\"math-var\">j</i>", "en": "over all wires <i class=\"math-var\">j</i>", "ja": "すべてのワイヤ <i class=\"math-var\">j</i> について"}, "k212": {"vi": "+ Bó chỉ có 1 sợi: <i>OD</i> = <i>d</i> (theo quy ước của công thức xoắn 2 dây).", "en": "+ Bundle with only 1 wire: <i>OD</i> = <i>d</i> (by the convention of the 2-wire twisting formula).", "ja": "+ 束が1本だけの場合：<i>OD</i> = <i>d</i>（2本ツイストの式の慣例による）。"}, "k213": {"vi": "+ Nếu sợi ở ngoài cùng cũng là sợi chạm đường tròn bao thì <i>OD</i> ≈ <i>D</i> − <i>d</i><sub>ngoài</sub>; công thức này chỉ là gần đúng, phần mềm tính <i>OD</i> trực tiếp từ tọa độ nên chính xác hơn.", "en": "+ If the outermost wire also touches the enclosing circle then <i>OD</i> ≈ <i>D</i> − <i>d</i><sub>outer</sub>; this is only an approximation — the software computes <i>OD</i> directly from coordinates, which is more accurate.", "ja": "+ 最も外側のワイヤが包含円にも接している場合、<i>OD</i> ≈ <i>D</i> − <i>d</i><sub>外側</sub> となります。これは近似にすぎません。ソフトウェアは座標から直接 <i>OD</i> を計算するため、より正確です。"}, "k214": {"vi": "+ Khi xoắn cả bó, sợi ở xa tâm nhất đi đường dài nhất; dùng <i>OD</i> này trong công thức chiều dài xoắn (Mục 2) cho kết quả thiên về an toàn (dây cắt không bị thiếu).", "en": "+ When twisting the whole bundle, the farthest wire travels the longest path; using this <i>OD</i> in the twist length formula (Section 2) errs on the safe side (wire is never cut short).", "ja": "+ 束全体をツイストすると、中心から最も遠いワイヤが最も長い経路を通ります。この <i>OD</i> をツイスト長の式（セクション2）に使うと安全側の結果になります（ワイヤが短く切れることはありません）。"}, "k215": {"vi": "<strong>5.5. Ví dụ kiểm chứng đầy đủ.</strong> Bó gồm 100 sợi Ø1,25 mm và 2 sợi Ø2,3 mm:", "en": "<strong>5.5. Full verification example.</strong> A bundle of 100 wires of Ø1.25 mm and 2 wires of Ø2.3 mm:", "ja": "<strong>5.5. 完全な検証例。</strong>Ø1.25 mm のワイヤ100本と Ø2.3 mm のワイヤ2本の束："}, "k216": {"vi": "+ Tổng số sợi: <i>N</i> = 100 + 2 = <strong>102 sợi</strong>.", "en": "+ Total wires: <i>N</i> = 100 + 2 = <strong>102 wires</strong>.", "ja": "+ 総本数：<i>N</i> = 100 + 2 = <strong>102本</strong>。"}, "k217": {"vi": "+ Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup> = 100×1,25<sup>2</sup> + 2×2,3<sup>2</sup> = 156,25 + 10,58 = <strong>166,83 mm<sup>2</sup></strong> ⇒ tổng tiết diện <i>A</i> = π/4 × 166,83 = <strong>131,03 mm<sup>2</sup></strong>.", "en": "+ Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup> = 100×1.25<sup>2</sup> + 2×2.3<sup>2</sup> = 156.25 + 10.58 = <strong>166.83 mm<sup>2</sup></strong> ⇒ total cross-section <i>A</i> = π/4 × 166.83 = <strong>131.03 mm<sup>2</sup></strong>.", "ja": "+ Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup> = 100×1.25<sup>2</sup> + 2×2.3<sup>2</sup> = 156.25 + 10.58 = <strong>166.83 mm<sup>2</sup></strong> ⇒ 総断面積 <i>A</i> = π/4 × 166.83 = <strong>131.03 mm<sup>2</sup></strong>。"}, "k218": {"vi": "+ Giới hạn dưới tuyệt đối của <i>D</i>: √166,83 = <strong>12,92 mm</strong> (không cách xếp nào nhỏ hơn được).", "en": "+ Absolute lower bound of <i>D</i>: √166.83 = <strong>12.92 mm</strong> (no packing can be smaller).", "ja": "+ <i>D</i> の絶対下限：√166.83 = <strong>12.92 mm</strong>（これより小さい配置は存在しません）。"}, "k219": {"vi": "+ Mô phỏng xếp của phần mềm: <i>D</i> = <strong>15,05 mm</strong>, tương ứng <i>η</i> = 166,83 / <i>D</i><sup>2</sup> ≈ <strong>0,737</strong> — nằm trong vùng xếp chặt hợp lý 0,73–0,78.", "en": "+ Software packing simulation: <i>D</i> = <strong>15.05 mm</strong>, corresponding to <i>η</i> = 166.83 / <i>D</i><sup>2</sup> ≈ <strong>0.737</strong> — within the reasonable tight-packing range 0.73–0.78.", "ja": "+ ソフトウェアの充填シミュレーション：<i>D</i> = <strong>15.05 mm</strong>、対応する <i>η</i> = 166.83 / <i>D</i><sup>2</sup> ≈ <strong>0.737</strong> —— 妥当な密充填の範囲 0.73–0.78 の内側です。"}, "k220": {"vi": "+ Công thức kinh nghiệm dự phòng 1,2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) = 1,2 × 12,92 = <strong>15,50 mm</strong>, cao hơn mô phỏng khoảng 3% — đúng vai trò của một hệ số an toàn khi đặt hàng/chọn ống bọc.", "en": "+ The shop safety formula 1.2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) = 1.2 × 12.92 = <strong>15.50 mm</strong>, about 3% above the simulation — exactly the role of a safety factor when ordering / selecting sleeves.", "ja": "+ 経験的な安全式 1.2·√(Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>) = 1.2 × 12.92 = <strong>15.50 mm</strong> で、シミュレーションより約3%大きく、発注／スリーブ選定時の安全係数としての役割通りです。"}, "k221": {"vi": "5.6. Từ mô phỏng ra bó thật.", "en": "5.6. From simulation to the real bundle.", "ja": "5.6. シミュレーションから実際の束へ。"}, "k222": {"vi": "<strong>Độ tở và độ ô-van khi xoắn:</strong> bó xoắn thực tế luôn “nở” hơn mặt cắt xếp chặt; khi dùng <i>D</i> để chọn tape, ống co hay đầu nối, nên lấy <i>D</i><sub>thiết kế</sub> = <i>k</i> · <i>D</i><sub>mô phỏng</sub> với <i>k</i> = 1,05–1,15 tùy mức xoắn chặt (đây cũng là vai trò của hệ số tở <i>k</i> ở mục Xoắn Dây).", "en": "<strong>Splay and ovality when twisting:</strong> a real twisted bundle always “bulges” beyond the tightly-packed cross-section; when using <i>D</i> to select tape, heat-shrink tubing or connectors, take <i>D</i><sub>design</sub> = <i>k</i> · <i>D</i><sub>simulated</sub> with <i>k</i> = 1.05–1.15 depending on twist tightness (this is also the role of the splay factor <i>k</i> in the Wire Twisting section).", "ja": "<strong>ツイスト時の広がりと楕円化：</strong>実際のツイスト束は、密充填断面より常に「膨らみ」ます。<i>D</i> を使ってテープ、熱収縮チューブ、コネクタを選ぶ場合は、<i>D</i><sub>設計</sub> = <i>k</i> · <i>D</i><sub>シミュレーション</sub>（<i>k</i> = 1.05–1.15、ツイストの締め具合による）としてください（これはワイヤツイストのセクションにある広がり係数 <i>k</i> の役割でもあります）。"}, "k223": {"vi": "<strong>Dung sai đường kính vỏ dây:</strong> <i>d<sub>i</sub></i> nên lấy theo giá trị lớn nhất trong dung sai (ví dụ dây ghi 1,25 ± 0,05 thì tính với 1,30) nếu kết quả dùng để chọn kích thước bao ngoài.", "en": "<strong>Wire sheath diameter tolerance:</strong> <i>d<sub>i</sub></i> should be taken at the maximum of its tolerance (e.g. a wire marked 1.25 ± 0.05 is calculated as 1.30) if the result is used to size outer coverings.", "ja": "<strong>ワイヤ被覆径の公差：</strong>結果を外側の被覆サイズ決めに使う場合は、<i>d<sub>i</sub></i> は公差の最大値で計算してください（例：1.25 ± 0.05 と表示されたワイヤは 1.30 として計算）。"}, "k224": {"vi": "<strong>Sau khi quấn tape:</strong> mỗi lớp tape quấn tròn làm đường kính tăng thêm 2<i>T</i>; quấn <i>n</i> vòng khóa đầu thì đường kính ngoài tại đầu là <i>D</i> + 2<i>nT</i> (xem Mục 1).", "en": "<strong>After tape wrapping:</strong> each round-wrapped tape layer increases the diameter by 2<i>T</i>; wrapping <i>n</i> locking turns at an end makes the outer diameter at that end <i>D</i> + 2<i>nT</i> (see Section 1).", "ja": "<strong>テープ巻き後：</strong>円形巻きのテープ1層ごとに直径は 2<i>T</i> 増えます。端に <i>n</i> 回のロック巻きをすると、その端の外径は <i>D</i> + 2<i>nT</i> になります（セクション1参照）。"}, "k225": {"vi": "<strong>Hiệu chuẩn bằng mẫu:</strong> với bó sản xuất hàng loạt, đo đường kính bó mẫu đầu tiên và suy ra <i>η</i> thực tế = Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>/<i>D</i><sub>đo</sub><sup>2</sup>; nếu <i>η</i> đo được thấp hơn hẳn mô phỏng, các lần tính sau nên dùng công thức diện tích (Mục 5.2) với <i>η</i> đó.", "en": "<strong>Calibration with a sample:</strong> for mass-produced bundles, measure the first sample bundle's diameter and derive the real <i>η</i> = Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>/<i>D</i><sub>measured</sub><sup>2</sup>; if the measured <i>η</i> is much lower than the simulation, use the area formula (Section 5.2) with that <i>η</i> for later calculations.", "ja": "<strong>サンプルによる較正：</strong>量産する束については、最初のサンプル束の径を測り、実際の <i>η</i> = Σ<i>q<sub>i</sub>d<sub>i</sub></i><sup>2</sup>/<i>D</i><sub>実測</sub><sup>2</sup> を求めてください。実測の <i>η</i> がシミュレーションより大幅に低い場合は、以降の計算ではその <i>η</i> を使って面積の式（セクション5.2）で計算してください。"}, "k226": {"vi": "6. Giả thiết và giới hạn cần biết khi dùng các công thức trên", "en": "6. Assumptions and limits to know when using the formulas above", "ja": "6. 上記の式を使う際に知っておくべき前提と限界"}, "k227": {"vi": "<strong>Chiều dài cắt dây khi xoắn (Mục 2):</strong> một vòng xoắn khi trải phẳng là cạnh huyền của tam giác có hai cạnh π<i>OD</i> và <i>P</i>, nên chiều dài một vòng = √((π<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>). Trong đó <i>OD</i> là <strong>đường kính vòng qua tâm các dây</strong>, không phải đường kính ngoài của bó. Công thức <i>OD</i> = <i>d</i>/sin(π/<i>N</i>) chỉ đúng khi <i>N</i> dây đều nhau xếp thành <strong>một vòng duy nhất</strong> quanh tâm (ví dụ <i>N</i> = 7 xếp vòng cho <i>D</i><sub>bó</sub> lớn hơn kiểu 1 tâm + 6 vòng quanh); bó nhiều lớp hoặc nhiều cỡ dây phải lấy <i>OD</i> từ mô phỏng mặt cắt ở Mục 5.4.", "en": "<strong>Wire cutting length when twisting (Section 2):</strong> one twist turn, when unrolled flat, is the hypotenuse of a triangle with sides π<i>OD</i> and <i>P</i>, so one turn's length = √((π<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>). Here <i>OD</i> is the <strong>diameter of the circle through the wire centers</strong>, not the bundle outer diameter. The formula <i>OD</i> = <i>d</i>/sin(π/<i>N</i>) is only valid when <i>N</i> equal wires are arranged in <strong>a single ring</strong> around the center (e.g. <i>N</i> = 7 in a ring gives a larger bundle <i>D</i> than the 1-core + 6-around style); multi-layer bundles or mixed wire sizes must take <i>OD</i> from the cross-section simulation in Section 5.4.", "ja": "<strong>ツイスト時のワイヤ切断長（セクション2）：</strong>ツイスト1回分を平面に展開すると、辺が π<i>OD</i> と <i>P</i> の三角形の斜辺になるため、1回分の長さ = √((π<i>OD</i>)<sup>2</sup> + <i>P</i><sup>2</sup>) です。ここで <i>OD</i> は<strong>ワイヤ中心を通る円の直径</strong>であり、束の外径ではありません。式 <i>OD</i> = <i>d</i>/sin(π/<i>N</i>) は、<i>N</i> 本の等しいワイヤが中心の周りに<strong>1つのリング状</strong>に並ぶ場合にのみ有効です（例：<i>N</i> = 7 をリング状に並べると、中心1本＋周り6本の形式より束の <i>D</i> は大きくなります）。多層の束やサイズの混在する束では、セクション5.4の断面シミュレーションから <i>OD</i> を取得してください。"}, "k228": {"vi": "<strong>Quấn tape tròn (Mục 1):</strong> chiều dài tính theo đường tham chiếu bắt đầu ở bán kính bó <i>r</i>, mỗi vòng bán kính tăng đúng một độ dày tape <i>T</i> nên bán kính ngoài sau <i>n</i> vòng là <i>r</i> + <i>nT</i>. Kết quả không gồm phần tape thừa để cầm/gập mép khi thao tác.", "en": "<strong>Round tape wrapping (Section 1):</strong> the length is computed along a reference line starting at the bundle radius <i>r</i>; each turn the radius increases by exactly one tape thickness <i>T</i>, so the outer radius after <i>n</i> turns is <i>r</i> + <i>nT</i>. The result does not include extra tape for holding/folding edges while working.", "ja": "<strong>テープ円形巻き（セクション1）：</strong>長さは束半径 <i>r</i> を始点とする基準線に沿って計算します。1回ごとに半径はテープ厚 <i>T</i> ちょうど増えるため、<i>n</i> 回後の外半径は <i>r</i> + <i>nT</i> です。結果には、作業時に持つ／端を折るための余分なテープは含まれません。"}, "k229": {"vi": "<strong>Quấn tape chéo (Mục 1 + 2):</strong> bước tiến mỗi vòng <i>h</i> = <i>b</i>(1 − % chồng mí); đoạn chéo được tính trên chiều dài hiệu dụng <i>c</i> − <i>b</i> theo quy ước của tài liệu gốc (phần khóa tròn ở hai đầu chiếm chỗ một bề rộng tape), và đường xoắn đoạn giữa tính trên <strong>đường kính tâm tape hiệu dụng</strong> đã cộng độ dày tape và số lớp tape chồng nhau do chồng mí (Mục 7.2). Hai đầu khóa tròn tính riêng bằng công thức xoắn ốc 2D với số vòng <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub>.", "en": "<strong>Spiral tape wrapping (Sections 1 + 2):</strong> the advance per turn <i>h</i> = <i>b</i>(1 − % overlap); the spiral section is computed over the effective length <i>c</i> − <i>b</i> per the original document's convention (the round locking at both ends occupies one tape width), and the middle helix is computed on the <strong>effective tape centerline diameter</strong>, which already includes the tape thickness and the number of tape layers stacked by the overlap (Section 7.2). The round locking at both ends is computed separately with the 2D spiral formula using <i>n</i><sub>1</sub>, <i>n</i><sub>2</sub> turns.", "ja": "<strong>テープ斜め巻き（セクション1＋2）：</strong>1回あたりの進み <i>h</i> = <i>b</i>(1 − % オーバーラップ)；斜め区間は、元の資料の慣例に従い有効長 <i>c</i> − <i>b</i> で計算します（両端の円形ロックがテープ幅1つ分を占めます）。中央のらせんは、テープ厚とオーバーラップで重なるテープ層数を既に含んだ<strong>等価テープ中心線径</strong>で計算します（セクション7.2）。両端の円形ロックは、<i>n</i><sub>1</sub>、<i>n</i><sub>2</sub> 回として2Dスパイラルの式で別々に計算します。"}, "k230": {"vi": "<strong>Tích phân số (Mục 3):</strong> phần mềm chia đoạn tích phân thành 1.000 bước hình thang; với các hàm trơn như độ dài cung xoắn ốc, sai số ở mức dưới 0,01% — nhỏ hơn nhiều so với sai số do độ tở và dung sai vật liệu, nên không cần tăng thêm bước chia.", "en": "<strong>Numerical integration (Section 3):</strong> the software divides the integral into 1,000 trapezoidal steps; for smooth functions such as spiral arc length, the error is below 0.01% — much smaller than errors from splay and material tolerances, so more steps are unnecessary.", "ja": "<strong>数値積分（セクション3）：</strong>ソフトウェアは積分を1,000ステップの台形に分割します。スパイラルの弧長のような滑らかな関数では誤差は0.01%未満で、広がりや材料公差による誤差よりはるかに小さいため、ステップ数を増やす必要はありません。"}, "k231": {"vi": "<strong>Nguyên tắc chung:</strong> mọi công thức trong phần mềm tính cho dây/tape <em>không co giãn, không trượt</em> và mặt cắt tròn đều. Khi kết quả dùng để đặt vật tư, hãy cộng dự phòng theo Mục 5.6 thay vì dùng thẳng số mô phỏng.", "en": "<strong>General principle:</strong> all formulas in this software assume wires/tape that are <em>non-stretching, non-slipping</em> with uniform round cross-sections. When using results to order materials, add the allowance per Section 5.6 instead of using the simulated number directly.", "ja": "<strong>一般原則：</strong>このソフトウェアのすべての式は、ワイヤ／テープが<em>伸びず、滑らず</em>、断面が均一な円であることを前提としています。結果を材料の発注に使う場合は、シミュレーション値をそのまま使わず、セクション5.6の余裕を加えてください。"}, "k232": {"vi": "7. Giới hạn bước xoắn &amp; hiệu chỉnh chồng mí khi quấn chéo", "en": "7. Twist pitch limits &amp; the spiral-wrapping overlap correction", "ja": "7. ツイストピッチの限界と斜め巻きのオーバーラップ補正"}, "k233": {"vi": "<strong>7.1. Tỷ số xoắn <i>λ</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> — giới hạn bước xoắn theo tiêu chuẩn bện dây.</strong> Trong sản xuất dây cáp, bước xoắn không chọn tùy ý mà bị chặn bởi <strong>tỷ số xoắn</strong> <i>λ</i> = <i>P</i> / <i>D</i><sub>ngoài</sub> (<i>D</i><sub>ngoài</sub> = đường kính ngoài của bó/cáp thành phẩm, KHÔNG phải đường kính vòng tâm <i>OD</i>):", "en": "<strong>7.1. Lay ratio <i>λ</i> = <i>P</i>/<i>D</i><sub>outer</sub> — twist pitch limits per stranding standards.</strong> In cable production, the twist pitch is not chosen freely but is bounded by the <strong>lay ratio</strong> <i>λ</i> = <i>P</i> / <i>D</i><sub>outer</sub> (<i>D</i><sub>outer</sub> = outer diameter of the finished bundle/cable, NOT the pitch-circle diameter <i>OD</i>):", "ja": "<strong>7.1. 撚り比 <i>λ</i> = <i>P</i>/<i>D</i><sub>外径</sub> —— 撚線規格によるツイストピッチの限界。</strong>ケーブル生産において、ツイストピッチは自由に選べるものではなく、<strong>撚り比</strong> <i>λ</i> = <i>P</i> / <i>D</i><sub>外径</sub> によって制限されます（<i>D</i><sub>外径</sub> は完成した束／ケーブルの外径であり、中心円径 <i>OD</i> ではありません）："}, "k234": {"vi": "8 ≤ <i>λ</i> = <i>P</i>/<i>D</i><sub>ngoài</sub> ≤ 16&nbsp;&nbsp;⇒&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>ngoài</sub>,&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>ngoài</sub>", "en": "8 ≤ <i>λ</i> = <i>P</i>/<i>D</i><sub>outer</sub> ≤ 16&nbsp;&nbsp;⇒&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>outer</sub>,&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>outer</sub>", "ja": "8 ≤ <i>λ</i> = <i>P</i>/<i>D</i><sub>外径</sub> ≤ 16&nbsp;&nbsp;⇒&nbsp;&nbsp;<i>P</i><sub>min</sub> = 8<i>D</i><sub>外径</sub>、&nbsp; <i>P</i><sub>max</sub> = 16<i>D</i><sub>外径</sub>"}, "k235": {"vi": "<strong>Nguồn chuẩn:</strong> ASTM B496 và B835 ghi rõ \"chiều dài bước xoắn không nhỏ hơn 8 và không lớn hơn 16 lần đường kính ngoài của ruột dẫn hoàn chỉnh\"; cùng dải 8–16 áp dụng trong ASTM B8 (đồng trần bện đồng tâm) và tiêu chuẩn quốc gia PNS 1207 cho lớp ngoài. Riêng nhôm trần ASTM B399: lớp AA dùng 10–16, lớp A dùng 8–16. Thực hành sản xuất thường chọn 10–14.", "en": "<strong>Standard sources:</strong> ASTM B496 and B835 state verbatim that “the length of lay shall not be less than 8 nor more than 16 times the outside diameter of the completed conductor”; the same 8–16 range applies in ASTM B8 (concentric-lay stranded bare copper) and in the national standard PNS 1207 for the outer layer. For bare aluminum per ASTM B399: Class AA uses 10–16, Class A uses 8–16. Production practice usually selects 10–14.", "ja": "<strong>規格の出典：</strong>ASTM B496 と B835 には「撚り長は完成導体の外径の8倍未満でも16倍超でもあってはならない」と明記されています。同じ 8–16 の範囲が ASTM B8（同心撚りの裸銅線）と国家規格 PNS 1207 の外層にも適用されます。裸アルミニウムの ASTM B399 では、クラス AA が 10–16、クラス A が 8–16 です。生産現場では通常 10–14 が選ばれます。"}, "k236": {"vi": "<strong>Theo từng loại dây:</strong> dây đồng/nhôm trần bện đồng tâm theo dải chuẩn trên. Dây mềm nhiều sợi nhỏ (ruột lớp 5/6) thường chọn <i>λ</i> ở nửa dưới của dải (8–12) để mềm và bền uốn. Dây <strong>bọc cách điện</strong> xoắn đôi/xoắn chùm (làm dây nhánh, harness) càng phải giữ <i>P</i> ≥ 8<i>D</i><sub>ngoài</sub>: xoắn ngắn hơn làm vỏ cách điện bị ép nhăn, biến dạng, có thể nứt ở phía ngoài vòng xoắn.", "en": "<strong>By wire type:</strong> bare copper/aluminum concentric-lay conductors follow the standard range above. Soft conductors of many fine wires (Class 5/6 cores) usually pick <i>λ</i> in the lower half of the range (8–12) for flexibility and flex life. <strong>Insulated wires</strong> twisted in pairs/bunches (for branch wires, harnesses) must especially keep <i>P</i> ≥ 8<i>D</i><sub>outer</sub>: a shorter twist crushes and wrinkles the insulation, deforms it, and can crack it on the outside of the twist.", "ja": "<strong>ワイヤの種類別：</strong>裸銅／裸アルミニウムの同心撚り導体は上記の規格範囲に従います。細いワイヤを多数撚った軟らかい導体（クラス5/6の芯線）は、柔軟性と屈曲寿命のため、通常は範囲の下半分（8–12）で <i>λ</i> を選びます。<strong>絶縁ワイヤ</strong>をペア／束でツイストする場合（分岐ワイヤ、ハーネス用）は、特に <i>P</i> ≥ 8<i>D</i><sub>外径</sub> を守る必要があります。これより短いツイストは絶縁体を押しつぶしてしわを作り、変形させ、ツイストの外側でひび割れることがあります。"}, "k237": {"vi": "<strong>Vì sao không được nhỏ hơn 8:</strong> khi <i>P</i> nhỏ, dây đi đường xoắn dài hơn hẳn (hệ số √(1 + (π<i>OD</i>/<i>P</i>)<sup>2</sup>) — ví dụ xoắn 2 dây ở <i>λ</i> = 8 dây dài thêm ≈ 1,9%, ở <i>λ</i> = 5 dài thêm ≈ 4,8% — kéo theo điện trở tăng tương ứng, sợi bị biến dạng dẻo nhiều, dễ đứt khi xoắn và bó bị cứng, khó uốn. Phần mềm tự kiểm tra <i>λ</i> mỗi lần tính và <strong>cảnh báo đỏ kèm <i>P</i><sub>min</sub></strong> khi <i>P</i> &lt; 8<i>D</i><sub>ngoài</sub>; <i>D</i><sub>ngoài</sub> lấy từ đường kính bó đã nhập sang (đã nhân hệ số tở), hoặc = 2<i>OD</i> khi nhập tay theo hình 2 dây.", "en": "<strong>Why it must not be below 8:</strong> with a small <i>P</i>, the wire follows a much longer helical path (factor √(1 + (π<i>OD</i>/<i>P</i>)<sup>2</sup>) — e.g. twisting 2 wires at <i>λ</i> = 8 lengthens the wire by ≈ 1.9%, at <i>λ</i> = 5 by ≈ 4.8% — with a corresponding resistance increase, heavy plastic deformation of the strands, easy breakage during twisting, and a stiff bundle that is hard to bend. The software checks <i>λ</i> at every calculation and shows a <strong>red warning with <i>P</i><sub>min</sub></strong> when <i>P</i> &lt; 8<i>D</i><sub>outer</sub>; <i>D</i><sub>outer</sub> is taken from the imported bundle diameter (already multiplied by the splay factor), or = 2<i>OD</i> when entered manually for the 2-wire diagram.", "ja": "<strong>なぜ8未満ではいけないのか：</strong><i>P</i> が小さいと、ワイヤははるかに長いらせん経路をたどります（係数 √(1 + (π<i>OD</i>/<i>P</i>)<sup>2</sup>）。例えば2本ツイストでは <i>λ</i> = 8 でワイヤは約1.9%長くなり、<i>λ</i> = 5 では約4.8%長くなります。これに伴い抵抗が増え、素線が大きく塑性変形し、ツイスト中に切れやすくなり、束が硬く曲げにくくなります。ソフトウェアは計算のたびに <i>λ</i> をチェックし、<i>P</i> &lt; 8<i>D</i><sub>外径</sub> の場合は <strong><i>P</i><sub>min</sub> 付きの赤い警告</strong>を表示します。<i>D</i><sub>外径</sub> は取り込んだ束径（広がり係数を乗算済み）から取得し、手入力の2本図の場合は = 2<i>OD</i> です。"}, "k238": {"vi": "<strong>Phía trên 16:</strong> bó xoắn quá lỏng, không giữ form, các sợi dễ tở ra và bung khi uốn cong — phần mềm hiện lưu ý màu hổ phách nhưng không coi là lỗi cứng như phía dưới 8.", "en": "<strong>Above 16:</strong> the twisted bundle is too loose, does not hold its shape, and the wires easily splay out and spring open when bent — the software shows an amber note but does not treat it as a hard error like below 8.", "ja": "<strong>16を超える場合：</strong>ツイストした束が緩すぎて形を保てず、曲げるとワイヤが広がってほどけやすくなります。ソフトウェアは琥珀色の注意を表示しますが、8未満のような厳密なエラーとしては扱いません。"}, "k239": {"vi": "<strong>7.2. Quấn chéo chồng mí lớn — vì sao phải đổi đường kính tính toán.</strong> Công thức gốc tính đoạn chéo trên đúng đường kính bó <i>D</i>, tức giả thiết tape luôn quấn trên mặt trụ đường kính <i>D</i>. Thực tế khi có chồng mí (<i>h</i> &lt; <i>b</i>), vòng tape sau <strong>nằm đè lên các lớp tape trước</strong>: tại một điểm trên bó có trung bình <i>L</i> = <i>b</i>/<i>h</i> lớp tape chồng nhau, vòng trên cùng tựa trên (<i>L</i> − 1) lớp nên đường kính vòng xoắn của nó lớn hơn hẳn <i>D</i>. Phần mềm đã hiệu chỉnh bằng <strong>đường kính tâm tape hiệu dụng</strong>:", "en": "<strong>7.2. Large-overlap spiral wrapping — why the calculation diameter must change.</strong> The original formula computes the spiral section on exactly the bundle diameter <i>D</i>, i.e. it assumes the tape always wraps on a cylinder of diameter <i>D</i>. In reality, with overlap (<i>h</i> &lt; <i>b</i>), each later tape turn <strong>lies on top of the previous tape layers</strong>: at any point on the bundle there are on average <i>L</i> = <i>b</i>/<i>h</i> tape layers stacked, and the topmost turn rests on (<i>L</i> − 1) layers, so its helix diameter is significantly larger than <i>D</i>. The software has been corrected with the <strong>effective tape centerline diameter</strong>:", "ja": "<strong>7.2. オーバーラップの大きい斜め巻き —— なぜ計算径を変える必要があるのか。</strong>元の式は斜め区間を束径 <i>D</i> ちょうどで計算します。つまり、テープが常に直径 <i>D</i> の円筒上に巻かれることを前提としています。実際には、オーバーラップがある場合（<i>h</i> &lt; <i>b</i>）、後のテープは<strong>前のテープ層の上に重なります</strong>。束上の任意の点では平均 <i>L</i> = <i>b</i>/<i>h</i> 層のテープが重なり、最上層の巻きは（<i>L</i> − 1）層の上に乗るため、そのらせん径は <i>D</i> より大幅に大きくなります。ソフトウェアは<strong>等価テープ中心線径</strong>で補正済みです："}, "k240": {"vi": "<i>L</i> = <i>b</i>/<i>h</i> (số lớp tape hiệu dụng, lấy tối thiểu 1)&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> − 1)", "en": "<i>L</i> = <i>b</i>/<i>h</i> (effective number of tape layers, minimum 1)&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> − 1)", "ja": "<i>L</i> = <i>b</i>/<i>h</i>（等価テープ層数、最小1）&nbsp;&nbsp;|&nbsp;&nbsp;<i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i>(2<i>L</i> − 1)"}, "k241": {"vi": "Kiểm tra các mốc: quấn sát mép/hở (<i>L</i> = 1) cho <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> — đúng tâm tape khi chỉ có 1 lớp; chồng mí 50% (<i>L</i> = 2) cho <i>D</i> + 3<i>T</i>; chồng mí 75% (<i>L</i> = 4) cho <i>D</i> + 7<i>T</i>.", "en": "Check the landmarks: butt-jointed/gapped wrapping (<i>L</i> = 1) gives <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> — the correct tape centerline for a single layer; 50% overlap (<i>L</i> = 2) gives <i>D</i> + 3<i>T</i>; 75% overlap (<i>L</i> = 4) gives <i>D</i> + 7<i>T</i>.", "ja": "目安の確認：突き合わせ／隙間巻き（<i>L</i> = 1）では <i>D</i><sub>cl</sub> = <i>D</i> + <i>T</i> —— 1層の場合の正しいテープ中心線です。50%オーバーラップ（<i>L</i> = 2）では <i>D</i> + 3<i>T</i>、75%オーバーラップ（<i>L</i> = 4）では <i>D</i> + 7<i>T</i> となります。"}, "k242": {"vi": "Ví dụ theo thông số mặc định của phần mềm (<i>D</i> = 2,5; <i>T</i> = 0,25; <i>b</i> = 19; <i>h</i> = 9,5 → <i>L</i> = 2): <i>D</i><sub>cl</sub> = 3,25 mm và chiều dài đoạn giữa tăng ≈ 13% so với công thức cũ — chồng mí càng lớn, tape càng dày hoặc bó càng nhỏ thì độ chênh càng lớn.", "en": "Example with the software's default parameters (<i>D</i> = 2.5; <i>T</i> = 0.25; <i>b</i> = 19; <i>h</i> = 9.5 → <i>L</i> = 2): <i>D</i><sub>cl</sub> = 3.25 mm and the middle-section length increases by ≈ 13% versus the old formula — the larger the overlap, the thicker the tape, or the smaller the bundle, the bigger the difference.", "ja": "ソフトウェアのデフォルト値での例（<i>D</i> = 2.5；<i>T</i> = 0.25；<i>b</i> = 19；<i>h</i> = 9.5 → <i>L</i> = 2）：<i>D</i><sub>cl</sub> = 3.25 mm となり、中央部の長さは旧式より約13%増えます。オーバーラップが大きいほど、テープが厚いほど、または束が小さいほど、差は大きくなります。"}, "k243": {"vi": "Giả thiết của hiệu chỉnh: trạng thái chồng lớp ổn định trên toàn đoạn giữa; đoạn chuyển tiếp dài khoảng một bề rộng tape ở hai đầu đoạn giữa (nơi số lớp tăng dần từ 0 lên <i>L</i>) được tính gộp theo trạng thái ổn định nên có sai số nhỏ. Hai đầu khóa tròn không đổi vì vốn đã tính bán kính tăng dần sau mỗi vòng.", "en": "Assumption of the correction: a steady stacking state over the whole middle section; the transition zones about one tape width long at both ends of the middle section (where the layer count ramps from 0 up to <i>L</i>) are computed together at the steady state, introducing a small error. The round locking at both ends is unchanged because it already accounts for the radius growing after each turn.", "ja": "補正の前提：中央部全体にわたって重なり状態が安定していること。中央部の両端にある、層数が0から <i>L</i> まで増えていく約テープ幅1つ分の移行区間は、安定状態としてまとめて計算するため、わずかな誤差が生じます。両端の円形ロックは、1回ごとに半径が増えることを既に考慮しているため変更ありません。"}};
+    const DYN = {"pageTitle": {"vi": "Phần Mềm Tính Chiều Dài Dây Xoắn & Quấn Tape", "en": "Twisted Wire & Tape Wrapping Length Calculator", "ja": "ツイストワイヤ・テープ巻き長さ計算ソフト"}, "wiresInBundle": {"vi": "{n} dây trong bó", "en": "{n} wires in bundle", "ja": "束内 {n} 本"}, "wiresTwisted": {"vi": "{n} dây xoắn", "en": "{n} twisted wires", "ja": "ツイスト {n} 本"}, "zoomTitle": {"vi": "Chi tiết tâm xoắn OD ({n} dây)", "en": "Twist center detail OD ({n} wires)", "ja": "ツイスト中心の詳細 OD（{n} 本）"}, "csTitle": {"vi": "Mặt cắt vòng tâm OD ({n} sợi)", "en": "Pitch-circle cross-section OD ({n} wires)", "ja": "中心円の断面 OD（{n} 本）"}, "csCaption": {"vi": "Vòng tròn qua tâm các dây — đường kính OD", "en": "Circle through the wire centers — diameter OD", "ja": "ワイヤ中心を通る円 — 直径 OD"}, "turnsSuffix": {"vi": " vòng", "en": " turns", "ja": " 回"}, "layDOuter": {"vi": "(D ngoài ≈ {d} mm)", "en": "(outer D ≈ {d} mm)", "ja": "（外径 D ≈ {d} mm）"}, "layLow": {"vi": "⚠ <strong>Bước xoắn P = {p} mm NHỎ HƠN giới hạn dưới</strong> của dải chuẩn: P<sub>min</sub> = 8 × D = <strong>{pmin} mm</strong>. Xoắn quá chặt dễ đứt dây khi xoắn, biến dạng/nứt vỏ cách điện và tăng điện trở vì dây bị kéo dài thêm nhiều. Nên tăng P lên ít nhất {pmin} mm.", "en": "⚠ <strong>Twist pitch P = {p} mm is BELOW the lower limit</strong> of the standard range: P<sub>min</sub> = 8 × D = <strong>{pmin} mm</strong>. Twisting too tightly can break wires during twisting, deform/crack the insulation and increase resistance because the wire is stretched much longer. Increase P to at least {pmin} mm.", "ja": "⚠ <strong>ツイストピッチ P = {p} mm は標準範囲の下限より小さい</strong>です：P<sub>min</sub> = 8 × D = <strong>{pmin} mm</strong>。締めすぎると、ツイスト中にワイヤが切れたり、絶縁体が変形・ひび割れしたり、ワイヤが大きく伸びて抵抗が増えたりします。P を少なくとも {pmin} mm に増やしてください。"}, "layHigh": {"vi": "Bước xoắn dài hơn dải chuẩn 8–16 (P<sub>max</sub> = 16 × D = {pmax} mm): bó xoắn sẽ lỏng, không giữ được form, dây dễ tở/bung khi uốn. Cân nhắc giảm P nếu cần bó chặt.", "en": "The twist pitch is longer than the standard 8–16 range (P<sub>max</sub> = 16 × D = {pmax} mm): the twisted bundle will be loose, will not hold its shape, and the wires easily splay/spring open when bent. Consider reducing P if a tight bundle is needed.", "ja": "ツイストピッチが標準の 8–16 の範囲より長いです（P<sub>max</sub> = 16 × D = {pmax} mm）。ツイストした束が緩くなり、形を保てず、曲げるとワイヤが広がってほどけやすくなります。締まった束が必要な場合は P を減らすことを検討してください。"}, "layOk": {"vi": "Bước xoắn nằm trong dải chuẩn 8–16 lần đường kính ngoài của bó (ASTM B8/B496/B835) — xoắn chặt vừa phải, bó giữ form tốt.", "en": "The twist pitch is within the standard range of 8–16 times the bundle outer diameter (ASTM B8/B496/B835) — moderately tight, and the bundle holds its shape well.", "ja": "ツイストピッチは、束外径の8～16倍という標準範囲内です（ASTM B8/B496/B835）—— 適度な締まり具合で、束の形がよく保たれます。"}, "bannerDetail": {"vi": "OD xếp sát = {pitch} mm × hệ số tở {k} = OD áp dụng {appliedOD} mm (đã gán vào ô OD) · ĐK bó xếp sát = {outerD} mm → sau tở ≈ {appliedD} mm · Tổng số sợi trong bó = {total} sợi", "en": "Tightly-packed OD = {pitch} mm × splay factor {k} = applied OD {appliedOD} mm (assigned to the OD field) · Tightly-packed bundle dia. = {outerD} mm → after splay ≈ {appliedD} mm · Total wires in bundle = {total} wires", "ja": "密着時の OD = {pitch} mm × 広がり係数 {k} = 適用 OD {appliedOD} mm（OD 欄に代入済み）· 密着時の束径 = {outerD} mm → 広がり後 ≈ {appliedD} mm · 束内のワイヤ総本数 = {total} 本"}, "ovTag": {"vi": "Chồng mí {pct}%", "en": "Overlap {pct}%", "ja": "オーバーラップ {pct}%"}, "ovDesc": {"vi": "Độ rộng chồng mí thực tế: <strong class=\"text-red-600\">{mm} mm</strong> ({pct}%) trên bản băng keo rộng <strong class=\"text-slate-700\">{b} mm</strong>.", "en": "Actual overlap width: <strong class=\"text-red-600\">{mm} mm</strong> ({pct}%) on a tape width of <strong class=\"text-slate-700\">{b} mm</strong>.", "ja": "実際のオーバーラップ幅：テープ幅 <strong class=\"text-slate-700\">{b} mm</strong> に対して <strong class=\"text-red-600\">{mm} mm</strong>（{pct}%）。"}, "ovTagFlush": {"vi": "Quấn sát mép (0%)", "en": "Butt joint (0%)", "ja": "突き合わせ（0%）"}, "ovDescFlush": {"vi": "Quấn sát mép không chồng mí (<i>h</i> = <i>b</i> = <strong>{b} mm</strong>).", "en": "Butt-jointed wrapping with no overlap (<i>h</i> = <i>b</i> = <strong>{b} mm</strong>).", "ja": "オーバーラップなしの突き合わせ巻き（<i>h</i> = <i>b</i> = <strong>{b} mm</strong>）。"}, "ovTagGap": {"vi": "Quấn hở (h > b)", "en": "Gapped wrapping (h > b)", "ja": "隙間巻き（h > b）"}, "ovDescGap": {"vi": "Quấn cách quãng hở: khoảng trống giữa 2 vòng liên tiếp là <strong class=\"text-amber-700\">{gap} mm</strong>.", "en": "Gapped wrapping: the gap between two consecutive turns is <strong class=\"text-amber-700\">{gap} mm</strong>.", "ja": "隙間巻き：連続する2巻きの間の隙間は <strong class=\"text-amber-700\">{gap} mm</strong> です。"}, "dclLine": {"vi": "<br/>Đường kính tâm tape ở đoạn giữa: <strong class=\"text-slate-700\">{dcl} mm</strong> (số lớp tape chồng hiệu dụng L = {layers} — chi tiết ở Mục 7 phần Lý thuyết).", "en": "<br/>Tape centerline diameter in the middle section: <strong class=\"text-slate-700\">{dcl} mm</strong> (effective stacked tape layers L = {layers} — see Section 7 in Theory).", "ja": "<br/>中央部のテープ中心線径：<strong class=\"text-slate-700\">{dcl} mm</strong>（等価テープ層数 L = {layers} —— 詳細は理論のセクション7）。"}, "wireUnitSuffix": {"vi": " sợi", "en": " wires", "ja": " 本"}, "removeGroup": {"vi": "Xoá nhóm dây", "en": "Delete wire group", "ja": "ワイヤグループを削除"}, "groupName": {"vi": "Dây đơn chuẩn {n}", "en": "Standard wire {n}", "ja": "標準ワイヤ {n}"}, "awgExact": {"vi": "Đúng cỡ chuẩn AWG {g}", "en": "Exact standard AWG size {g}", "ja": "標準サイズ AWG {g} ぴったり"}, "awgNearest": {"vi": "Không đúng cỡ chuẩn — cỡ AWG gần nhất: {g}", "en": "Not a standard size — nearest AWG size: {g}", "ja": "標準サイズ外 — 最も近い AWG サイズ：{g}"}};
+    Object.assign(DYN, {
+      "ctTurnsLabel": {"vi": "Số vòng n = {n} vòng", "en": "Number of turns n = {n}", "ja": "巻き回数 n = {n} 回"},
+      "spEnd1": {"vi": "Đầu 1 ({n} vòng)", "en": "End 1 ({n} turns)", "ja": "端1（{n} 回）"},
+      "spEnd2": {"vi": "Đầu 2 ({n} vòng)", "en": "End 2 ({n} turns)", "ja": "端2（{n} 回）"}
+    });
+    let LANG = 'vi';
+    try { LANG = localStorage.getItem('tool-lang') || 'vi'; } catch (e) {}
+    if (!['vi', 'en', 'ja'].includes(LANG)) LANG = 'vi';
+
+    function tt(key, vars) {
+      const d = DYN[key];
+      let s = d ? (d[LANG] || d.vi) : key;
+      if (vars) for (const k in vars) s = s.split('{' + k + '}').join(String(vars[k]));
+      return s;
+    }
+
+    const GROUP_NAME_RES = [/^Dây đơn chuẩn (\d+)$/, /^Standard wire (\d+)$/, /^標準ワイヤ (\d+)$/];
+    function localizeGroupNames() {
+      if (typeof wireGroups === 'undefined' || !Array.isArray(wireGroups)) return;
+      wireGroups.forEach(g => {
+        for (const re of GROUP_NAME_RES) {
+          const m = String(g.name).match(re);
+          if (m) { g.name = tt('groupName', {n: m[1]}); break; }
+        }
+      });
+    }
+
+    function applyLanguage(lang, rerender) {
+      if (!['vi', 'en', 'ja'].includes(lang)) lang = 'vi';
+      LANG = lang;
+      try { localStorage.setItem('tool-lang', lang); } catch (e) {}
+      document.documentElement.lang = lang === 'ja' ? 'ja' : lang;
+      document.title = tt('pageTitle');
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const d = I18N[el.getAttribute('data-i18n')];
+        if (d && d[lang]) el.innerHTML = d[lang];
+      });
+      document.querySelectorAll('[data-lang-btn]').forEach(b => {
+        const on = b.getAttribute('data-lang-btn') === lang;
+        b.className = 'flex-1 text-[11px] font-bold py-1 rounded-md transition ' + (on ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-700');
+      });
+      if (rerender === false) return;
+      localizeGroupNames();
+      if (typeof renderBundleTable === 'function') renderBundleTable();
+      const _twEl = document.getElementById('bd-total-wires');
+      if (_twEl && typeof bundleCache !== 'undefined' && bundleCache && bundleCache.totalWires != null) _twEl.textContent = bundleCache.totalWires + tt('wireUnitSuffix');
+      if (typeof calculateTwist === 'function') calculateTwist();
+      if (typeof calculateCircleTape === 'function') calculateCircleTape();
+      if (typeof calculateSpiralTape === 'function') calculateSpiralTape();
+      if (typeof awgFromMm === 'function') awgFromMm();
+      if (typeof bundleImportInfo !== 'undefined' && bundleImportInfo && typeof showBundleImportBanner === 'function') showBundleImportBanner();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      // Script chinh da khoi tao xong (ve bang tieng Viet); neu nguoi dung da chon
+      // ngon ngu khac thi ap dung lai toan bo, nguoc lai chi can danh dau nut VI.
+      applyLanguage(LANG, LANG !== 'vi');
+    });
+  </script>
+
+</body></html>
