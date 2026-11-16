@@ -1031,34 +1031,36 @@
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mt-4 max-w-6xl mx-auto">
         <h3 class="font-bold text-slate-800 text-sm border-b pb-2" data-i18n="k252">Nội suy tuyến tính</h3>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 mt-3.5 text-xs items-start">
-          <div>
-            <div class="text-slate-500 mb-1 font-medium" data-i18n="k253">Điểm 1</div>
-            <div class="flex gap-1.5">
-              <input id="ns-x1" type="number" step="any" value="0.5" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
-              <input id="ns-y1" type="number" step="any" value="88.3" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+        <div class="lg:flex lg:gap-6 mt-3.5 items-start">
+          <div class="lg:w-[320px] shrink-0 space-y-3.5 text-xs">
+            <div>
+              <div class="text-slate-500 mb-1 font-medium" data-i18n="k253">Điểm 1</div>
+              <div class="flex gap-1.5">
+                <input id="ns-x1" type="number" step="any" value="0.5" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+                <input id="ns-y1" type="number" step="any" value="88.3" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+              </div>
+              <div class="flex gap-1.5 mt-1 text-[10px] text-slate-400"><span class="flex-1 text-center">x₁</span><span class="flex-1 text-center">y₁</span></div>
             </div>
-            <div class="flex gap-1.5 mt-1 text-[10px] text-slate-400"><span class="flex-1 text-center">x₁</span><span class="flex-1 text-center">y₁</span></div>
-          </div>
-          <div>
-            <div class="text-slate-500 mb-1 font-medium" data-i18n="k254">Điểm 2</div>
-            <div class="flex gap-1.5">
-              <input id="ns-x2" type="number" step="any" value="0.75" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
-              <input id="ns-y2" type="number" step="any" value="127.5" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+            <div>
+              <div class="text-slate-500 mb-1 font-medium" data-i18n="k254">Điểm 2</div>
+              <div class="flex gap-1.5">
+                <input id="ns-x2" type="number" step="any" value="0.75" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+                <input id="ns-y2" type="number" step="any" value="127.5" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+              </div>
+              <div class="flex gap-1.5 mt-1 text-[10px] text-slate-400"><span class="flex-1 text-center">x₂</span><span class="flex-1 text-center">y₂</span></div>
             </div>
-            <div class="flex gap-1.5 mt-1 text-[10px] text-slate-400"><span class="flex-1 text-center">x₂</span><span class="flex-1 text-center">y₂</span></div>
+            <div>
+              <div class="text-slate-500 mb-1 font-medium" data-i18n="k255">Điểm cần tìm</div>
+              <div class="flex gap-1.5">
+                <input id="ns-x" type="number" step="any" value="0.6" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
+                <div id="ns-result" class="w-full min-w-0 px-2.5 py-1.5 border border-emerald-200 rounded font-extrabold bg-emerald-50 text-emerald-700 text-[13px]">—</div>
+              </div>
+              <div class="flex gap-1.5 mt-1 text-[10px] text-slate-400"><span class="flex-1 text-center">x</span><span class="flex-1 text-center">y</span></div>
+            </div>
+            <div id="ns-err" class="hidden text-[11px] font-semibold text-rose-500" data-i18n="k257">x₁ phải khác x₂</div>
           </div>
-          <div>
-            <div class="text-slate-500 mb-1 font-medium" data-i18n="k255">Tại x</div>
-            <input id="ns-x" type="number" step="any" value="0.6" oninput="interpCalc()" class="w-full min-w-0 px-2.5 py-1.5 border border-slate-300 rounded font-bold bg-white text-[13px]">
-          </div>
-          <div>
-            <div class="text-slate-500 mb-1 font-medium" data-i18n="k256">Kết quả y</div>
-            <div id="ns-result" class="text-lg font-extrabold text-emerald-700 leading-8">—</div>
-          </div>
+          <div id="ns-chart-wrap" class="flex-1 min-w-0 mt-4 lg:mt-0"></div>
         </div>
-        <div id="ns-err" class="hidden mt-2 text-[11px] font-semibold text-rose-500" data-i18n="k257">x₁ phải khác x₂</div>
-        <div id="ns-chart-wrap" class="mt-3"></div>
         <p class="text-[11px] text-slate-400 mt-2.5 border-t border-slate-100 pt-2.5">y = y₁ + (x − x₁) × (y₂ − y₁) / (x₂ − x₁)</p>
       </div>
     </section>
@@ -3906,33 +3908,27 @@
       const m = (y2 - y1) / (x2 - x1);
       const yAt = xv => y1 + (xv - x1) * m;
       const p1x = X(x1), p1y = Y(y1), p2x = X(x2), p2y = Y(y2), tx = X(x), ty = Y(y);
-      const lab = (px, py, txt, anchor, fill, bold, above) => {
-        const lx = anchor === 'end' ? px - (bold ? 9 : 8) : px + (bold ? 9 : 8);
-        const ly = above ? py - (bold ? 9 : 8) : py + (bold ? 15 : 16);
-        return `<text x="${lx}" y="${ly}" font-size="${bold ? 11 : 10}" fill="${fill}" text-anchor="${anchor}"${bold ? ' font-weight="700"' : ''} style="paint-order: stroke" stroke="#ffffff" stroke-width="3">${txt}</text>`;
-      };
-      const txt2 = (lx, ly, s, anchor) => `<text x="${lx}" y="${ly}" font-size="10" fill="#94a3b8" text-anchor="${anchor}">${s}</text>`;
-      const anchorFor = px => px > W - 170 ? 'end' : 'start';
-      const p1Above = (x1 <= x2) === (m >= 0);
-      const tAbove = ty > mt + ph * 0.35;
+      const guides = (px, py, color) =>
+        `<line x1="${px}" y1="${py}" x2="${px}" y2="${mt + ph}" stroke="${color}" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+        `<line x1="${ml}" y1="${py}" x2="${px}" y2="${py}" stroke="${color}" stroke-width="1.2" stroke-dasharray="4 3"/>`;
+      const axisVals = (px, py, xv, yv, color, bold) =>
+        `<text x="${px}" y="${H - 18}" font-size="10" fill="${color}" text-anchor="middle"${bold ? ' font-weight="700"' : ''} style="paint-order: stroke" stroke="#ffffff" stroke-width="3">${fmt(xv)}</text>` +
+        `<text x="${ml - 6}" y="${py + 3}" font-size="10" fill="${color}" text-anchor="end"${bold ? ' font-weight="700"' : ''} style="paint-order: stroke" stroke="#ffffff" stroke-width="3">${fmt(yv)}</text>`;
       wrap.innerHTML =
         `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img">` +
         `<defs><clipPath id="ns-clip"><rect x="${ml}" y="${mt}" width="${pw}" height="${ph}"/></clipPath></defs>` +
         `<rect x="${ml}" y="${mt}" width="${pw}" height="${ph}" fill="#f8fafc" stroke="#e2e8f0"/>` +
         `<g clip-path="url(#ns-clip)"><line x1="${X(xa)}" y1="${Y(yAt(xa))}" x2="${X(xb)}" y2="${Y(yAt(xb))}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/></g>` +
-        `<line x1="${tx}" y1="${ty}" x2="${tx}" y2="${mt + ph}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4 3"/>` +
-        `<line x1="${ml}" y1="${ty}" x2="${tx}" y2="${ty}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+        guides(p1x, p1y, '#94a3b8') +
+        guides(p2x, p2y, '#94a3b8') +
+        guides(tx, ty, '#34d399') +
         `<line x1="${p1x}" y1="${p1y}" x2="${p2x}" y2="${p2y}" stroke="#2563eb" stroke-width="2.5"/>` +
         `<circle cx="${p1x}" cy="${p1y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
         `<circle cx="${p2x}" cy="${p2y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
         `<circle cx="${tx}" cy="${ty}" r="5" fill="#059669" stroke="#ffffff" stroke-width="1.5"/>` +
-        lab(p1x, p1y, `(${fmt(x1)}, ${fmt(y1)})`, anchorFor(p1x), '#475569', false, p1Above) +
-        lab(p2x, p2y, `(${fmt(x2)}, ${fmt(y2)})`, anchorFor(p2x), '#475569', false, !p1Above) +
-        lab(tx, ty, `(${fmt(x)}, ${fmt(y)})`, anchorFor(tx), '#047857', true, tAbove) +
-        txt2(ml, H - 18, fmt(xa + padx), 'start') +
-        txt2(W - mr, H - 18, fmt(xb - padx), 'end') +
-        txt2(ml - 6, mt + 3, fmt(yb - pady), 'end') +
-        txt2(ml - 6, mt + ph + 3, fmt(ya + pady), 'end') +
+        axisVals(p1x, p1y, x1, y1, '#64748b', false) +
+        axisVals(p2x, p2y, x2, y2, '#64748b', false) +
+        axisVals(tx, ty, x, y, '#047857', true) +
         `</svg>`;
     }
     document.addEventListener('DOMContentLoaded', interpCalc);
@@ -5735,7 +5731,7 @@
       "k252": {"vi": "Nội suy tuyến tính", "en": "Linear Interpolation", "ja": "線形補間"},
       "k253": {"vi": "Điểm 1", "en": "Point 1", "ja": "点 1"},
       "k254": {"vi": "Điểm 2", "en": "Point 2", "ja": "点 2"},
-      "k255": {"vi": "Tại x", "en": "At x", "ja": "x のとき"},
+      "k255": {"vi": "Điểm cần tìm", "en": "Target point", "ja": "求める点"},
       "k256": {"vi": "Kết quả y", "en": "Result y", "ja": "結果 y"},
       "k257": {"vi": "x₁ phải khác x₂", "en": "x₁ must differ from x₂", "ja": "x₁ と x₂ は異なる値にしてください"}
     });
