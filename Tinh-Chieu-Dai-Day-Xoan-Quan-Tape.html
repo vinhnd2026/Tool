@@ -1078,13 +1078,19 @@
                     <span class="hidden md:inline">Xóa</span>
                 </button>
 
-                <!-- Ho so cai dat (ban tich hop): luu tuy chon so sanh + ghep cot, dat ten -->
+                <!-- Ho so cai dat (ban tich hop): bam ten de ap dung, dau X o tung dong de xoa -->
                 <div class="inline-flex items-center gap-1 ml-0.5" title="Hồ sơ cài đặt: lưu toàn bộ tuỳ chọn so sánh và ghép cột để dùng lại">
-                    <select id="cmp-profile-select" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-1 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[132px]">
-                        <option value="">Hồ sơ…</option>
-                    </select>
+                    <div id="cmp-profile" class="relative">
+                        <button type="button" id="cmp-profile-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-1 text-xs font-medium flex items-center gap-1 max-w-[160px]" title="Chọn hồ sơ cài đặt để áp dụng">
+                            <span id="cmp-profile-name" class="truncate">Hồ sơ…</span>
+                            <svg class="w-3 h-3 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </button>
+                        <div id="cmp-profile-panel" class="hidden absolute right-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl py-1 w-56 max-h-60 overflow-auto">
+                            <div id="cmp-profile-list"></div>
+                            <div id="cmp-profile-empty" class="px-3 py-2 text-[11px] t-text-muted">Chưa có hồ sơ nào — chỉnh cài đặt rồi bấm Lưu.</div>
+                        </div>
+                    </div>
                     <button id="cmp-profile-save" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Lưu cài đặt hiện tại thành hồ sơ">Lưu</button>
-                    <button id="cmp-profile-del" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition" title="Xoá hồ sơ đang chọn">Xoá</button>
                 </div>
 
                 <!-- Theme Switcher Group -->
@@ -4989,14 +4995,50 @@
     const CMP_PROFILES_KEY = 'cmp_profiles_v1';
     function cmpLoadProfiles() { try { const o = JSON.parse(localStorage.getItem(CMP_PROFILES_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; } }
     function cmpStoreProfiles(o) { try { localStorage.setItem(CMP_PROFILES_KEY, JSON.stringify(o)); } catch (e) {} }
-    function cmpRefreshProfileSelect(keepName) {
-      const sel = document.getElementById('cmp-profile-select');
-      if (!sel) return;
-      const names = Object.keys(cmpLoadProfiles());
-      sel.innerHTML = '';
-      const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Hồ sơ…'; sel.appendChild(ph);
-      names.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
-      if (keepName && names.includes(keepName)) sel.value = keepName;
+    let cmpCurrentProfile = '';
+    function cmpRenderProfiles() {
+      const list = document.getElementById('cmp-profile-list');
+      const empty = document.getElementById('cmp-profile-empty');
+      const nameEl = document.getElementById('cmp-profile-name');
+      if (nameEl) nameEl.textContent = cmpCurrentProfile || 'Hồ sơ…';
+      if (!list) return;
+      const profs = cmpLoadProfiles();
+      const names = Object.keys(profs);
+      if (empty) empty.classList.toggle('hidden', names.length > 0);
+      list.innerHTML = '';
+      names.forEach(n => {
+        const row = document.createElement('div');
+        row.className = 'flex items-center justify-between gap-1 px-1.5 py-1';
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'flex-1 text-left px-1.5 py-0.5 rounded text-xs t-text-main truncate' + (n === cmpCurrentProfile ? ' font-bold' : '');
+        b.textContent = n;
+        b.title = 'Áp dụng hồ sơ "' + n + '"';
+        b.addEventListener('click', () => {
+          cmpCurrentProfile = n;
+          cmpApplyProfile(profs[n]);
+          cmpRenderProfiles();
+          const panel = document.getElementById('cmp-profile-panel');
+          if (panel) panel.classList.add('hidden');
+        });
+        const x = document.createElement('button');
+        x.type = 'button';
+        x.className = 'px-1.5 py-0.5 rounded text-xs font-bold text-rose-500 hover:bg-rose-500/10 transition shrink-0';
+        x.textContent = '\u2715';
+        x.title = 'Xoá hồ sơ "' + n + '"';
+        x.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (!window.confirm('Xoá hồ sơ "' + n + '"?')) return;
+          const all = cmpLoadProfiles();
+          delete all[n];
+          cmpStoreProfiles(all);
+          if (cmpCurrentProfile === n) cmpCurrentProfile = '';
+          cmpRenderProfiles();
+          if (typeof showToast === 'function') showToast('Đã xoá hồ sơ "' + n + '"');
+        });
+        row.appendChild(b); row.appendChild(x);
+        list.appendChild(row);
+      });
     }
     function cmpCollectProfile() {
       const g = id => { const el = document.getElementById(id); return el ? !!el.checked : false; };
@@ -5073,34 +5115,27 @@
           if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
         });
       }
-      // Ho so cai dat: chon la ap dung ngay, Luu dat ten, Xoa ho so dang chon
-      cmpRefreshProfileSelect();
-      const _psel = document.getElementById('cmp-profile-select');
-      if (_psel) _psel.addEventListener('change', () => {
-        if (!_psel.value) return;
-        const profs = cmpLoadProfiles();
-        if (profs[_psel.value]) cmpApplyProfile(profs[_psel.value]);
-      });
+      // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
+      cmpRenderProfiles();
+      const _pbtn = document.getElementById('cmp-profile-btn');
+      const _ppanel = document.getElementById('cmp-profile-panel');
+      if (_pbtn && _ppanel) {
+        _pbtn.addEventListener('click', (e) => { e.stopPropagation(); _ppanel.classList.toggle('hidden'); });
+        document.addEventListener('click', (e) => {
+          const box = document.getElementById('cmp-profile');
+          if (box && !box.contains(e.target)) _ppanel.classList.add('hidden');
+        });
+      }
       const _psave = document.getElementById('cmp-profile-save');
       if (_psave) _psave.addEventListener('click', () => {
-        const cur = _psel && _psel.value ? _psel.value : '';
-        const name = (window.prompt('Đặt tên cho hồ sơ cài đặt:', cur) || '').trim();
+        const name = (window.prompt('Đặt tên cho hồ sơ cài đặt:', cmpCurrentProfile || '') || '').trim();
         if (!name) return;
         const profs = cmpLoadProfiles();
         profs[name] = cmpCollectProfile();
         cmpStoreProfiles(profs);
-        cmpRefreshProfileSelect(name);
+        cmpCurrentProfile = name;
+        cmpRenderProfiles();
         if (typeof showToast === 'function') showToast('Đã lưu hồ sơ "' + name + '"');
-      });
-      const _pdel = document.getElementById('cmp-profile-del');
-      if (_pdel) _pdel.addEventListener('click', () => {
-        if (!_psel || !_psel.value) { if (typeof showToast === 'function') showToast('Hãy chọn một hồ sơ để xoá'); return; }
-        if (!window.confirm('Xoá hồ sơ "' + _psel.value + '"?')) return;
-        const profs = cmpLoadProfiles();
-        delete profs[_psel.value];
-        cmpStoreProfiles(profs);
-        cmpRefreshProfileSelect();
-        if (typeof showToast === 'function') showToast('Đã xoá hồ sơ');
       });
       if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
 
