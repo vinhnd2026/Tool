@@ -1141,9 +1141,10 @@
             <!-- Vùng A -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <div class="flex items-center space-x-2 flex-1 min-w-0 mr-2">
+                        <span class="w-2 h-2 rounded-full bg-blue-500 shrink-0"></span>
                         <label for="input1" class="font-semibold text-xs t-text-main">OLD</label>
+                        <input type="text" id="cmp-note-old" placeholder="Ghi chú…" maxlength="60" class="flex-1 min-w-[50px] max-w-[230px] bg-transparent border border-transparent hover:border-slate-400/50 focus:border-emerald-500 rounded px-1.5 py-0.5 text-[11px] t-text-sec outline-none" title="Ghi chú ngắn cho dữ liệu OLD (tự lưu)">
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge1" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
@@ -1182,9 +1183,10 @@
             <!-- Vùng B -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
-                    <div class="flex items-center space-x-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <div class="flex items-center space-x-2 flex-1 min-w-0 mr-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
                         <label for="input2" class="font-semibold text-xs t-text-main">NEW</label>
+                        <input type="text" id="cmp-note-new" placeholder="Ghi chú…" maxlength="60" class="flex-1 min-w-[50px] max-w-[230px] bg-transparent border border-transparent hover:border-slate-400/50 focus:border-emerald-500 rounded px-1.5 py-0.5 text-[11px] t-text-sec outline-none" title="Ghi chú ngắn cho dữ liệu NEW (tự lưu)">
                     </div>
                     <div class="flex items-center space-x-2">
                         <span id="badge2" class="text-[11px] font-mono-num px-2 py-0.5 t-subtle border t-border t-text-sec rounded-md">0 dòng × 0 cột</span>
@@ -5156,6 +5158,13 @@
         const anchor = document.getElementById('cmp-colmap-anchor');
         const panel = document.getElementById('colMapPanel');
         if (anchor && panel && !anchor.contains(e.target)) panel.classList.add('hidden');
+      });
+      // O ghi chu ngan canh nhan OLD / NEW — tu luu vao trinh duyet
+      [['cmp-note-old', 'cmp_note_old'], ['cmp-note-new', 'cmp_note_new']].forEach(([id, key]) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        try { el.value = localStorage.getItem(key) || ''; } catch (e) {}
+        el.addEventListener('input', () => { try { localStorage.setItem(key, el.value); } catch (e) {} });
       });
       // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
       cmpRenderProfiles();
