@@ -960,8 +960,8 @@
     <!-- =================================================================== -->
     <section id="tab-awg" class="tab-panel hidden space-y-4 max-w-6xl mx-auto">
       <!-- Doi AWG + bang luc keo: 2 khoi de ngang nhau -->
-      <div class="grid md:grid-cols-2 gap-4 items-start max-w-5xl mx-auto">
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+      <div class="grid md:grid-cols-2 gap-4 max-w-6xl mx-auto">
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 flex flex-col">
         <h2 class="font-bold text-slate-800 text-base border-b pb-2.5" data-i18n="k104">Tra cứu AWG</h2>
         <div class="space-y-3.5 mt-4 text-sm">
           <div id="awg-field-wrap" class="relative">
@@ -985,10 +985,10 @@
           </div>
           <div id="awg-equiv" class="text-xs text-slate-500 min-h-[1rem]"></div>
           <button onclick="awgReset()" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 text-sm font-semibold rounded transition" data-i18n="k109">× Đặt lại</button>
-          <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5" data-i18n="k110">Công thức chuẩn: <i>d</i> = 0,127 × 92<sup>(36 − AWG)/39</sup> mm; <i>A</i> = π<i>d</i><sup>2</sup>/4. Cỡ 0000 = −3, 000 = −2, 00 = −1.</p>
+          <p class="text-[11px] text-slate-400 border-t border-slate-100 pt-2.5 mt-auto" data-i18n="k110">Công thức chuẩn: <i>d</i> = 0,127 × 92<sup>(36 − AWG)/39</sup> mm; <i>A</i> = π<i>d</i><sup>2</sup>/4. Cỡ 0000 = −3, 000 = −2, 00 = −1.</p>
         </div>
       </div>
-<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4">
+<div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
           <h3 class="font-bold text-slate-800 text-sm border-b pb-2" data-i18n="k248">Lực kéo (Pull test)</h3>
           <table class="w-full text-sm mt-1.5">
             <thead>
@@ -1013,23 +1013,23 @@
     </section>
 
     <section id="tab-color" class="tab-panel hidden space-y-4 max-w-6xl mx-auto">
-      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 max-w-xl mx-auto">
+      <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 max-w-4xl mx-auto">
         <h2 class="font-bold text-slate-800 text-base border-b pb-2.5" data-i18n="k247">Mã màu dây (Nhật)</h2>
-        <table class="w-full text-sm mt-1.5">
+        <table class="w-full text-base mt-2">
             <tbody>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#8B5A2B"></span></td><td class="py-1 font-semibold w-12">茶</td><td class="py-1">チャ</td><td class="py-1 text-right font-medium tracking-wide">BROWN</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#dc2626"></span></td><td class="py-1 font-semibold w-12">赤</td><td class="py-1">アカ</td><td class="py-1 text-right font-medium tracking-wide">RED</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#2563eb"></span></td><td class="py-1 font-semibold w-12">青</td><td class="py-1">アオ</td><td class="py-1 text-right font-medium tracking-wide">BLUE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#16a34a"></span></td><td class="py-1 font-semibold w-12">緑</td><td class="py-1">ミドリ</td><td class="py-1 text-right font-medium tracking-wide">GREEN</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#eab308"></span></td><td class="py-1 font-semibold w-12">黄</td><td class="py-1">キイ</td><td class="py-1 text-right font-medium tracking-wide">YELLOW</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#f97316"></span></td><td class="py-1 font-semibold w-12">橙</td><td class="py-1">ダイダイ</td><td class="py-1 text-right font-medium tracking-wide">ORANGE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#6b7280"></span></td><td class="py-1 font-semibold w-12">灰</td><td class="py-1">ハイ</td><td class="py-1 text-right font-medium tracking-wide">GRAY</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#7c3aed"></span></td><td class="py-1 font-semibold w-12">紫</td><td class="py-1">ムラ</td><td class="py-1 text-right font-medium tracking-wide">VIOLET</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#ec4899"></span></td><td class="py-1 font-semibold w-12">桃</td><td class="py-1">ピンク</td><td class="py-1 text-right font-medium tracking-wide">PINK</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#ffffff"></span></td><td class="py-1 font-semibold w-12">白</td><td class="py-1">シロ</td><td class="py-1 text-right font-medium tracking-wide">WHITE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#171717"></span></td><td class="py-1 font-semibold w-12">黒</td><td class="py-1">クロ</td><td class="py-1 text-right font-medium tracking-wide">BLACK</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#38bdf8"></span></td><td class="py-1 font-semibold w-12">水</td><td class="py-1">ソラ</td><td class="py-1 text-right font-medium tracking-wide">SKY BLUE</td></tr>
-              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-1 pr-1 w-7"><span class="inline-block w-4 h-4 rounded border border-slate-300 align-middle" style="background:#84cc16"></span></td><td class="py-1 font-semibold w-12">若草</td><td class="py-1">ワカクサ</td><td class="py-1 text-right font-medium tracking-wide">LIGHT GREEN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#8B5A2B"></span></td><td class="py-2 font-semibold w-12">茶</td><td class="py-2">チャ</td><td class="py-2 italic text-slate-500">cha</td><td class="py-2 text-right font-medium tracking-wide">BROWN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#dc2626"></span></td><td class="py-2 font-semibold w-12">赤</td><td class="py-2">アカ</td><td class="py-2 italic text-slate-500">aka</td><td class="py-2 text-right font-medium tracking-wide">RED</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#2563eb"></span></td><td class="py-2 font-semibold w-12">青</td><td class="py-2">アオ</td><td class="py-2 italic text-slate-500">ao</td><td class="py-2 text-right font-medium tracking-wide">BLUE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#16a34a"></span></td><td class="py-2 font-semibold w-12">緑</td><td class="py-2">ミドリ</td><td class="py-2 italic text-slate-500">midori</td><td class="py-2 text-right font-medium tracking-wide">GREEN</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#eab308"></span></td><td class="py-2 font-semibold w-12">黄</td><td class="py-2">キイ</td><td class="py-2 italic text-slate-500">kii</td><td class="py-2 text-right font-medium tracking-wide">YELLOW</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#f97316"></span></td><td class="py-2 font-semibold w-12">橙</td><td class="py-2">ダイダイ</td><td class="py-2 italic text-slate-500">daidai</td><td class="py-2 text-right font-medium tracking-wide">ORANGE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#6b7280"></span></td><td class="py-2 font-semibold w-12">灰</td><td class="py-2">ハイ</td><td class="py-2 italic text-slate-500">hai</td><td class="py-2 text-right font-medium tracking-wide">GRAY</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#7c3aed"></span></td><td class="py-2 font-semibold w-12">紫</td><td class="py-2">ムラ</td><td class="py-2 italic text-slate-500">mura</td><td class="py-2 text-right font-medium tracking-wide">VIOLET</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ec4899"></span></td><td class="py-2 font-semibold w-12">桃</td><td class="py-2">ピンク</td><td class="py-2 italic text-slate-500">pinku</td><td class="py-2 text-right font-medium tracking-wide">PINK</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#ffffff"></span></td><td class="py-2 font-semibold w-12">白</td><td class="py-2">シロ</td><td class="py-2 italic text-slate-500">shiro</td><td class="py-2 text-right font-medium tracking-wide">WHITE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#171717"></span></td><td class="py-2 font-semibold w-12">黒</td><td class="py-2">クロ</td><td class="py-2 italic text-slate-500">kuro</td><td class="py-2 text-right font-medium tracking-wide">BLACK</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#38bdf8"></span></td><td class="py-2 font-semibold w-12">水</td><td class="py-2">ソラ</td><td class="py-2 italic text-slate-500">sora</td><td class="py-2 text-right font-medium tracking-wide">SKY BLUE</td></tr>
+              <tr class="border-b border-slate-100 last:border-0 hover:bg-slate-50"><td class="py-2 pr-1 w-7"><span class="inline-block w-5 h-5 rounded border border-slate-300 align-middle" style="background:#84cc16"></span></td><td class="py-2 font-semibold w-12">若草</td><td class="py-2">ワカクサ</td><td class="py-2 italic text-slate-500">wakakusa</td><td class="py-2 text-right font-medium tracking-wide">LIGHT GREEN</td></tr>
             </tbody>
           </table>
       </div>
@@ -1073,7 +1073,8 @@
             <!-- Center: Compare Configuration Inline -->
             <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs min-w-0 flex-1">
                 <!-- Mode Segmented Control -->
-                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
+                <div class="relative inline-flex" id="cmp-mode-wrap">
+                    <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="cell" class="sr-only peer" checked onchange="handleModeChange()">
                         <span class="w-[88px] text-center px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh từng ô theo đúng vị trí">
@@ -1086,23 +1087,19 @@
                             Theo khóa
                         </span>
                     </label>
-                </div>
-
-                <!-- Key Column Selector -->
-                <div id="keyColumnContainer" class="invisible flex items-center space-x-1.5 w-[196px] shrink-0" aria-hidden="true">
-                    <span class="t-text-muted font-medium">Khóa:</span>
-                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0">
-                        <option value="0">Cột A</option>
-                    </select>
-                    <div id="cmp-keycols" class="relative">
-                        <button type="button" id="cmp-keycols-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium whitespace-nowrap" title="Chọn một hoặc nhiều cột làm khóa ghép dòng">Khóa: A</button>
-                        <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
-                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo OLD):</div>
-                            <div id="cmp-keycols-list"></div>
-                        </div>
+                    </div>
+                    <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
+                        <div id="cmp-keycols-list"></div>
+                        <button type="button" id="cmp-keycols-clear" class="mt-1.5 w-full px-2 py-1 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition">Bỏ chọn tất cả</button>
                     </div>
                 </div>
 
+                <!-- Key Column Selector (an: nguon danh sach cot + khoa du phong) -->
+                <div id="keyColumnContainer" class="hidden" aria-hidden="true">
+                    <select id="keyColumnSelect" onchange="compareData(false)">
+                        <option value="0">Cột A</option>
+                    </select>
+                </div>
 
             </div>
 
@@ -1117,34 +1114,34 @@
                     </button>
                                     <!-- Quick Checkboxes -->
                 <div id="cmp-opts-pop" class="flex flex-wrap items-center gap-x-2 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:t-surface max-lg:border max-lg:t-border max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[200px]">
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Dòng đầu tiên là tiêu đề cột">
-                        <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Có tiêu đề</span>
+                    <label class="cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
+                        <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Có tiêu đề</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
-                        <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Bỏ khoảng trắng</span>
+                    <label class="cursor-pointer select-none" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
+                        <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Bỏ khoảng trắng</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Phân biệt chữ HOA và chữ thường">
-                        <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Hoa/thường</span>
+                    <label class="cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
+                        <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Hoa/thường</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
-                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Bỏ dòng trống</span>
+                    <label class="cursor-pointer select-none" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
+                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Bỏ dòng trống</span>
                     </label>
                     <div id="cmp-colmap-anchor" class="relative inline-flex items-center gap-1">
-                        <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
-                            <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                            <span class="t-text-sec font-medium">Ghép cột lệch</span>
+                        <label class="cursor-pointer select-none" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
+                            <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="sr-only peer">
+                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép cột lệch</span>
                         </label>
                         <button type="button" id="cmp-colmap-open" class="px-1 py-0.5 rounded text-[11px] t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Mở / đóng cài đặt ghép cột lệch">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                     </div>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
-                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Ghép thông minh</span>
+                    <label class="cursor-pointer select-none" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
+                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép thông minh</span>
                     </label>
                 </div>
                 </div>
@@ -5199,11 +5196,20 @@
 
     // ===== Nhieu cot khoa (khoa ghep) =====
     function cmpSyncKeyColsUI() {
-      const btn = document.getElementById('cmp-keycols-btn');
-      if (!btn) return;
       const cols = (Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0]).sort((a, b) => a - b);
-      btn.textContent = 'Khóa: ' + (cols.length ? cols.map(c => getExcelColName(c)).join(', ') : 'A');
       document.querySelectorAll('#cmp-keycols-list .cmp-keycol-cb').forEach(cb => { cb.checked = cols.includes(Number(cb.value)); });
+    }
+    function cmpSyncKeyPanel() {
+      const panel = document.getElementById('cmp-keycols-panel');
+      if (!panel) return;
+      const m = document.querySelector('input[name="compareMode"]:checked');
+      if (!m || m.value !== 'key') panel.classList.add('hidden');
+    }
+    function cmpToggleKeyPanel(force) {
+      const panel = document.getElementById('cmp-keycols-panel');
+      if (!panel) return;
+      const show = typeof force === 'boolean' ? force : panel.classList.contains('hidden');
+      if (show) { cmpRebuildKeyCols(); panel.classList.remove('hidden'); } else panel.classList.add('hidden');
     }
     function cmpRebuildKeyCols() {
       const list = document.getElementById('cmp-keycols-list');
@@ -5211,7 +5217,7 @@
       if (!list || !sel) return;
       const avail = Array.from(sel.options).map(o => Number(o.value));
       let cur = Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.filter(c => avail.includes(c)) : [];
-      if (cur.length === 0) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
+      if (cur.length === 0 && !window.__cmpKeysCleared) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
       window.__cmpKeyCols = cur.slice().sort((a, b) => a - b);
       list.innerHTML = '';
       Array.from(sel.options).forEach(o => {
@@ -5223,10 +5229,10 @@
         cb.value = o.value;
         cb.addEventListener('change', () => {
           let cols = Array.from(list.querySelectorAll('.cmp-keycol-cb:checked')).map(x => Number(x.value)).sort((a, b) => a - b);
-          if (cols.length === 0) cols = [Number(cb.value)];
           window.__cmpKeyCols = cols;
+          window.__cmpKeysCleared = cols.length === 0;
           const s = document.getElementById('keyColumnSelect');
-          if (s) s.value = String(cols[0]);
+          if (s && cols.length > 0) s.value = String(cols[0]);
           cmpSyncKeyColsUI();
           if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
         });
@@ -5353,26 +5359,29 @@
       if (_ks0) _ks0.style.display = 'none';
       window.__cmpKeyCols = [0];
       cmpRebuildKeyCols();
-      const _kbtn = document.getElementById('cmp-keycols-btn');
-      const _kpanel = document.getElementById('cmp-keycols-panel');
-      if (_kbtn && _kpanel) {
-        _kbtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (_kpanel.classList.contains('hidden')) { cmpRebuildKeyCols(); _kpanel.classList.remove('hidden'); }
-          else { _kpanel.classList.add('hidden'); }
-        });
-        document.addEventListener('click', (e) => {
-          const box = document.getElementById('cmp-keycols');
-          if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
-        });
-      }
+      const _kclear = document.getElementById('cmp-keycols-clear');
+      if (_kclear) _kclear.addEventListener('click', () => {
+        window.__cmpKeyCols = [];
+        window.__cmpKeysCleared = true;
+        cmpSyncKeyColsUI();
+        if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+      });
+      const _keyRadio = document.querySelector('input[name="compareMode"][value="key"]');
+      if (_keyRadio) _keyRadio.addEventListener('click', () => {
+        const m = document.querySelector('input[name="compareMode"]:checked');
+        if (m && m.value === 'key') cmpToggleKeyPanel();
+      });
+      document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('cmp-mode-wrap');
+        const panel = document.getElementById('cmp-keycols-panel');
+        if (wrap && panel && !wrap.contains(e.target)) panel.classList.add('hidden');
+      });
       const cmpSyncKeyContainer = () => {
         const kc = document.getElementById('keyColumnContainer');
-        if (!kc) return;
-        const m = document.querySelector('input[name="compareMode"]:checked');
-        kc.classList.remove('invisible');
-        kc.style.display = (m && m.value === 'key') ? '' : 'none';
+        if (kc) { kc.classList.remove('invisible'); kc.style.display = 'none'; }
+        cmpSyncKeyPanel();
       };
+      let _cmpPrevMode = 'cell';
       if (typeof window.handleModeChange === 'function') {
         const _origMode = window.handleModeChange;
         window.handleModeChange = function () {
@@ -5380,6 +5389,8 @@
           const m = document.querySelector('input[name="compareMode"]:checked');
           if (m && m.value === 'key') cmpRebuildKeyCols();
           cmpSyncKeyContainer();
+          if (m && m.value === 'key' && _cmpPrevMode !== 'key') cmpToggleKeyPanel(true);
+          if (m) _cmpPrevMode = m.value;
           return r;
         };
       }
