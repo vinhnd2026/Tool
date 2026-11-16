@@ -1031,7 +1031,7 @@
 
       <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mt-4 max-w-6xl mx-auto">
         <h3 class="font-bold text-slate-800 text-sm border-b pb-2" data-i18n="k252">Nội suy tuyến tính</h3>
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-3.5 text-xs items-start">
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4 mt-3.5 text-xs items-start">
           <div>
             <div class="text-slate-500 mb-1 font-medium" data-i18n="k253">Điểm 1</div>
             <div class="flex gap-1.5">
@@ -3906,10 +3906,15 @@
       const m = (y2 - y1) / (x2 - x1);
       const yAt = xv => y1 + (xv - x1) * m;
       const p1x = X(x1), p1y = Y(y1), p2x = X(x2), p2y = Y(y2), tx = X(x), ty = Y(y);
-      const lab = (px, py, txt, anchor, fill, bold) => `<text x="${px}" y="${py}" font-size="${bold ? 11 : 10}" fill="${fill}" text-anchor="${anchor}"${bold ? ' font-weight="700"' : ''}>${txt}</text>`;
-      const a1 = p1x > W - 170 ? 'end' : 'start', d1 = a1 === 'end' ? -8 : 8;
-      const a2 = p2x > W - 170 ? 'end' : 'start', d2 = a2 === 'end' ? -8 : 8;
-      const at = tx > W - 190 ? 'end' : 'start', dt = at === 'end' ? -9 : 9;
+      const lab = (px, py, txt, anchor, fill, bold, above) => {
+        const lx = anchor === 'end' ? px - (bold ? 9 : 8) : px + (bold ? 9 : 8);
+        const ly = above ? py - (bold ? 9 : 8) : py + (bold ? 15 : 16);
+        return `<text x="${lx}" y="${ly}" font-size="${bold ? 11 : 10}" fill="${fill}" text-anchor="${anchor}"${bold ? ' font-weight="700"' : ''} style="paint-order: stroke" stroke="#ffffff" stroke-width="3">${txt}</text>`;
+      };
+      const txt2 = (lx, ly, s, anchor) => `<text x="${lx}" y="${ly}" font-size="10" fill="#94a3b8" text-anchor="${anchor}">${s}</text>`;
+      const anchorFor = px => px > W - 170 ? 'end' : 'start';
+      const p1Above = (x1 <= x2) === (m >= 0);
+      const tAbove = ty > mt + ph * 0.35;
       wrap.innerHTML =
         `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img">` +
         `<defs><clipPath id="ns-clip"><rect x="${ml}" y="${mt}" width="${pw}" height="${ph}"/></clipPath></defs>` +
@@ -3921,13 +3926,13 @@
         `<circle cx="${p1x}" cy="${p1y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
         `<circle cx="${p2x}" cy="${p2y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
         `<circle cx="${tx}" cy="${ty}" r="5" fill="#059669" stroke="#ffffff" stroke-width="1.5"/>` +
-        lab(p1x + d1, p1y - 8, `(${fmt(x1)}, ${fmt(y1)})`, a1, '#475569', false) +
-        lab(p2x + d2, p2y - 8, `(${fmt(x2)}, ${fmt(y2)})`, a2, '#475569', false) +
-        lab(tx + dt, ty + 4, `(${fmt(x)}, ${fmt(y)})`, at, '#047857', true) +
-        lab(ml, H - 18, fmt(xa + padx), 'start', '#94a3b8', false) +
-        lab(W - mr, H - 18, fmt(xb - padx), 'end', '#94a3b8', false) +
-        lab(ml - 6, mt + 3, fmt(yb - pady), 'end', '#94a3b8', false) +
-        lab(ml - 6, mt + ph + 3, fmt(ya + pady), 'end', '#94a3b8', false) +
+        lab(p1x, p1y, `(${fmt(x1)}, ${fmt(y1)})`, anchorFor(p1x), '#475569', false, p1Above) +
+        lab(p2x, p2y, `(${fmt(x2)}, ${fmt(y2)})`, anchorFor(p2x), '#475569', false, !p1Above) +
+        lab(tx, ty, `(${fmt(x)}, ${fmt(y)})`, anchorFor(tx), '#047857', true, tAbove) +
+        txt2(ml, H - 18, fmt(xa + padx), 'start') +
+        txt2(W - mr, H - 18, fmt(xb - padx), 'end') +
+        txt2(ml - 6, mt + 3, fmt(yb - pady), 'end') +
+        txt2(ml - 6, mt + ph + 3, fmt(ya + pady), 'end') +
         `</svg>`;
     }
     document.addEventListener('DOMContentLoaded', interpCalc);
