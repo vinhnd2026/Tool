@@ -369,7 +369,7 @@
   </style>
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
-  <button id="sidebar-show-btn" onclick="toggleSidebar(true)" class="hidden fixed top-2 left-2 z-50 px-3 py-2 bg-slate-900 text-white rounded-lg shadow-lg text-xs font-semibold border border-slate-700">☰ <span data-i18n="k245">Hiện thanh menu</span></button>
+  <button id="sidebar-show-btn" onclick="toggleSidebar(true)" class="hidden fixed top-2 left-2 z-50 px-2.5 py-2 bg-slate-900 text-white rounded-lg shadow-lg border border-slate-700 text-base leading-none">☰</button>
 
   <!-- THANH MENU BÊN TRÁI (GỌN GÀNG, TỐI ĐA DIỆN TÍCH LÀM VIỆC) -->
   <aside class="w-full md:w-60 bg-slate-900 text-white flex flex-col justify-between shrink-0 select-none border-b md:border-b-0 md:border-r border-slate-800">
@@ -439,7 +439,7 @@
       <button onclick="resetDefaults()" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition border border-slate-700" data-i18n="k13">
         Khôi phục thông số mẫu
       </button>
-      <button onclick="toggleSidebar(false)" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs transition border border-slate-700">« <span data-i18n="k244">Ẩn thanh menu</span></button>
+      <button id="sidebar-hide-btn" onclick="toggleSidebar(false)" class="w-full py-1.5 px-3 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-lg transition border border-slate-700 text-base leading-none">☰</button>
     </div>
   </aside>
 
@@ -987,7 +987,8 @@
             <!-- Left: Brand & Drawer Toggle -->
             <div class="flex items-center space-x-2 shrink-0">
                 <div class="flex items-center space-x-1.5">
-                    <div class="bg-emerald-600 text-white p-1 rounded-lg shadow-sm">
+                    <button id="cmp-show-btn" onclick="toggleSidebar(true)" class="hidden bg-slate-900 text-white p-1 rounded-lg shadow-sm border border-slate-700"><svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2.4" d="M4 7h16M4 12h16M4 17h16"></path></svg></button>
+                    <div id="cmp-logo" class="bg-emerald-600 text-white p-1 rounded-lg shadow-sm">
                         <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                         </svg>
@@ -1852,6 +1853,7 @@
     function switchTab(tabId) {
       document.querySelectorAll('.tab-panel').forEach(el => el.classList.add('hidden'));
       document.getElementById('tab-' + tabId).classList.remove('hidden');
+      if (typeof updateSidebarBtns === 'function') updateSidebarBtns();
 
       document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
       const activeBtn = document.getElementById('nav-' + tabId);
@@ -4900,6 +4902,12 @@
         const on = b.getAttribute('data-lang-btn') === lang;
         b.className = 'flex-1 text-[11px] font-bold py-1 rounded-md transition ' + (on ? 'bg-blue-600 text-white shadow' : 'text-slate-300 hover:bg-slate-700');
       });
+      const _hb = document.getElementById('sidebar-hide-btn');
+      if (_hb && I18N.k244) _hb.title = I18N.k244[lang];
+      const _sb1 = document.getElementById('sidebar-show-btn');
+      if (_sb1 && I18N.k245) _sb1.title = I18N.k245[lang];
+      const _sb2 = document.getElementById('cmp-show-btn');
+      if (_sb2 && I18N.k245) _sb2.title = I18N.k245[lang];
       if (rerender === false) return;
       localizeGroupNames();
       if (typeof renderBundleTable === 'function') renderBundleTable();
@@ -4912,11 +4920,24 @@
       if (typeof bundleImportInfo !== 'undefined' && bundleImportInfo && typeof showBundleImportBanner === 'function') showBundleImportBanner();
     }
 
+    let sidebarHidden = false;
     function toggleSidebar(show) {
+      sidebarHidden = !show;
       const aside = document.querySelector('aside');
       if (aside) aside.style.display = show ? '' : 'none';
-      const btn = document.getElementById('sidebar-show-btn');
-      if (btn) btn.classList.toggle('hidden', !!show);
+      updateSidebarBtns();
+    }
+    function updateSidebarBtns() {
+      const cmpTab = document.getElementById('tab-compare');
+      const onCompare = !!(cmpTab && !cmpTab.classList.contains('hidden'));
+      const floatBtn = document.getElementById('sidebar-show-btn');
+      const cmpBtn = document.getElementById('cmp-show-btn');
+      const logo = document.getElementById('cmp-logo');
+      // Dang o muc So sanh + menu da an: nut 3 gach nam ngay cho logo cua muc So sanh.
+      // O cac muc khac: nut 3 gach noi binh thuong o goc tren trai.
+      if (floatBtn) floatBtn.classList.toggle('hidden', !(sidebarHidden && !onCompare));
+      if (cmpBtn) cmpBtn.classList.toggle('hidden', !(sidebarHidden && onCompare));
+      if (logo) logo.classList.toggle('hidden', sidebarHidden && onCompare);
     }
 
     window.addEventListener('DOMContentLoaded', () => {
