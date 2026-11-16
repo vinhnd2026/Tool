@@ -367,6 +367,13 @@
         }
     
   </style>
+  <style>
+    /* Chon o / dong trong bang ket qua So sanh (muc 6) */
+    #tab-compare #tableWrapper td { cursor: cell; }
+    #tab-compare #tableWrapper td.sticky-col-1, #tab-compare #tableWrapper td.sticky-col-2 { cursor: pointer; }
+    #tab-compare #tableWrapper td.cmp-sel { background-color: rgba(37, 99, 235, 0.16) !important; box-shadow: inset 0 0 0 2px #2563eb; }
+    #tab-compare #tableWrapper tr.cmp-sel-row > td { background-color: rgba(37, 99, 235, 0.13) !important; }
+  </style>
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
   <button id="sidebar-show-btn" onclick="toggleSidebar(true)" class="hidden fixed top-2 left-2 z-50 px-2.5 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg shadow-lg border border-blue-500 text-base leading-none">☰</button>
@@ -968,7 +975,7 @@
     </section>
 
     <section id="tab-compare" class="tab-panel hidden" style="height:100%">
-      <div id="cmp-root" class="flex flex-col select-none" style="height:100%">
+      <div id="cmp-root" class="flex flex-col select-none sm:select-auto" style="height:100%">
 
     <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-4 right-4 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
@@ -1026,6 +1033,13 @@
                     <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0">
                         <option value="0">Cột A</option>
                     </select>
+                    <div id="cmp-keycols" class="relative">
+                        <button type="button" id="cmp-keycols-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium whitespace-nowrap" title="Chọn một hoặc nhiều cột làm khóa ghép dòng">Khóa: A</button>
+                        <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
+                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo Vùng A):</div>
+                            <div id="cmp-keycols-list"></div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Quick Checkboxes -->
@@ -1041,6 +1055,10 @@
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
                         <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
                         <span class="t-text-sec font-medium">Hoa/thường</span>
+                    </label>
+                    <label class="flex items-center space-x-1 cursor-pointer select-none" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
+                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                        <span class="t-text-sec font-medium">Bỏ dòng trống</span>
                     </label>
                     <label class="flex items-center space-x-1 cursor-pointer select-none" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
                         <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
@@ -1059,6 +1077,15 @@
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     <span class="hidden md:inline">Xóa</span>
                 </button>
+
+                <!-- Ho so cai dat (ban tich hop): luu tuy chon so sanh + ghep cot, dat ten -->
+                <div class="inline-flex items-center gap-1 ml-0.5" title="Hồ sơ cài đặt: lưu toàn bộ tuỳ chọn so sánh và ghép cột để dùng lại">
+                    <select id="cmp-profile-select" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-1 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 max-w-[132px]">
+                        <option value="">Hồ sơ…</option>
+                    </select>
+                    <button id="cmp-profile-save" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Lưu cài đặt hiện tại thành hồ sơ">Lưu</button>
+                    <button id="cmp-profile-del" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition" title="Xoá hồ sơ đang chọn">Xoá</button>
+                </div>
 
                 <!-- Theme Switcher Group -->
                 <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border ml-0.5" title="Chế độ màu nền">
@@ -1241,7 +1268,12 @@
             <div class="flex-1 t-surface rounded-xl border t-border overflow-hidden flex flex-col min-h-0 shadow-sm relative">
                 
                 <!-- Merged / Single Table Container -->
-                <div id="tableWrapper" class="flex-1 overflow-auto w-full h-full"></div>
+                <div id="cmp-selbar" class="hidden t-surface rounded-xl border t-border px-3 py-1.5 shrink-0 flex items-center justify-between gap-2 shadow-sm">
+                <span class="text-xs t-text-sec">Đã chọn: <b id="cmp-selinfo" class="t-text-main"></b> <span class="t-text-muted">(Ctrl+C để chép • Esc để bỏ chọn)</span></span>
+                <button id="cmp-selclear" class="px-2 py-0.5 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition">Bỏ chọn</button>
+            </div>
+
+            <div id="tableWrapper" class="flex-1 overflow-auto w-full h-full"></div>
 
                 <!-- Synchronized Split View Container -->
                 <div id="splitTableWrapper" class="hidden flex-1 grid grid-cols-2 divide-x t-border min-h-0 h-full overflow-hidden">
@@ -4320,20 +4352,32 @@
                 }
             } else {
                 // Key Column Matching — khi ghép cột lệch, khóa ở B tra qua cặp ghép của cột khóa A
-                const keyPair = pairs.find(p => p.a === keyColIndex);
-                const keyColIndexB = colMapOn ? (keyPair ? keyPair.b : -1) : keyColIndex;
-                if (colMapOn && keyColIndexB === -1) {
-                    showToast('Cột khóa chưa được ghép sang Vùng B — hãy ghép cột khóa trong bảng Ghép cột trước!');
+                // (Ban tich hop: chon duoc NHIEU cot khoa — khoa ghep la cac gia tri noi nhau)
+                const keyIdxA = (typeof window.__cmpKeyCols !== 'undefined' && Array.isArray(window.__cmpKeyCols) && window.__cmpKeyCols.length > 0)
+                    ? window.__cmpKeyCols.slice() : [keyColIndex];
+                const keyIdxB = keyIdxA.map(aIdx => {
+                    if (!colMapOn) return aIdx;
+                    const kp = pairs.find(p => p.a === aIdx);
+                    return kp ? kp.b : -1;
+                });
+                const keyColIndexB = keyIdxB.length > 0 ? keyIdxB[0] : -1;
+                if (colMapOn && keyIdxB.some(b => b === -1)) {
+                    showToast('Có cột khóa chưa được ghép sang Vùng B — hãy ghép các cột khóa trong bảng Ghép cột trước!');
                 }
+                const cmpKeyOf = (row, idxArr) => idxArr.some(b => b === -1)
+                    ? null
+                    : idxArr.map(ci => normalizeValue(row[ci], trimOpt, caseOpt)).join('\u0001');
                 const map2 = new Map();
                 rows2.forEach((r2, idx) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_B_${idx}` : normalizeValue(r2[keyColIndexB], trimOpt, caseOpt);
+                    const _kB = cmpKeyOf(r2, keyIdxB);
+                    const normKey = _kB === null ? `__NOKEY_B_${idx}` : _kB;
                     if (!map2.has(normKey)) map2.set(normKey, []);
                     map2.get(normKey).push({ row: r2, index: idx, matched: false });
                 });
 
                 rows1.forEach((r1, idx1) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_A_${idx1}` : normalizeValue(r1[keyColIndex], trimOpt, caseOpt);
+                    const _kA = cmpKeyOf(r1, keyIdxA);
+                    const normKey = (_kA === null || keyIdxB.some(b => b === -1)) ? `__NOKEY_A_${idx1}` : _kA;
                     const candidates = map2.get(normKey);
                     const matchObj = candidates ? candidates.find(item => !item.matched) : null;
                     const rowNum1 = hasHeader ? idx1 + 2 : idx1 + 1;
@@ -4377,7 +4421,8 @@
                 });
 
                 rows2.forEach((r2, idx2) => {
-                    const normKey = keyColIndexB === -1 ? `__NOKEY_B_${idx2}` : normalizeValue(r2[keyColIndexB], trimOpt, caseOpt);
+                    const _kB2 = cmpKeyOf(r2, keyIdxB);
+                    const normKey = _kB2 === null ? `__NOKEY_B_${idx2}` : _kB2;
                     const candidates = map2.get(normKey) || [];
                     const item = candidates.find(c => c.index === idx2);
                     if (item && !item.matched) {
@@ -4405,6 +4450,7 @@
                 mode,
                 // Chỉ số cặp cột chứa khóa (để tô 🔑 đúng cột khi ghép lệch)
                 keyColIndex: mode === 'key' ? pairs.findIndex(p => p.a === keyColIndex) : keyColIndex,
+                keyPairIdxs: mode === 'key' ? ((Array.isArray(window.__cmpKeyCols) && window.__cmpKeyCols.length > 0) ? window.__cmpKeyCols : [keyColIndex]).map(a => pairs.findIndex(p => p.a === a)).filter(x => x !== -1) : [],
                 stats
             };
 
@@ -4536,7 +4582,7 @@
             }
             emptyState.classList.add('hidden');
 
-            const { headers, colDiffCounts, mode, keyColIndex } = currentComparison;
+            const { headers, colDiffCounts, mode, keyColIndex, keyPairIdxs } = currentComparison;
 
             if (currentViewMode === 'merged') {
                 splitWrapper.classList.add('hidden');
@@ -4548,7 +4594,7 @@
                 html += `<th class="sticky-col-2 py-2.5 px-2.5 font-semibold border-r border-b t-border w-[86px] min-w-[86px] t-text-sec">Trạng thái</th>`;
 
                 headers.forEach((h, idx) => {
-                    const isKey = (mode === 'key' && idx === keyColIndex);
+                    const isKey = (mode === 'key' && (idx === keyColIndex || (keyPairIdxs && keyPairIdxs.includes(idx))));
                     const diffCount = colDiffCounts[idx];
                     html += `<th class="py-2 px-3 font-semibold border-r border-b t-border min-w-[140px] ${isKey ? 'bg-indigo-500/10' : ''}">
                         <div class="flex items-center justify-between gap-1.5">
@@ -4829,10 +4875,291 @@
     // Muc 6 (tich hop): toi uu khong gian lam viec — vung nhap mac dinh MO san
     // de dan du lieu ngay; bat san o tick tu thu gon (chinh cong cu se tu thu
     // gon sau khi so sanh neu o tick dang bat) de bang ket qua rong toi da.
+    // Kem tinh nang chon o / dong trong bang ket qua (chi o ban tich hop nay).
+    const cmpSel = { cells: new Set(), rows: new Set(), anchor: null, focus: null, dragging: false, dragMode: 'cell', additive: false };
+    function cmpCellKey(r, c) { return r + ',' + c; }
+    function cmpTableBody() { const w = document.getElementById('tableWrapper'); return w ? w.querySelector('tbody') : null; }
+    function cmpApplySelection() {
+      const tbody = cmpTableBody(); if (!tbody) return;
+      const rows = tbody.rows;
+      for (let r = 0; r < rows.length; r++) {
+        const tr = rows[r];
+        tr.classList.toggle('cmp-sel-row', cmpSel.rows.has(r));
+        for (let c = 0; c < tr.cells.length; c++) {
+          tr.cells[c].classList.toggle('cmp-sel', cmpSel.cells.has(cmpCellKey(r, c)));
+        }
+      }
+      const bar = document.getElementById('cmp-selbar');
+      const info = document.getElementById('cmp-selinfo');
+      const n = cmpSel.cells.size, nr = cmpSel.rows.size;
+      if (bar) bar.classList.toggle('hidden', n === 0 && nr === 0);
+      if (info) info.textContent = (nr > 0 ? nr + ' dòng' : '') + (nr > 0 && n > 0 ? ' + ' : '') + (n > 0 ? n + ' ô' : '');
+    }
+    function cmpClearSelection() {
+      cmpSel.cells.clear(); cmpSel.rows.clear();
+      cmpSel.anchor = null; cmpSel.focus = null; cmpSel.dragging = false;
+      cmpApplySelection();
+    }
+    function cmpRectToSelection() {
+      if (!cmpSel.anchor || !cmpSel.focus) return;
+      const r1 = Math.min(cmpSel.anchor.r, cmpSel.focus.r), r2 = Math.max(cmpSel.anchor.r, cmpSel.focus.r);
+      if (cmpSel.dragMode === 'row') {
+        if (!cmpSel.additive) cmpSel.rows.clear();
+        for (let r = r1; r <= r2; r++) cmpSel.rows.add(r);
+      } else {
+        const c1 = Math.min(cmpSel.anchor.c, cmpSel.focus.c), c2 = Math.max(cmpSel.anchor.c, cmpSel.focus.c);
+        if (!cmpSel.additive) cmpSel.cells.clear();
+        for (let r = r1; r <= r2; r++) for (let c = c1; c <= c2; c++) cmpSel.cells.add(cmpCellKey(r, c));
+      }
+      cmpApplySelection();
+    }
+    function cmpCellText(td) { return (td.innerText || td.textContent || '').trim().replace(/\s*\n\s*/g, ' \u2192 '); }
+    function cmpCopyFallback(text, done) {
+      const ta = document.createElement('textarea');
+      ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); done(); } catch (err) {}
+      document.body.removeChild(ta);
+    }
+    function cmpCopySelection() {
+      const tbody = cmpTableBody(); if (!tbody) return;
+      const byRow = {};
+      const rowIdxs = new Set(cmpSel.rows);
+      cmpSel.cells.forEach(k => { const parts = k.split(','); const r = Number(parts[0]), c = Number(parts[1]); (byRow[r] = byRow[r] || []).push(c); rowIdxs.add(r); });
+      const lines = [];
+      Array.from(rowIdxs).sort((a, b) => a - b).forEach(r => {
+        const tr = tbody.rows[r]; if (!tr) return;
+        let cells;
+        if (cmpSel.rows.has(r)) {
+          cells = Array.from(tr.cells).map(td => cmpCellText(td));
+        } else {
+          cells = (byRow[r] || []).sort((a, b) => a - b).map(c => tr.cells[c] ? cmpCellText(tr.cells[c]) : '');
+        }
+        lines.push(cells.join('\t'));
+      });
+      const text = lines.join('\n');
+      const done = () => { if (typeof showToast === 'function') showToast('Đã chép vùng đã chọn vào clipboard'); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done).catch(() => cmpCopyFallback(text, done));
+      } else { cmpCopyFallback(text, done); }
+    }
+
+    // ===== Nhieu cot khoa (khoa ghep) =====
+    function cmpSyncKeyColsUI() {
+      const btn = document.getElementById('cmp-keycols-btn');
+      if (!btn) return;
+      const cols = (Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0]).sort((a, b) => a - b);
+      btn.textContent = 'Khóa: ' + (cols.length ? cols.map(c => getExcelColName(c)).join(', ') : 'A');
+      document.querySelectorAll('#cmp-keycols-list .cmp-keycol-cb').forEach(cb => { cb.checked = cols.includes(Number(cb.value)); });
+    }
+    function cmpRebuildKeyCols() {
+      const list = document.getElementById('cmp-keycols-list');
+      const sel = document.getElementById('keyColumnSelect');
+      if (!list || !sel) return;
+      const avail = Array.from(sel.options).map(o => Number(o.value));
+      let cur = Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.filter(c => avail.includes(c)) : [];
+      if (cur.length === 0) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
+      window.__cmpKeyCols = cur.slice().sort((a, b) => a - b);
+      list.innerHTML = '';
+      Array.from(sel.options).forEach(o => {
+        const lab = document.createElement('label');
+        lab.className = 'flex items-center gap-1.5 px-1 py-0.5 text-xs cursor-pointer t-text-sec';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.className = 'cmp-keycol-cb w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500';
+        cb.value = o.value;
+        cb.addEventListener('change', () => {
+          let cols = Array.from(list.querySelectorAll('.cmp-keycol-cb:checked')).map(x => Number(x.value)).sort((a, b) => a - b);
+          if (cols.length === 0) cols = [Number(cb.value)];
+          window.__cmpKeyCols = cols;
+          const s = document.getElementById('keyColumnSelect');
+          if (s) s.value = String(cols[0]);
+          cmpSyncKeyColsUI();
+          if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+        });
+        const sp = document.createElement('span');
+        sp.textContent = o.textContent;
+        lab.appendChild(cb); lab.appendChild(sp);
+        list.appendChild(lab);
+      });
+      cmpSyncKeyColsUI();
+    }
+
+    // ===== Ho so cai dat (profiles) =====
+    const CMP_PROFILES_KEY = 'cmp_profiles_v1';
+    function cmpLoadProfiles() { try { const o = JSON.parse(localStorage.getItem(CMP_PROFILES_KEY) || '{}'); return (o && typeof o === 'object') ? o : {}; } catch (e) { return {}; } }
+    function cmpStoreProfiles(o) { try { localStorage.setItem(CMP_PROFILES_KEY, JSON.stringify(o)); } catch (e) {} }
+    function cmpRefreshProfileSelect(keepName) {
+      const sel = document.getElementById('cmp-profile-select');
+      if (!sel) return;
+      const names = Object.keys(cmpLoadProfiles());
+      sel.innerHTML = '';
+      const ph = document.createElement('option'); ph.value = ''; ph.textContent = 'Hồ sơ…'; sel.appendChild(ph);
+      names.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; sel.appendChild(o); });
+      if (keepName && names.includes(keepName)) sel.value = keepName;
+    }
+    function cmpCollectProfile() {
+      const g = id => { const el = document.getElementById(id); return el ? !!el.checked : false; };
+      const modeEl = document.querySelector('input[name="compareMode"]:checked');
+      const ks = document.getElementById('keyColumnSelect');
+      return {
+        mode: modeEl ? modeEl.value : 'cell',
+        keyCol: ks ? ks.value : '0',
+        keyCols: Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0],
+        header: g('optHeader'), trim: g('optTrim'), caseSensitive: g('optCase'),
+        skipEmpty: g('optSkipEmpty'), autoCollapse: g('optAutoCollapse'),
+        colMapOn: g('optColMap'),
+        colMapManual: (typeof colMapManual !== 'undefined' && colMapManual) ? JSON.parse(JSON.stringify(colMapManual)) : null
+      };
+    }
+    function cmpSetChk(id, v) { const el = document.getElementById(id); if (el) el.checked = !!v; }
+    function cmpApplyProfile(p) {
+      if (!p) return;
+      cmpSetChk('optHeader', p.header); cmpSetChk('optTrim', p.trim); cmpSetChk('optCase', p.caseSensitive);
+      cmpSetChk('optSkipEmpty', p.skipEmpty); cmpSetChk('optAutoCollapse', p.autoCollapse);
+      const radio = document.querySelector('input[name="compareMode"][value="' + (p.mode || 'cell') + '"]');
+      if (radio) radio.checked = true;
+      if (typeof handleModeChange === 'function') handleModeChange();
+      if (Array.isArray(p.keyCols) && p.keyCols.length > 0) window.__cmpKeyCols = p.keyCols.slice();
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+      colMapManual = p.colMapManual ? JSON.parse(JSON.stringify(p.colMapManual)) : null;
+      cmpSetChk('optColMap', p.colMapOn);
+      if (typeof handleColMapToggle === 'function') handleColMapToggle();
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+      const ks = document.getElementById('keyColumnSelect');
+      if (ks) ks.value = String((Array.isArray(p.keyCols) && p.keyCols.length > 0) ? p.keyCols[0] : (p.keyCol || '0'));
+      cmpSyncKeyColsUI();
+      if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+      if (typeof showToast === 'function') showToast('Đã áp dụng hồ sơ cài đặt');
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       const _cbAuto = document.getElementById('optAutoCollapse');
       if (_cbAuto) _cbAuto.checked = true;
       if (typeof currentViewMode !== 'undefined') currentViewMode = 'merged';
+
+      // Boc parseExcelText: bo cac dong trong khi o tick "Bo dong trong" dang bat
+      if (typeof window.parseExcelText === 'function') {
+        const _origParse = window.parseExcelText;
+        window.parseExcelText = function () {
+          const g = _origParse.apply(this, arguments);
+          const cbSkip = document.getElementById('optSkipEmpty');
+          if (cbSkip && cbSkip.checked && Array.isArray(g)) {
+            return g.filter(row => row.some(cell => String(cell == null ? '' : cell).trim() !== ''));
+          }
+          return g;
+        };
+      }
+      // Boc updateDimensionsAndDropdown: dong bo lai danh sach cot khoa sau moi lan cap nhat
+      if (typeof window.updateDimensionsAndDropdown === 'function') {
+        const _origUpd = window.updateDimensionsAndDropdown;
+        window.updateDimensionsAndDropdown = function () {
+          const r = _origUpd.apply(this, arguments);
+          cmpRebuildKeyCols();
+          return r;
+        };
+      }
+      // An o chon khoa don cu, thay bang dieu khien chon nhieu khoa
+      const _ks0 = document.getElementById('keyColumnSelect');
+      if (_ks0) _ks0.style.display = 'none';
+      window.__cmpKeyCols = [0];
+      cmpRebuildKeyCols();
+      const _kbtn = document.getElementById('cmp-keycols-btn');
+      const _kpanel = document.getElementById('cmp-keycols-panel');
+      if (_kbtn && _kpanel) {
+        _kbtn.addEventListener('click', (e) => { e.stopPropagation(); _kpanel.classList.toggle('hidden'); });
+        document.addEventListener('click', (e) => {
+          const box = document.getElementById('cmp-keycols');
+          if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
+        });
+      }
+      // Ho so cai dat: chon la ap dung ngay, Luu dat ten, Xoa ho so dang chon
+      cmpRefreshProfileSelect();
+      const _psel = document.getElementById('cmp-profile-select');
+      if (_psel) _psel.addEventListener('change', () => {
+        if (!_psel.value) return;
+        const profs = cmpLoadProfiles();
+        if (profs[_psel.value]) cmpApplyProfile(profs[_psel.value]);
+      });
+      const _psave = document.getElementById('cmp-profile-save');
+      if (_psave) _psave.addEventListener('click', () => {
+        const cur = _psel && _psel.value ? _psel.value : '';
+        const name = (window.prompt('Đặt tên cho hồ sơ cài đặt:', cur) || '').trim();
+        if (!name) return;
+        const profs = cmpLoadProfiles();
+        profs[name] = cmpCollectProfile();
+        cmpStoreProfiles(profs);
+        cmpRefreshProfileSelect(name);
+        if (typeof showToast === 'function') showToast('Đã lưu hồ sơ "' + name + '"');
+      });
+      const _pdel = document.getElementById('cmp-profile-del');
+      if (_pdel) _pdel.addEventListener('click', () => {
+        if (!_psel || !_psel.value) { if (typeof showToast === 'function') showToast('Hãy chọn một hồ sơ để xoá'); return; }
+        if (!window.confirm('Xoá hồ sơ "' + _psel.value + '"?')) return;
+        const profs = cmpLoadProfiles();
+        delete profs[_psel.value];
+        cmpStoreProfiles(profs);
+        cmpRefreshProfileSelect();
+        if (typeof showToast === 'function') showToast('Đã xoá hồ sơ');
+      });
+      if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+
+      const wrap = document.getElementById('tableWrapper');
+      if (wrap) {
+        wrap.addEventListener('mousedown', (e) => {
+          const td = e.target.closest('td');
+          if (!td || e.button !== 0) return;
+          const tr = td.parentElement;
+          const r = tr.sectionRowIndex, c = td.cellIndex;
+          cmpSel.dragMode = (c <= 1) ? 'row' : 'cell';
+          cmpSel.additive = !!(e.ctrlKey || e.metaKey);
+          if (cmpSel.additive) {
+            if (cmpSel.dragMode === 'row') {
+              if (cmpSel.rows.has(r)) cmpSel.rows.delete(r); else cmpSel.rows.add(r);
+            } else {
+              const k = cmpCellKey(r, c);
+              if (cmpSel.cells.has(k)) cmpSel.cells.delete(k); else cmpSel.cells.add(k);
+            }
+            cmpSel.anchor = null; cmpSel.focus = null; cmpSel.dragging = false;
+            cmpApplySelection();
+            return;
+          }
+          cmpSel.anchor = { r: r, c: c }; cmpSel.focus = { r: r, c: c };
+          cmpSel.dragging = true;
+          cmpRectToSelection();
+          e.preventDefault();
+        });
+        wrap.addEventListener('mouseover', (e) => {
+          if (!cmpSel.dragging) return;
+          const td = e.target.closest('td');
+          if (!td) return;
+          cmpSel.focus = { r: td.parentElement.sectionRowIndex, c: td.cellIndex };
+          cmpRectToSelection();
+        });
+        document.addEventListener('mouseup', () => { cmpSel.dragging = false; });
+      }
+      document.addEventListener('keydown', (e) => {
+        const tab = document.getElementById('tab-compare');
+        if (!tab || tab.classList.contains('hidden')) return;
+        if (e.key === 'Escape') { cmpClearSelection(); return; }
+        if ((e.ctrlKey || e.metaKey) && (e.key === 'c' || e.key === 'C')) {
+          const t = e.target;
+          if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+          if (cmpSel.cells.size === 0 && cmpSel.rows.size === 0) return;
+          e.preventDefault();
+          cmpCopySelection();
+        }
+      });
+      if (typeof window.renderComparisonTable === 'function') {
+        const _origRender = window.renderComparisonTable;
+        window.renderComparisonTable = function () {
+          const r = _origRender.apply(this, arguments);
+          cmpClearSelection();
+          return r;
+        };
+      }
+      const clr = document.getElementById('cmp-selclear');
+      if (clr) clr.addEventListener('click', cmpClearSelection);
     });
   </script>
 
