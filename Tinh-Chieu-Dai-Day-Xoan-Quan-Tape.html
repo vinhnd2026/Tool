@@ -3035,16 +3035,22 @@
                   fill="${c.color || '#3b82f6'}" stroke="#0f172a" stroke-width="1.6"/>
         `;
 
-        // Chỉ hiển thị con số đường kính ngoài bên trong vòng tròn (không có ký hiệu Ø)
-        if (rPx >= 11) {
-          const fontSize = Math.min(13, Math.max(9.5, rPx * 0.45));
-          wiresSvg += `
-            <text x="${xPx.toFixed(2)}" y="${(yPx + fontSize * 0.35).toFixed(2)}"
-                  text-anchor="middle" font-size="${fontSize.toFixed(1)}" font-weight="bold" fill="#ffffff">
-              ${formatNumClean(c.d, 2)}
-            </text>
-          `;
-        }
+        // Luôn hiển thị con số đường kính bên trong vòng tròn (không có ký hiệu Ø):
+        // vòng càng nhỏ thì cỡ chữ càng thu nhỏ theo cho vừa vòng, thay vì bỏ hẳn con số
+        // như trước (trước đây vòng có bán kính vẽ < 11px thì không hiện số).
+        const label = formatNumClean(c.d, 2);
+        const fitFont = (2 * rPx * 0.88) / (0.58 * Math.max(1, label.length));
+        const fontSize = Math.max(3, Math.min(13, fitFont));
+        // Nếu font thực tế rộng hơn ước lượng thì ép vừa vòng bằng textLength cho khỏi tràn
+        const estW = label.length * 0.62 * fontSize;
+        const capW = 2 * rPx * 0.92;
+        const tlAttr = estW > capW ? ` textLength="${capW.toFixed(1)}" lengthAdjust="spacingAndGlyphs"` : '';
+        wiresSvg += `
+          <text x="${xPx.toFixed(2)}" y="${(yPx + fontSize * 0.35).toFixed(2)}"
+                text-anchor="middle" font-size="${fontSize.toFixed(1)}" font-weight="bold" fill="#ffffff"${tlAttr}>
+            ${label}
+          </text>
+        `;
       });
 
       // Vòng tròn tâm xoắn tương đương OD (nét gạch chấm màu tím đậm) + kích thước phía trên
