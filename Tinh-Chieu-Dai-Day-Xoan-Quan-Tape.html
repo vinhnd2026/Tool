@@ -63,6 +63,14 @@
       background: rgba(255, 255, 255, 0.25);
       color: #ffffff;
     }
+    /* Man hinh nho: thanh muc ben thanh hang ngang, moi muc gon 1 dong */
+    @media (max-width: 767.98px) {
+      .nav-btn { width: auto; flex: none; padding: 7px 10px; font-size: 12.5px; gap: 7px; white-space: nowrap; }
+      .nav-btn > span:last-child { overflow-wrap: normal; white-space: nowrap; }
+      .nav-badge { width: 19px; height: 19px; font-size: 10px; border-radius: 5px; }
+      #lang-switch { min-width: 150px; }
+      #lang-switch button { white-space: nowrap; }
+    }
 
     /* Engineering Table Input Cells */
     .input-cell {
@@ -386,6 +394,9 @@
     #tab-awg tr.awg-pull-hit { background-color: #a7f3d7 !important; }
     /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
     #tab-compare #colMapPanel.cmp-popover { position: absolute; top: calc(100% + 6px); right: 0; width: min(94vw, 920px); max-height: 64vh; overflow: auto; z-index: 60; border-width: 1px; border-style: solid; border-radius: 12px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
+    @media (max-width: 1023.98px) {
+      #tab-compare #colMapPanel.cmp-popover { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); right: auto; width: min(94vw, 520px); max-height: 82vh; }
+    }
   </style>
 </head>
 <body class="flex flex-col md:flex-row h-screen w-screen overflow-hidden">
@@ -398,7 +409,7 @@
         <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400" data-i18n="k1">Công cụ tính toán</div>
         <button id="sidebar-hide-btn" onclick="toggleSidebar(false)" class="px-1.5 py-1 bg-blue-600 hover:bg-blue-500 text-white rounded-md border border-blue-500 text-[13px] leading-none">☰</button>
       </div>
-      <div class="px-2 py-1.5 shrink-0">
+      <div class="px-2 py-1.5 shrink-0" id="lang-switch">
         <div class="flex gap-1 bg-slate-800 rounded-lg p-1">
           <button type="button" data-lang-btn="vi" onclick="applyLanguage('vi')" class="flex-1 text-[11px] font-bold py-1 rounded-md transition">VI</button>
           <button type="button" data-lang-btn="en" onclick="applyLanguage('en')" class="flex-1 text-[11px] font-bold py-1 rounded-md transition">EN</button>
@@ -1112,12 +1123,12 @@
                     <button type="button" id="cmp-menu-btn" class="lg:hidden px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center" title="Tất cả lựa chọn">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="7" cy="17" r="2.2"/></svg>
                     </button>
-                    <div id="cmp-actions-pop" class="flex flex-wrap items-center gap-x-1 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2 max-lg:min-w-[220px]">
+                    <div id="cmp-actions-pop" class="flex flex-wrap items-center gap-x-1 gap-y-1 max-lg:absolute max-lg:top-[calc(100%+6px)] max-lg:right-0 max-lg:z-50 max-lg:rounded-xl max-lg:shadow-xl max-lg:px-3 max-lg:py-2.5 max-lg:flex-col max-lg:flex-nowrap max-lg:items-center max-lg:gap-y-2 max-lg:min-w-[220px]">
                         <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
                             <span>OLD⇄NEW</span>
                         </button>
                         <!-- Quick Checkboxes -->
-                        <div id="cmp-opts-pop" class="flex flex-wrap items-center gap-x-2 gap-y-1 max-lg:flex-col max-lg:flex-nowrap max-lg:items-start max-lg:gap-y-2">
+                        <div id="cmp-opts-pop" class="flex flex-wrap items-center gap-x-2 gap-y-1 max-lg:flex-col max-lg:flex-nowrap max-lg:items-center max-lg:gap-y-2">
                     <label class="cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
                         <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
                         <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Có tiêu đề</span>
