@@ -1108,7 +1108,7 @@
 
     <!-- 2. COLLAPSIBLE INPUT DRAWER -->
     <section id="inputDrawer" class="t-surface border-b t-border px-3 py-2 shrink-0 transition-all duration-200">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] gap-3">
             <!-- Vùng A -->
             <div class="flex flex-col rounded-xl border t-border overflow-hidden t-subtle">
                 <div class="px-3 py-1.5 border-b t-border flex items-center justify-between t-surface">
@@ -1128,6 +1128,20 @@
                 <textarea id="input1" rows="3" 
                     class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu từ Excel và nhấn Ctrl+V vào đây..."></textarea>
+            </div>
+
+            <!-- Cot giua: nut So sanh + tuy chon thu gon (chen giua A/B, bo hang nut rieng) -->
+            <div class="flex lg:flex-col flex-wrap items-center justify-center gap-2 lg:w-44 shrink-0">
+                <button onclick="compareData(true)" class="w-full px-4 py-2 justify-center bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 text-xs sm:text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
+                </svg>
+                <span>So Sánh Dữ Liệu</span>
+            </button>
+                <label class="flex items-start space-x-1.5 text-[11px] leading-snug t-text-muted cursor-pointer select-none">
+                <input type="checkbox" id="optAutoCollapse" class="mt-0.5 shrink-0 w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                <span>Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả</span>
+            </label>
             </div>
 
             <!-- Vùng B -->
@@ -1150,21 +1164,6 @@
                     class="w-full p-2.5 text-xs font-mono-num outline-none transition tab-textarea resize-y min-h-[64px] max-h-[260px]"
                     placeholder="Copy vùng dữ liệu thứ 2 từ Excel và nhấn Ctrl+V vào đây..."></textarea>
             </div>
-        </div>
-
-        <!-- Drawer Bottom Action Bar -->
-        <div class="mt-2.5 flex flex-wrap items-center justify-between gap-2">
-            <label class="flex items-center space-x-1.5 text-xs t-text-muted cursor-pointer select-none">
-                <input type="checkbox" id="optAutoCollapse" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                <span>Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả</span>
-            </label>
-
-            <button onclick="compareData(true)" class="px-5 py-1.5 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold rounded-lg shadow-sm transition flex items-center space-x-1.5 text-xs sm:text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"></path>
-                </svg>
-                <span>So Sánh Dữ Liệu</span>
-            </button>
         </div>
     </section>
 
@@ -4855,21 +4854,13 @@
   </script>
   <script>
     // Muc 6 (tich hop): toi uu khong gian lam viec — bang nhap day kich len tren:
-    // mac dinh thu gon vung nhap, va tu dong thu gon sau moi lan so sanh
-    // de bang ket qua co nhieu dien tich nhat. Bam "Mo vung nhap" de mo lai.
+    // mac dinh thu gon vung nhap + bat san o tick tu thu gon (chinh cong cu se
+    // tu thu gon sau khi so sanh neu o tick dang bat). Bam "Mo vung nhap" de mo lai.
     document.addEventListener('DOMContentLoaded', () => {
+      const _cbAuto = document.getElementById('optAutoCollapse');
+      if (_cbAuto) _cbAuto.checked = true;
       if (typeof toggleInputDrawer === 'function' && typeof isDrawerOpen !== 'undefined' && isDrawerOpen) {
         toggleInputDrawer(false);
-      }
-      if (typeof window.compareData === 'function') {
-        const _origCompareData = window.compareData;
-        window.compareData = function () {
-          const r = _origCompareData.apply(this, arguments);
-          if (typeof isDrawerOpen !== 'undefined' && isDrawerOpen && typeof toggleInputDrawer === 'function') {
-            toggleInputDrawer(false);
-          }
-          return r;
-        };
       }
     });
   </script>
