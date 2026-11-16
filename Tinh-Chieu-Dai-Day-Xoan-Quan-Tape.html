@@ -1058,6 +1058,7 @@
           </div>
         </div>
         <div id="ns-err" class="hidden mt-2 text-[11px] font-semibold text-rose-500" data-i18n="k257">x₁ phải khác x₂</div>
+        <div id="ns-chart-wrap" class="mt-3"></div>
         <p class="text-[11px] text-slate-400 mt-2.5 border-t border-slate-100 pt-2.5">y = y₁ + (x − x₁) × (y₂ − y₁) / (x₂ − x₁)</p>
       </div>
     </section>
@@ -3877,11 +3878,57 @@
       const err = document.getElementById('ns-err');
       const v = id => parseFloat(document.getElementById(id).value);
       const x1 = v('ns-x1'), y1 = v('ns-y1'), x2 = v('ns-x2'), y2 = v('ns-y2'), x = v('ns-x');
-      if ([x1, y1, x2, y2, x].some(n => !isFinite(n))) { out.textContent = '—'; if (err) err.classList.add('hidden'); return; }
-      if (x2 === x1) { out.textContent = '—'; if (err) err.classList.remove('hidden'); return; }
+      const wrap = document.getElementById('ns-chart-wrap');
+      if ([x1, y1, x2, y2, x].some(n => !isFinite(n))) { out.textContent = '—'; if (err) err.classList.add('hidden'); if (wrap) wrap.classList.add('hidden'); return; }
+      if (x2 === x1) { out.textContent = '—'; if (err) err.classList.remove('hidden'); if (wrap) wrap.classList.add('hidden'); return; }
       if (err) err.classList.add('hidden');
       const y = y1 + (x - x1) * (y2 - y1) / (x2 - x1);
       out.textContent = parseFloat(y.toFixed(4));
+      interpDraw(x1, y1, x2, y2, x, y);
+    }
+
+    // Do thi minh hoa noi suy: duong thang qua 2 diem, diem can suy to xanh la kem duong giong xuong 2 truc
+    function interpDraw(x1, y1, x2, y2, x, y) {
+      const wrap = document.getElementById('ns-chart-wrap');
+      if (!wrap) return;
+      wrap.classList.remove('hidden');
+      const W = 640, H = 260, ml = 50, mr = 16, mt = 16, mb = 32;
+      const pw = W - ml - mr, ph = H - mt - mb;
+      let xa = Math.min(x1, x2, x), xb = Math.max(x1, x2, x);
+      let ya = Math.min(y1, y2, y), yb = Math.max(y1, y2, y);
+      if (xb - xa < 1e-9) { xa -= 1; xb += 1; }
+      if (yb - ya < 1e-9) { ya -= 1; yb += 1; }
+      const padx = (xb - xa) * 0.12, pady = (yb - ya) * 0.15;
+      xa -= padx; xb += padx; ya -= pady; yb += pady;
+      const X = v => ml + (v - xa) / (xb - xa) * pw;
+      const Y = v => mt + ph - (v - ya) / (yb - ya) * ph;
+      const fmt = n => String(parseFloat(n.toFixed(4)));
+      const m = (y2 - y1) / (x2 - x1);
+      const yAt = xv => y1 + (xv - x1) * m;
+      const p1x = X(x1), p1y = Y(y1), p2x = X(x2), p2y = Y(y2), tx = X(x), ty = Y(y);
+      const lab = (px, py, txt, anchor, fill, bold) => `<text x="${px}" y="${py}" font-size="${bold ? 11 : 10}" fill="${fill}" text-anchor="${anchor}"${bold ? ' font-weight="700"' : ''}>${txt}</text>`;
+      const a1 = p1x > W - 170 ? 'end' : 'start', d1 = a1 === 'end' ? -8 : 8;
+      const a2 = p2x > W - 170 ? 'end' : 'start', d2 = a2 === 'end' ? -8 : 8;
+      const at = tx > W - 190 ? 'end' : 'start', dt = at === 'end' ? -9 : 9;
+      wrap.innerHTML =
+        `<svg viewBox="0 0 ${W} ${H}" class="w-full h-auto" role="img">` +
+        `<defs><clipPath id="ns-clip"><rect x="${ml}" y="${mt}" width="${pw}" height="${ph}"/></clipPath></defs>` +
+        `<rect x="${ml}" y="${mt}" width="${pw}" height="${ph}" fill="#f8fafc" stroke="#e2e8f0"/>` +
+        `<g clip-path="url(#ns-clip)"><line x1="${X(xa)}" y1="${Y(yAt(xa))}" x2="${X(xb)}" y2="${Y(yAt(xb))}" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="5 4"/></g>` +
+        `<line x1="${tx}" y1="${ty}" x2="${tx}" y2="${mt + ph}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+        `<line x1="${ml}" y1="${ty}" x2="${tx}" y2="${ty}" stroke="#34d399" stroke-width="1.2" stroke-dasharray="4 3"/>` +
+        `<line x1="${p1x}" y1="${p1y}" x2="${p2x}" y2="${p2y}" stroke="#2563eb" stroke-width="2.5"/>` +
+        `<circle cx="${p1x}" cy="${p1y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
+        `<circle cx="${p2x}" cy="${p2y}" r="4" fill="#2563eb" stroke="#ffffff" stroke-width="1.5"/>` +
+        `<circle cx="${tx}" cy="${ty}" r="5" fill="#059669" stroke="#ffffff" stroke-width="1.5"/>` +
+        lab(p1x + d1, p1y - 8, `(${fmt(x1)}, ${fmt(y1)})`, a1, '#475569', false) +
+        lab(p2x + d2, p2y - 8, `(${fmt(x2)}, ${fmt(y2)})`, a2, '#475569', false) +
+        lab(tx + dt, ty + 4, `(${fmt(x)}, ${fmt(y)})`, at, '#047857', true) +
+        lab(ml, H - 18, fmt(xa + padx), 'start', '#94a3b8', false) +
+        lab(W - mr, H - 18, fmt(xb - padx), 'end', '#94a3b8', false) +
+        lab(ml - 6, mt + 3, fmt(yb - pady), 'end', '#94a3b8', false) +
+        lab(ml - 6, mt + ph + 3, fmt(ya + pady), 'end', '#94a3b8', false) +
+        `</svg>`;
     }
     document.addEventListener('DOMContentLoaded', interpCalc);
 
