@@ -4740,7 +4740,8 @@
                 const delIdx = [], addIdx = [];
                 resultRows.forEach((row, i) => { if (row.status === 'deleted') delIdx.push(i); else if (row.status === 'added') addIdx.push(i); });
                 if (delIdx.length > 0 && addIdx.length > 0) {
-                    const rowText = (row, side) => row.cells.map(cell => normalizeValue(side === 'A' ? cell.val1 : cell.val2, trimOpt, caseOpt)).join('\u0002');
+                    const smartNorm = (v) => String(v == null ? '' : v).trim().replace(/\s+/g, ' ').toLowerCase();
+                    const rowText = (row, side) => row.cells.map(cell => smartNorm(side === 'A' ? cell.val1 : cell.val2)).join('\u0002');
                     const cand = [];
                     delIdx.forEach(di => {
                         const ta = rowText(resultRows[di], 'A');
