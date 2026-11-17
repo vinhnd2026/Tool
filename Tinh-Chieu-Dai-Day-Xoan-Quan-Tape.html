@@ -5464,6 +5464,7 @@
       if (ks) ks.value = String((Array.isArray(p.keyCols) && p.keyCols.length > 0) ? p.keyCols[0] : (p.keyCol || '0'));
       cmpSyncKeyColsUI();
       if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+      if (typeof window.cmpSaveOptions === 'function') window.cmpSaveOptions();
       if (typeof showToast === 'function') showToast('Đã áp dụng hồ sơ cài đặt');
     }
 
@@ -5627,6 +5628,59 @@
         try { el.value = localStorage.getItem(key) || ''; } catch (e) {}
         el.addEventListener('input', () => { try { localStorage.setItem(key, el.value); } catch (e) {} });
       });
+      // Sau khi so sanh xong, bam Delete de xoa het du lieu OLD + NEW — ke ca khi con tro
+      // dang nam trong 2 o nhap lieu (tru cac o nhap khac nhu o ghi chu, o chon...)
+      document.addEventListener('keydown', (e) => {
+        if (e.key !== 'Delete') return;
+        const tab = document.getElementById('tab-compare');
+        if (!tab || tab.classList.contains('hidden')) return;
+        if (typeof hasCompared === 'undefined' || !hasCompared || typeof clearAll !== 'function') return;
+        const t = e.target;
+        if (t) {
+          if (t.isContentEditable) return;
+          const tag = t.tagName;
+          if (tag === 'INPUT' || tag === 'SELECT') return;
+          if (tag === 'TEXTAREA' && t.id !== 'input1' && t.id !== 'input2') return;
+        }
+        e.preventDefault();
+        clearAll();
+      });
+      // Cac tuy chon so sanh TU DONG LUU vao trinh duyet, mo lai trang la khoi phuc dung nhu cu
+      window.cmpSaveOptions = function () {
+        try {
+          const g = id => { const el = document.getElementById(id); return el ? !!el.checked : false; };
+          const m = document.querySelector('input[name="compareMode"]:checked');
+          localStorage.setItem('cmp_options_v1', JSON.stringify({
+            header: g('optHeader'), trim: g('optTrim'), caseSensitive: g('optCase'),
+            skipEmpty: g('optSkipEmpty'), colMap: g('optColMap'), smartMatch: g('optSmartMatch'),
+            autoCompare: g('optAutoCompare'), autoCollapse: g('optAutoCollapse'),
+            mode: m ? m.value : 'cell',
+            keyCols: Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : []
+          }));
+        } catch (e) {}
+      };
+      document.addEventListener('change', (e) => {
+        const t = e.target;
+        if (!t || !t.closest || !t.closest('#tab-compare')) return;
+        if (t.name === 'compareMode' || (t.id && t.id.indexOf('opt') === 0) || (t.closest && t.closest('#cmp-keycols-list'))) window.cmpSaveOptions();
+      });
+      const _kcBtn2 = document.getElementById('cmp-keycols-clear');
+      if (_kcBtn2) _kcBtn2.addEventListener('click', () => setTimeout(() => window.cmpSaveOptions(), 0));
+      (function cmpRestoreOptions() {
+        let o = null;
+        try { o = JSON.parse(localStorage.getItem('cmp_options_v1') || 'null'); } catch (e) {}
+        if (!o) return;
+        cmpSetChk('optHeader', o.header); cmpSetChk('optTrim', o.trim); cmpSetChk('optCase', o.caseSensitive);
+        cmpSetChk('optSkipEmpty', o.skipEmpty); cmpSetChk('optColMap', o.colMap);
+        cmpSetChk('optSmartMatch', o.smartMatch); cmpSetChk('optAutoCompare', o.autoCompare);
+        cmpSetChk('optAutoCollapse', o.autoCollapse);
+        const radio = document.querySelector('input[name="compareMode"][value="' + (o.mode === 'key' ? 'key' : 'cell') + '"]');
+        if (radio && !radio.checked) {
+          radio.checked = true;
+          _cmpPrevMode = o.mode === 'key' ? 'key' : 'cell';
+          if (typeof handleModeChange === 'function') handleModeChange();
+        }
+      })();
       // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
       cmpRenderProfiles();
       const _pbtn = document.getElementById('cmp-profile-btn');
@@ -5650,6 +5704,12 @@
         if (typeof showToast === 'function') showToast('Đã lưu hồ sơ "' + name + '"');
       });
       if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
+      // Khoi phuc cot khoa da luu (dat sau lan cap nhat cot ban dau, neu khong se bi
+      // cmpRebuildKeyCols cat bo vi luc mo trang chua co du lieu de biet co may cot)
+      try {
+        const _o2 = JSON.parse(localStorage.getItem('cmp_options_v1') || 'null');
+        if (_o2 && Array.isArray(_o2.keyCols)) { window.__cmpKeyCols = _o2.keyCols.slice(); if (typeof cmpSyncKeyColsUI === 'function') cmpSyncKeyColsUI(); }
+      } catch (e) {}
 
       const wrap = document.getElementById('tableWrapper');
       if (wrap) {
