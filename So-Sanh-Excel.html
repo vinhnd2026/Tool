@@ -162,8 +162,27 @@
     #tab-compare #tableWrapper tr.cmp-sel-row > td:last-child { box-shadow: inset -4px 0 0 #2563eb, inset 0 2px 0 #2563eb, inset 0 -2px 0 #2563eb; }
     #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #bfdbfe !important; }
     #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-1, #tab-compare[data-theme="dark"] #tableWrapper tr.cmp-sel-row > td.sticky-col-2 { background-color: #1e3a8a !important; }
+    /* Thanh lua chon so sanh: LUON 1 dong — khong de len nhau, khong xuong 2 dong.
+       JS do chieu rong that cua thanh cong cu (cmpFitToolbar): khi khong du dien tich
+       cho 1 dong thi gan class cmp-compact de gom het nut vao 1 icon. */
+    #tab-compare #cmp-menu-btn { display: none; }
+    #tab-compare #cmp-actions-pop { flex-wrap: nowrap; }
+    #tab-compare #cmp-opts-pop { flex-wrap: nowrap; }
+    /* Giu nguyen chieu rong tu nhien: khong cho cac cum bi co, khong cho chu trong nut
+       xuong dong — nho vay scrollWidth moi tran that va cmpFitToolbar gom dung luc. */
+    #tab-compare #cmp-toolbar > * { flex-shrink: 0; }
+    #tab-compare #cmp-actions-pop > *, #tab-compare #cmp-opts-pop > * { flex-shrink: 0; }
+    #tab-compare #cmp-toolbar button, #tab-compare #cmp-toolbar label > span { white-space: nowrap; }
+    #tab-compare.cmp-compact #cmp-menu-btn { display: flex; }
+    #tab-compare.cmp-compact #cmp-actions-pop { display: none; background-color: var(--bg-surface); border: 1px solid var(--border-color); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.12); }
+    #tab-compare.cmp-compact #cmp-actions-pop.open { display: flex; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; flex-direction: column; align-items: center; gap: 8px; min-width: 220px; padding: 10px 12px; border-radius: 12px; }
+    #tab-compare.cmp-compact #cmp-opts-pop { flex-direction: column; align-items: center; gap: 8px; }
+    #tab-compare.cmp-compact #cmp-mode-wrap label span { width: 74px; padding-left: 4px; padding-right: 4px; }
+    /* Dong luc keo trung co AWG dang chon o bang doi: to xanh la */
+    #tab-awg tr.awg-pull-hit { background-color: #a7f3d7 !important; }
     /* Bang ghep cot lech dang popover noi duoi o tick — khong chiem them dong lam viec */
     #tab-compare #colMapPanel.cmp-popover { position: absolute; top: calc(100% + 6px); right: 0; width: min(94vw, 920px); max-height: 64vh; overflow: auto; z-index: 60; border-width: 1px; border-style: solid; border-radius: 12px; box-shadow: 0 18px 44px rgba(0, 0, 0, 0.30); }
+    #tab-compare.cmp-compact #colMapPanel.cmp-popover { position: fixed; left: 50%; top: 50%; transform: translate(-50%, -50%); right: auto; width: min(94vw, 520px); max-height: 82vh; }
 
     </style>
 </head>
@@ -183,7 +202,7 @@
 
     <!-- 1. COMPACT TOP TOOLBAR -->
     <header class="t-surface border-b t-border px-2 py-1.5 shrink-0 z-30 shadow-sm">
-        <div class="flex flex-wrap items-center justify-between gap-x-2 gap-y-1.5">
+        <div id="cmp-toolbar" class="flex flex-nowrap items-center justify-between gap-x-2 gap-y-1.5">
             
             <!-- Left: Brand & Drawer Toggle -->
             <div class="flex items-center space-x-2 shrink-0">
@@ -194,8 +213,8 @@
                         </svg>
                     </div>
                     <h1 class="text-sm font-bold t-text-main leading-tight whitespace-nowrap">Data comparison</h1>
+                    <div class="h-5 w-[1px] t-muted mx-0.5 hidden sm:block"></div>
                 </div>
-                <div class="h-5 w-[1px] t-muted mx-0.5 hidden sm:block"></div>
 
                 <!-- Toggle Input Panel Button -->
                 <button id="btnToggleInput" onclick="toggleInputDrawer()" class="px-2 py-1 rounded-lg text-xs font-semibold border t-border t-subtle hover:opacity-90 transition flex items-center space-x-1 whitespace-nowrap">
@@ -210,9 +229,10 @@
             </div>
 
             <!-- Center: Compare Configuration Inline -->
-            <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs min-w-0 flex-1">
+            <div class="flex flex-nowrap items-center gap-x-1.5 gap-y-1 text-xs">
                 <!-- Mode Segmented Control -->
-                <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
+                <div class="relative inline-flex" id="cmp-mode-wrap">
+                    <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
                     <label class="cursor-pointer">
                         <input type="radio" name="compareMode" value="cell" class="sr-only peer" checked onchange="handleModeChange()">
                         <span class="w-[88px] text-center px-2 py-0.5 rounded-md block font-medium t-text-sec peer-checked:bg-emerald-600 peer-checked:text-white transition whitespace-nowrap" title="So sánh từng ô theo đúng vị trí">
@@ -225,66 +245,68 @@
                             Theo khóa
                         </span>
                     </label>
-                </div>
-
-                <!-- Key Column Selector -->
-                <div id="keyColumnContainer" class="invisible flex items-center space-x-1.5 w-[196px] shrink-0" aria-hidden="true">
-                    <span class="t-text-muted font-medium">Khóa:</span>
-                    <select id="keyColumnSelect" onchange="compareData(false)" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium outline-none focus:ring-1 focus:ring-emerald-500 flex-1 min-w-0">
-                        <option value="0">Cột A</option>
-                    </select>
-                    <div id="cmp-keycols" class="relative">
-                        <button type="button" id="cmp-keycols-btn" class="t-subtle border t-border t-text-main rounded-lg px-1.5 py-0.5 text-xs font-medium whitespace-nowrap" title="Chọn một hoặc nhiều cột làm khóa ghép dòng">Khóa: A</button>
-                        <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
-                            <div class="text-[11px] t-text-muted px-1 pb-1">Chọn một hoặc nhiều cột khóa (theo OLD):</div>
-                            <div id="cmp-keycols-list"></div>
-                        </div>
+                    </div>
+                    <div id="cmp-keycols-panel" class="hidden absolute left-0 top-full mt-1 z-40 t-surface border t-border rounded-lg shadow-xl p-2 w-56 max-h-60 overflow-auto">
+                        <div id="cmp-keycols-list"></div>
+                        <button type="button" id="cmp-keycols-clear" class="mt-1.5 w-full px-2 py-1 rounded-lg text-[11px] font-semibold t-subtle hover:opacity-80 t-text-sec border t-border transition">Bỏ chọn tất cả</button>
                     </div>
                 </div>
 
-                <!-- Quick Checkboxes -->
-                <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Dòng đầu tiên là tiêu đề cột">
-                        <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Có tiêu đề</span>
+                <!-- Key Column Selector (an: nguon danh sach cot + khoa du phong) -->
+                <div id="keyColumnContainer" class="hidden" aria-hidden="true">
+                    <select id="keyColumnSelect" onchange="compareData(false)">
+                        <option value="0">Cột A</option>
+                    </select>
+                </div>
+
+            </div>
+
+            <!-- Right: Quick Actions & Theme Switcher -->
+            <div class="flex flex-nowrap items-center gap-x-1 gap-y-1">
+                <div class="relative" id="cmp-actions-wrap">
+                    <button type="button" id="cmp-menu-btn" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center" title="Tất cả lựa chọn">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-width="2" d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2.2"/><circle cx="15" cy="12" r="2.2"/><circle cx="7" cy="17" r="2.2"/></svg>
+                    </button>
+                    <div id="cmp-actions-pop" class="flex items-center gap-x-1 gap-y-1">
+                        <button onclick="loadSampleData()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
+                            <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                            <span class="hidden sm:inline">Mẫu</span>
+                        </button>
+                        <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
+                            <span>OLD⇄NEW</span>
+                        </button>
+                        <!-- Quick Checkboxes -->
+                        <div id="cmp-opts-pop" class="flex items-center gap-x-2 gap-y-1">
+                    <label class="cursor-pointer select-none" title="Dòng đầu tiên là tiêu đề cột">
+                        <input type="checkbox" id="optHeader" onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Có tiêu đề</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
-                        <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Bỏ khoảng trắng</span>
+                    <label class="cursor-pointer select-none" title="Cắt bỏ khoảng trắng thừa ở 2 đầu">
+                        <input type="checkbox" id="optTrim" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Bỏ khoảng trắng</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Phân biệt chữ HOA và chữ thường">
-                        <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Hoa/thường</span>
+                    <label class="cursor-pointer select-none" title="Phân biệt chữ HOA và chữ thường">
+                        <input type="checkbox" id="optCase" checked onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Hoa/thường</span>
                     </label>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
-                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Bỏ dòng trống</span>
+                    <label class="cursor-pointer select-none" title="Tự động bỏ qua các dòng mà mọi ô đều trống khi so sánh">
+                        <input type="checkbox" id="optSkipEmpty" checked onchange="updateDimensionsAndDropdown(); if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Bỏ dòng trống</span>
                     </label>
                     <div id="cmp-colmap-anchor" class="relative inline-flex items-center gap-1">
-                        <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
-                            <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                            <span class="t-text-sec font-medium">Ghép cột lệch</span>
+                        <label class="cursor-pointer select-none" title="Ghép cột không tương xứng: khi 2 bên lệch thứ tự cột, khác tên tiêu đề hoặc thừa/thiếu cột — máy tự ghép cột theo tên tiêu đề và cho ghép tay lại">
+                            <input type="checkbox" id="optColMap" onchange="handleColMapToggle()" class="sr-only peer">
+                            <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép cột lệch</span>
                         </label>
                         <button type="button" id="cmp-colmap-open" class="px-1 py-0.5 rounded text-[11px] t-subtle hover:opacity-80 t-text-sec border t-border transition" title="Mở / đóng cài đặt ghép cột lệch">
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </button>
                     </div>
-                    <label class="flex items-center space-x-1 cursor-pointer select-none whitespace-nowrap" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
-                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                        <span class="t-text-sec font-medium">Ghép thông minh</span>
+                    <label class="cursor-pointer select-none" title="Ghép các dòng OLD và NEW rất giống nhau (chỉ khác ít ký tự) thành dòng Đã sửa, thay vì báo Xoá + Thêm">
+                        <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép thông minh</span>
                     </label>
                 </div>
-            </div>
-
-            <!-- Right: Quick Actions & Theme Switcher -->
-            <div class="flex flex-wrap items-center gap-x-1 gap-y-1">
-                <button onclick="loadSampleData()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Tải dữ liệu mẫu để thử nghiệm">
-                    <svg class="w-3.5 h-3.5 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
-                    <span class="hidden sm:inline">Mẫu</span>
-                </button>
-                <button onclick="swapInputs()" class="px-2 py-1 rounded-lg text-xs font-medium t-subtle hover:opacity-80 t-text-sec border t-border transition flex items-center space-x-1" title="Đảo dữ liệu OLD và NEW">
-                    <span>OLD⇄NEW</span>
-                </button>
                 <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                     <span class="hidden md:inline">Xóa</span>
@@ -316,6 +338,8 @@
                     <button onclick="setTheme('dark')" id="themeBtn-dark" class="p-1 rounded-md text-xs font-medium transition flex items-center space-x-1" title="Giao diện Tối (Dark)">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                     </button>
+                </div>
+                    </div>
                 </div>
             </div>
 
@@ -370,9 +394,9 @@
                 </svg>
                 <span>So sánh</span>
             </button>
-                <label class="flex items-start space-x-1.5 text-[11px] leading-snug t-text-muted cursor-pointer select-none" title="Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả">
-                <input type="checkbox" id="optAutoCollapse" class="mt-0.5 shrink-0 w-3.5 h-3.5 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
-                <span>Tự động thu gọn</span>
+                <label class="w-full cursor-pointer select-none" title="Tự động thu gọn vùng nhập sau khi bấm So sánh để mở rộng bảng kết quả">
+                <input type="checkbox" id="optAutoCollapse" class="sr-only peer">
+                <span class="w-full px-3 py-1 justify-center font-semibold rounded-lg border transition flex items-center text-xs bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Tự động thu gọn</span>
             </label>
                 <button onclick="clearAll()" class="w-full px-3 py-1 justify-center bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 font-semibold rounded-lg transition flex items-center space-x-1.5 text-xs" title="Xoá hết dữ liệu ở cả OLD và NEW">
                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1724,7 +1748,7 @@
     // Ban doc lap: toi uu khong gian lam viec — vung nhap mac dinh MO san
     // de dan du lieu ngay; bat san o tick tu thu gon (chinh cong cu se tu thu
     // gon sau khi so sanh neu o tick dang bat) de bang ket qua rong toi da.
-    // Kem tinh nang chon o / dong trong bang ket qua.
+    // Kem tinh nang chon o / dong trong bang ket qua (chi o ban tich hop nay).
     const cmpSel = { cells: new Set(), rows: new Set(), anchor: null, focus: null, dragging: false, dragMode: 'cell', additive: false };
     function cmpCellKey(r, c) { return r + ',' + c; }
     function cmpTableBody() { const w = document.getElementById('tableWrapper'); return w ? w.querySelector('tbody') : null; }
@@ -1831,11 +1855,20 @@
 
     // ===== Nhieu cot khoa (khoa ghep) =====
     function cmpSyncKeyColsUI() {
-      const btn = document.getElementById('cmp-keycols-btn');
-      if (!btn) return;
       const cols = (Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0]).sort((a, b) => a - b);
-      btn.textContent = 'Khóa: ' + (cols.length ? cols.map(c => getExcelColName(c)).join(', ') : 'A');
       document.querySelectorAll('#cmp-keycols-list .cmp-keycol-cb').forEach(cb => { cb.checked = cols.includes(Number(cb.value)); });
+    }
+    function cmpSyncKeyPanel() {
+      const panel = document.getElementById('cmp-keycols-panel');
+      if (!panel) return;
+      const m = document.querySelector('input[name="compareMode"]:checked');
+      if (!m || m.value !== 'key') panel.classList.add('hidden');
+    }
+    function cmpToggleKeyPanel(force) {
+      const panel = document.getElementById('cmp-keycols-panel');
+      if (!panel) return;
+      const show = typeof force === 'boolean' ? force : panel.classList.contains('hidden');
+      if (show) { cmpRebuildKeyCols(); panel.classList.remove('hidden'); } else panel.classList.add('hidden');
     }
     function cmpRebuildKeyCols() {
       const list = document.getElementById('cmp-keycols-list');
@@ -1843,7 +1876,7 @@
       if (!list || !sel) return;
       const avail = Array.from(sel.options).map(o => Number(o.value));
       let cur = Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.filter(c => avail.includes(c)) : [];
-      if (cur.length === 0) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
+      if (cur.length === 0 && !window.__cmpKeysCleared) cur = [avail.includes(0) ? 0 : (avail.length ? avail[0] : 0)];
       window.__cmpKeyCols = cur.slice().sort((a, b) => a - b);
       list.innerHTML = '';
       Array.from(sel.options).forEach(o => {
@@ -1855,10 +1888,10 @@
         cb.value = o.value;
         cb.addEventListener('change', () => {
           let cols = Array.from(list.querySelectorAll('.cmp-keycol-cb:checked')).map(x => Number(x.value)).sort((a, b) => a - b);
-          if (cols.length === 0) cols = [Number(cb.value)];
           window.__cmpKeyCols = cols;
+          window.__cmpKeysCleared = cols.length === 0;
           const s = document.getElementById('keyColumnSelect');
-          if (s) s.value = String(cols[0]);
+          if (s && cols.length > 0) s.value = String(cols[0]);
           cmpSyncKeyColsUI();
           if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
         });
@@ -1955,7 +1988,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Ban doc lap: giu mac dinh "Tu dong thu gon" theo ban So-Sanh-Excel (khong ep bat)
+      // Ban doc lap: giu mac dinh "Tu dong thu gon" TAT theo chot rieng cho ban nay
       if (typeof currentViewMode !== 'undefined') currentViewMode = 'merged';
 
       // Boc parseExcelText: bo cac dong trong khi o tick "Bo dong trong" dang bat
@@ -1984,26 +2017,29 @@
       if (_ks0) _ks0.style.display = 'none';
       window.__cmpKeyCols = [0];
       cmpRebuildKeyCols();
-      const _kbtn = document.getElementById('cmp-keycols-btn');
-      const _kpanel = document.getElementById('cmp-keycols-panel');
-      if (_kbtn && _kpanel) {
-        _kbtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          if (_kpanel.classList.contains('hidden')) { cmpRebuildKeyCols(); _kpanel.classList.remove('hidden'); }
-          else { _kpanel.classList.add('hidden'); }
-        });
-        document.addEventListener('click', (e) => {
-          const box = document.getElementById('cmp-keycols');
-          if (box && !box.contains(e.target)) _kpanel.classList.add('hidden');
-        });
-      }
+      const _kclear = document.getElementById('cmp-keycols-clear');
+      if (_kclear) _kclear.addEventListener('click', () => {
+        window.__cmpKeyCols = [];
+        window.__cmpKeysCleared = true;
+        cmpSyncKeyColsUI();
+        if (typeof hasCompared !== 'undefined' && hasCompared && typeof compareData === 'function') compareData(false);
+      });
+      const _keyRadio = document.querySelector('input[name="compareMode"][value="key"]');
+      if (_keyRadio) _keyRadio.addEventListener('click', () => {
+        const m = document.querySelector('input[name="compareMode"]:checked');
+        if (m && m.value === 'key') cmpToggleKeyPanel();
+      });
+      document.addEventListener('click', (e) => {
+        const wrap = document.getElementById('cmp-mode-wrap');
+        const panel = document.getElementById('cmp-keycols-panel');
+        if (wrap && panel && !wrap.contains(e.target)) panel.classList.add('hidden');
+      });
       const cmpSyncKeyContainer = () => {
         const kc = document.getElementById('keyColumnContainer');
-        if (!kc) return;
-        const m = document.querySelector('input[name="compareMode"]:checked');
-        kc.classList.remove('invisible');
-        kc.style.display = (m && m.value === 'key') ? '' : 'none';
+        if (kc) { kc.classList.remove('invisible'); kc.style.display = 'none'; }
+        cmpSyncKeyPanel();
       };
+      let _cmpPrevMode = 'cell';
       if (typeof window.handleModeChange === 'function') {
         const _origMode = window.handleModeChange;
         window.handleModeChange = function () {
@@ -2011,10 +2047,51 @@
           const m = document.querySelector('input[name="compareMode"]:checked');
           if (m && m.value === 'key') cmpRebuildKeyCols();
           cmpSyncKeyContainer();
+          if (m && m.value === 'key' && _cmpPrevMode !== 'key') cmpToggleKeyPanel(true);
+          if (m) _cmpPrevMode = m.value;
           return r;
         };
       }
       cmpSyncKeyContainer();
+      // Do chieu rong that cua thanh cong cu so sanh: khong du cho 1 dong thi gom nut vao 1 icon.
+      // (Moc co dinh theo man hinh khong dung duoc vi thanh ben chiem 240px khi dang mo.)
+      window.cmpFitToolbar = function () {
+        const sec = document.getElementById('tab-compare');
+        const bar = document.getElementById('cmp-toolbar');
+        if (!sec || !bar || sec.classList.contains('hidden')) return;
+        sec.classList.remove('cmp-compact');
+        if (bar.scrollWidth > bar.clientWidth + 1) sec.classList.add('cmp-compact');
+      };
+      cmpFitToolbar();
+      window.addEventListener('resize', cmpFitToolbar);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => cmpFitToolbar());
+      if (typeof window.switchTab === 'function') {
+        const _origSwitch = window.switchTab;
+        window.switchTab = function () { const r = _origSwitch.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      if (typeof window.applyLanguage === 'function') {
+        const _origLang = window.applyLanguage;
+        window.applyLanguage = function () { const r = _origLang.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      if (typeof window.toggleSidebar === 'function') {
+        const _origSide = window.toggleSidebar;
+        window.toggleSidebar = function () { const r = _origSide.apply(this, arguments); setTimeout(cmpFitToolbar, 60); return r; };
+      }
+      if (typeof window.compareData === 'function') {
+        const _origCompare = window.compareData;
+        window.compareData = function () { const r = _origCompare.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      if (typeof window.toggleInputDrawer === 'function') {
+        const _origDrawer = window.toggleInputDrawer;
+        window.toggleInputDrawer = function () { const r = _origDrawer.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      const _menuBtn = document.getElementById('cmp-menu-btn');
+      const _actPop = document.getElementById('cmp-actions-pop');
+      const _actWrap = document.getElementById('cmp-actions-wrap');
+      if (_menuBtn && _actPop) {
+        _menuBtn.addEventListener('click', (e) => { e.stopPropagation(); _actPop.classList.toggle('open'); });
+        document.addEventListener('click', (e) => { if (_actWrap && !_actWrap.contains(e.target)) _actPop.classList.remove('open'); });
+      }
       // Bang ghep cot lech thanh popover noi ngay duoi o tick — khong chiem them dong lam viec.
       // Tick o Ghep cot lech = bat tinh nang + mo popover; nut chevron canh o tick mo/dong popover;
       // bam ra ngoai hoac bam Ap dung thi popover tu dong lai.
