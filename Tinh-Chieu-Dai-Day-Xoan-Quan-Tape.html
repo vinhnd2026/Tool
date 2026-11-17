@@ -5627,15 +5627,6 @@
         try { el.value = localStorage.getItem(key) || ''; } catch (e) {}
         el.addEventListener('input', () => { try { localStorage.setItem(key, el.value); } catch (e) {} });
       });
-      // Sau khi so sanh xong, bam Delete (khi khong dang go trong o nhap) de xoa het du lieu
-      document.addEventListener('keydown', (e) => {
-        if (e.key !== 'Delete') return;
-        const tab = document.getElementById('tab-compare');
-        if (!tab || tab.classList.contains('hidden')) return;
-        const t = e.target;
-        if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-        if (typeof hasCompared !== 'undefined' && hasCompared && typeof clearAll === 'function') { e.preventDefault(); clearAll(); }
-      });
       // Ho so cai dat: bam ten trong danh sach de ap dung, dau X o tung dong de xoa
       cmpRenderProfiles();
       const _pbtn = document.getElementById('cmp-profile-btn');
