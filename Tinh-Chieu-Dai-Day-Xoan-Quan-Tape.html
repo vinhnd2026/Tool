@@ -1202,6 +1202,10 @@
                         <input type="checkbox" id="optSmartMatch" onchange="if(hasCompared) compareData(false);" class="sr-only peer">
                         <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Ghép thông minh</span>
                     </label>
+                    <label class="cursor-pointer select-none" title="Tự động so sánh ngay khi cả OLD và NEW đều đã có dữ liệu (dán, gõ hoặc bấm nút Dán)">
+                        <input type="checkbox" id="optAutoCompare" onchange="cmpAutoCompareKick()" class="sr-only peer">
+                        <span class="inline-flex items-center px-2 py-1 rounded-lg text-xs font-semibold border transition bg-slate-500/15 text-slate-500 border-slate-400/40 hover:opacity-90 peer-checked:bg-emerald-600 peer-checked:text-white peer-checked:border-emerald-600">Tự động so sánh</span>
+                    </label>
                 </div>
                 <button onclick="clearAll()" class="px-2 py-1 rounded-lg text-xs font-medium bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 border border-rose-500/20 transition flex items-center space-x-1" title="Xóa toàn bộ dữ liệu">
                     <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
@@ -5438,7 +5442,7 @@
         keyCols: Array.isArray(window.__cmpKeyCols) ? window.__cmpKeyCols.slice() : [0],
         header: g('optHeader'), trim: g('optTrim'), caseSensitive: g('optCase'),
         skipEmpty: g('optSkipEmpty'), autoCollapse: g('optAutoCollapse'),
-        colMapOn: g('optColMap'),
+        colMapOn: g('optColMap'), autoCompare: g('optAutoCompare'),
         colMapManual: (typeof colMapManual !== 'undefined' && colMapManual) ? JSON.parse(JSON.stringify(colMapManual)) : null
       };
     }
@@ -5453,7 +5457,7 @@
       if (Array.isArray(p.keyCols) && p.keyCols.length > 0) window.__cmpKeyCols = p.keyCols.slice();
       if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
       colMapManual = p.colMapManual ? JSON.parse(JSON.stringify(p.colMapManual)) : null;
-      cmpSetChk('optColMap', p.colMapOn);
+      cmpSetChk('optColMap', p.colMapOn); cmpSetChk('optAutoCompare', p.autoCompare);
       if (typeof handleColMapToggle === 'function') handleColMapToggle();
       if (typeof updateDimensionsAndDropdown === 'function') updateDimensionsAndDropdown();
       const ks = document.getElementById('keyColumnSelect');
@@ -5561,6 +5565,27 @@
       if (typeof window.toggleInputDrawer === 'function') {
         const _origDrawer = window.toggleInputDrawer;
         window.toggleInputDrawer = function () { const r = _origDrawer.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      // Tu dong so sanh: o tick bat + ca OLD va NEW deu co du lieu thi tu chay compareData
+      // (doi 500ms sau lan nhap cuoi de dan/go lien tuc khong chay lap lai nhieu lan)
+      let _cmpAutoTimer = null;
+      window.cmpAutoCompareKick = function () {
+        const cb = document.getElementById('optAutoCompare');
+        if (!cb || !cb.checked) return;
+        clearTimeout(_cmpAutoTimer);
+        _cmpAutoTimer = setTimeout(() => {
+          const v1 = document.getElementById('input1');
+          const v2 = document.getElementById('input2');
+          if (v1 && v2 && v1.value.trim() && v2.value.trim() && typeof window.compareData === 'function') compareData(false);
+        }, 500);
+      };
+      ['input1', 'input2'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', () => window.cmpAutoCompareKick());
+      });
+      if (typeof window.pasteFromClipboard === 'function') {
+        const _origPaste = window.pasteFromClipboard;
+        window.pasteFromClipboard = async function () { const r = await _origPaste.apply(this, arguments); window.cmpAutoCompareKick(); return r; };
       }
       const _menuBtn = document.getElementById('cmp-menu-btn');
       const _actPop = document.getElementById('cmp-actions-pop');
