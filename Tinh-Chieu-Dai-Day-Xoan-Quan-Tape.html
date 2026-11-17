@@ -391,6 +391,11 @@
     #tab-compare #cmp-menu-btn { display: none; }
     #tab-compare #cmp-actions-pop { flex-wrap: nowrap; }
     #tab-compare #cmp-opts-pop { flex-wrap: nowrap; }
+    /* Giu nguyen chieu rong tu nhien: khong cho cac cum bi co, khong cho chu trong nut
+       xuong dong — nho vay scrollWidth moi tran that va cmpFitToolbar gom dung luc. */
+    #tab-compare #cmp-toolbar > * { flex-shrink: 0; }
+    #tab-compare #cmp-actions-pop > *, #tab-compare #cmp-opts-pop > * { flex-shrink: 0; }
+    #tab-compare #cmp-toolbar button, #tab-compare #cmp-toolbar label > span { white-space: nowrap; }
     #tab-compare.cmp-compact #cmp-menu-btn { display: flex; }
     #tab-compare.cmp-compact #cmp-actions-pop { display: none; background-color: var(--bg-surface); border: 1px solid var(--border-color); box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.12), 0 8px 10px -6px rgb(0 0 0 / 0.12); }
     #tab-compare.cmp-compact #cmp-actions-pop.open { display: flex; position: absolute; top: calc(100% + 6px); right: 0; z-index: 50; flex-direction: column; align-items: center; gap: 8px; min-width: 220px; padding: 10px 12px; border-radius: 12px; }
@@ -1124,7 +1129,7 @@
             </div>
 
             <!-- Center: Compare Configuration Inline -->
-            <div class="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs min-w-0 flex-1">
+            <div class="flex flex-nowrap items-center gap-x-1.5 gap-y-1 text-xs">
                 <!-- Mode Segmented Control -->
                 <div class="relative inline-flex" id="cmp-mode-wrap">
                     <div class="inline-flex p-0.5 rounded-lg t-subtle border t-border">
@@ -5548,6 +5553,14 @@
       if (typeof window.toggleSidebar === 'function') {
         const _origSide = window.toggleSidebar;
         window.toggleSidebar = function () { const r = _origSide.apply(this, arguments); setTimeout(cmpFitToolbar, 60); return r; };
+      }
+      if (typeof window.compareData === 'function') {
+        const _origCompare = window.compareData;
+        window.compareData = function () { const r = _origCompare.apply(this, arguments); cmpFitToolbar(); return r; };
+      }
+      if (typeof window.toggleInputDrawer === 'function') {
+        const _origDrawer = window.toggleInputDrawer;
+        window.toggleInputDrawer = function () { const r = _origDrawer.apply(this, arguments); cmpFitToolbar(); return r; };
       }
       const _menuBtn = document.getElementById('cmp-menu-btn');
       const _actPop = document.getElementById('cmp-actions-pop');
