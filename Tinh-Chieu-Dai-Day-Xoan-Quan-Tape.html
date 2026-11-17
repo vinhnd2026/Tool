@@ -1383,6 +1383,7 @@
                         <span id="statSameRows" class="px-1.5 py-0.2 rounded text-[11px] font-mono-num bg-slate-500/15">0</span>
                     </button>
                     <span class="text-[11px] t-text-muted pl-1 hidden xl:inline">
+                        <span id="statSameCheck" class="hidden text-emerald-500 font-bold text-[13px]" title="Hai bên giống hệt nhau">✓</span>
                         (<strong id="statDiffCells" class="font-mono-num text-indigo-500">0</strong> ô khác biệt)
                     </span>
                 </div>
@@ -4817,6 +4818,8 @@
             document.getElementById('statAddedRows').textContent = stats.addedRows;
             document.getElementById('statDeletedRows').textContent = stats.deletedRows;
             document.getElementById('statDiffCells').textContent = stats.diffCells;
+            const _sameChk = document.getElementById('statSameCheck');
+            if (_sameChk) _sameChk.classList.toggle('hidden', !(stats.diffCells === 0 && totalDiffRows === 0));
 
             document.getElementById('welcomeState').classList.add('hidden');
             document.getElementById('resultsSection').classList.remove('hidden');
