@@ -4892,7 +4892,7 @@
             if (query) clearBtn.classList.remove('hidden');
             else clearBtn.classList.add('hidden');
 
-            return currentComparison.rows.filter(r => {
+            const _filteredRows = currentComparison.rows.filter(r => {
                 // Status filter
                 if (currentFilter === 'diff' && r.status === 'same') return false;
                 if (currentFilter !== 'all' && currentFilter !== 'diff' && r.status !== currentFilter) return false;
@@ -4907,6 +4907,8 @@
                 }
                 return true;
             });
+            if (typeof window.cmpApplySort === 'function') return window.cmpApplySort(_filteredRows);
+            return _filteredRows;
         }
 
         function getStatusBadgeHTML(status) {
@@ -5474,6 +5476,79 @@
       if (typeof window.renderComparisonTable === 'function') {
         const _prevRenderCT = window.renderComparisonTable;
         window.renderComparisonTable = function () { const r = _prevRenderCT.apply(this, arguments); cmpInjectColTypeChips(); return r; };
+      }
+    });
+
+    // ===== Sap xep ket qua sau so sanh: bam vao tieu de cot =====
+    // Bam 1 lan: tang dan, lan 2: giam dan, lan 3: tat (ve thu tu goc).
+    // Cot "Trang thai": gom theo nhom Da sua -> Moi them -> Da xoa -> Giong nhau.
+    // Cot "Dong": bam de ve thu tu goc. O trong / khong phai so (o cot kieu So) luon nam cuoi.
+    window.__cmpSort = window.__cmpSort || { col: -2, dir: 1 };
+    window.cmpApplySort = function (rows) {
+      const s = window.__cmpSort;
+      if (!s || s.col === -2) return rows;
+      if (typeof currentComparison === 'undefined' || !currentComparison || !currentComparison.headers) return rows;
+      if (s.col >= currentComparison.headers.length) return rows;
+      const dir = s.dir === -1 ? -1 : 1;
+      const statusOrder = { modified: 0, added: 1, deleted: 2, same: 3 };
+      const isNum = s.col >= 0 && typeof window.__cmpColTypes !== 'undefined' && window.__cmpColTypes && window.__cmpColTypes[s.col] === 'num';
+      const valOf = (r) => {
+        const cell = r.cells[s.col];
+        if (!cell) return '';
+        return r.status === 'deleted' ? (cell.val1 || '') : ((cell.val2 !== '' && cell.val2 != null) ? cell.val2 : (cell.val1 || ''));
+      };
+      const dec = rows.map((r, i) => ({ r, i }));
+      dec.sort((x, y) => {
+        let cmp = 0;
+        if (s.col === -1) {
+          cmp = (statusOrder[x.r.status] != null ? statusOrder[x.r.status] : 4) - (statusOrder[y.r.status] != null ? statusOrder[y.r.status] : 4);
+        } else {
+          const a = valOf(x.r), b = valOf(y.r);
+          let aMiss = String(a).trim() === '', bMiss = String(b).trim() === '';
+          let na = null, nb = null;
+          if (!aMiss && isNum && typeof cmpParseNum === 'function') { na = cmpParseNum(a); if (na === null) aMiss = true; }
+          if (!bMiss && isNum && typeof cmpParseNum === 'function') { nb = cmpParseNum(b); if (nb === null) bMiss = true; }
+          if (aMiss && bMiss) cmp = 0;
+          else if (aMiss) return 1;
+          else if (bMiss) return -1;
+          else if (isNum) cmp = na < nb ? -1 : na > nb ? 1 : 0;
+          else cmp = String(a).trim().localeCompare(String(b).trim(), 'vi', { numeric: true, sensitivity: 'base' });
+        }
+        if (cmp === 0) return x.i - y.i;
+        return cmp * dir;
+      });
+      return dec.map(e => e.r);
+    };
+    function cmpInjectSortUI() {
+      const headRow = document.querySelector('#tableWrapper thead tr');
+      if (!headRow) return;
+      const s = window.__cmpSort || { col: -2, dir: 1 };
+      Array.from(headRow.children).forEach((th, thIdx) => {
+        const colKey = thIdx === 0 ? -2 : (thIdx === 1 ? -1 : thIdx - 2);
+        th.style.cursor = 'pointer';
+        th.title = thIdx === 0 ? 'Bấm để về thứ tự gốc' : 'Bấm để sắp xếp: tăng dần → giảm dần → tắt';
+        if (thIdx > 0 && s.col === colKey) {
+          const host = th.querySelector('div') || th;
+          const ind = document.createElement('span');
+          ind.className = 'cmp-sort-ind shrink-0 font-bold text-emerald-600';
+          ind.style.fontSize = '11px';
+          ind.textContent = s.dir === -1 ? '▼' : '▲';
+          host.appendChild(ind);
+        }
+        th.addEventListener('click', () => {
+          const cur = window.__cmpSort || { col: -2, dir: 1 };
+          if (thIdx === 0) window.__cmpSort = { col: -2, dir: 1 };
+          else if (cur.col !== colKey) window.__cmpSort = { col: colKey, dir: 1 };
+          else if (cur.dir === 1) window.__cmpSort = { col: colKey, dir: -1 };
+          else window.__cmpSort = { col: -2, dir: 1 };
+          if (typeof renderComparisonTable === 'function') renderComparisonTable();
+        });
+      });
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof window.renderComparisonTable === 'function') {
+        const _prevRenderSort = window.renderComparisonTable;
+        window.renderComparisonTable = function () { const r = _prevRenderSort.apply(this, arguments); cmpInjectSortUI(); return r; };
       }
     });
 
