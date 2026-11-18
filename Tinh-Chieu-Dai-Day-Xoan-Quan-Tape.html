@@ -1411,6 +1411,10 @@
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                         <span class="hidden sm:inline">Xuất CSV</span>
                     </button>
+                    <button onclick="exportToExcel()" class="px-2.5 py-1 bg-[#217346] hover:bg-[#1b5e38] text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center space-x-1" title="Tải xuống file Excel (.xlsx) có màu giống giao diện">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        <span class="hidden sm:inline">Xuất Excel</span>
+                    </button>
                 </div>
 
             </div>
@@ -5224,6 +5228,143 @@
             URL.revokeObjectURL(url);
 
             showToast('Đã xuất file CSV chuẩn tiếng Việt thành công!');
+        }
+
+        // ===== Xuat Excel CO MAU giong giao dien =====
+        // Mau (theme sang cua trang): da sua vang nhat FEF3C7, moi them xanh la nhat D1FAE5,
+        // da xoa hong nhat FEE2E2; gia tri cu do B91C1C gach ngang, gia tri moi xanh 15803D.
+        function cmpExcelModel() {
+            const rows = getFilteredRows();
+            const headerTitles = currentComparison.headers.map(h => `${h.letter} - ${h.title}`);
+            const body = rows.map(row => ({
+                label: row.rowLabel,
+                status: row.status,
+                statusText: getStatusText(row.status),
+                cells: row.cells.map(c => {
+                    if (c.status === 'modified') return { kind: 'modified', oldText: c.val1 !== '' ? c.val1 : '(Trống)', newText: c.val2 !== '' ? c.val2 : '(Trống)' };
+                    if (c.status === 'deleted') return { kind: 'deleted', text: c.val1 };
+                    if (c.status === 'added') return { kind: 'added', text: c.val2 };
+                    return { kind: 'same', text: c.val2 };
+                })
+            }));
+            return { headerTitles, body };
+        }
+
+        function cmpExcelDownload(blob, filename) {
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', filename);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            setTimeout(() => URL.revokeObjectURL(url), 2000);
+        }
+
+        function cmpLoadExcelJS() {
+            if (window.ExcelJS) return Promise.resolve(true);
+            const sources = [
+                'https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js',
+                'https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js'
+            ];
+            return sources.reduce((p, src) => p.catch(() => new Promise((resolve, reject) => {
+                const s = document.createElement('script');
+                s.src = src;
+                s.onload = () => window.ExcelJS ? resolve(true) : reject(new Error('no ExcelJS'));
+                s.onerror = () => reject(new Error('load fail'));
+                document.head.appendChild(s);
+            })), Promise.reject(new Error('start')));
+        }
+
+        async function cmpWriteXlsx(model, filename) {
+            const wb = new window.ExcelJS.Workbook();
+            const ws = wb.addWorksheet('So sanh');
+            const ROW_FILL = { modified: 'FFFEF3C7', added: 'FFD1FAE5', deleted: 'FFFEE2E2' };
+            const STATUS_FONT = { modified: 'FF92400E', added: 'FF065F46', deleted: 'FF991B1B', same: 'FF64748B' };
+            const thin = { style: 'thin', color: { argb: 'FFD9D9D9' } };
+            const border = { top: thin, left: thin, bottom: thin, right: thin };
+            const headRow = ws.addRow(['Dòng', 'Trạng thái', ...model.headerTitles]);
+            headRow.eachCell(cell => {
+                cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF334155' } };
+                cell.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 11 };
+                cell.border = border;
+                cell.alignment = { vertical: 'middle' };
+            });
+            model.body.forEach(r => {
+                const row = ws.addRow([r.label, r.statusText, ...r.cells.map(c => c.kind === 'modified' ? '' : (c.text || ''))]);
+                const fill = ROW_FILL[r.status] || null;
+                row.eachCell({ includeEmpty: true }, (cell, colNum) => {
+                    cell.border = border;
+                    cell.alignment = { vertical: 'middle', wrapText: true };
+                    if (fill) cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: fill } };
+                    if (colNum === 2) cell.font = { bold: r.status !== 'same', color: { argb: STATUS_FONT[r.status] }, size: 11 };
+                });
+                r.cells.forEach((c, i) => {
+                    const cell = row.getCell(i + 3);
+                    if (c.kind === 'modified') {
+                        cell.value = { richText: [
+                            { text: c.oldText, font: { color: { argb: 'FFB91C1C' }, strike: true, size: 11 } },
+                            { text: ' → ', font: { color: { argb: 'FF334155' }, size: 11 } },
+                            { text: c.newText, font: { color: { argb: 'FF15803D' }, bold: true, size: 11 } }
+                        ] };
+                    } else if (c.kind === 'deleted') {
+                        cell.font = { color: { argb: 'FFB91C1C' }, strike: true, size: 11 };
+                    } else if (c.kind === 'added') {
+                        cell.font = { color: { argb: 'FF15803D' }, size: 11 };
+                    }
+                });
+            });
+            const widths = [16, 12];
+            model.headerTitles.forEach((h, i) => {
+                let m = h.length;
+                model.body.forEach(r => { const c = r.cells[i]; const t = c.kind === 'modified' ? (c.oldText.length + c.newText.length + 3) : (c.text || '').length; if (t > m) m = t; });
+                widths.push(Math.min(48, Math.max(14, m + 2)));
+            });
+            widths.forEach((wd, i) => { ws.getColumn(i + 1).width = wd; });
+            ws.views = [{ state: 'frozen', ySplit: 1 }];
+            ws.autoFilter = { from: { row: 1, column: 1 }, to: { row: 1, column: widths.length } };
+            const buf = await wb.xlsx.writeBuffer();
+            cmpExcelDownload(new Blob([buf], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }), filename);
+        }
+
+        function cmpWriteXlsHtml(model, filename) {
+            const BG = { modified: '#FEF3C7', added: '#D1FAE5', deleted: '#FEE2E2', same: '#FFFFFF' };
+            const esc = (v) => escapeHTML(String(v ?? ''));
+            let h = '<html xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table border="1" style="border-collapse:collapse;font-family:Calibri,Arial,sans-serif;font-size:11pt">';
+            h += '<tr>' + ['Dòng', 'Trạng thái', ...model.headerTitles].map(t => `<th style="background:#334155;color:#FFFFFF;font-weight:bold;padding:4px 8px;text-align:left">${esc(t)}</th>`).join('') + '</tr>';
+            model.body.forEach(r => {
+                const bg = BG[r.status];
+                h += `<tr><td style="background:${bg};padding:4px 8px">${esc(r.label)}</td><td style="background:${bg};padding:4px 8px;font-weight:bold">${esc(r.statusText)}</td>`;
+                r.cells.forEach(c => {
+                    if (c.kind === 'modified') h += `<td style="background:#FEF3C7;padding:4px 8px"><span style="color:#B91C1C;text-decoration:line-through">${esc(c.oldText)}</span> → <span style="color:#15803D;font-weight:bold">${esc(c.newText)}</span></td>`;
+                    else if (c.kind === 'deleted') h += `<td style="background:${bg};padding:4px 8px;color:#B91C1C;text-decoration:line-through">${esc(c.text)}</td>`;
+                    else if (c.kind === 'added') h += `<td style="background:${bg};padding:4px 8px;color:#15803D">${esc(c.text)}</td>`;
+                    else h += `<td style="background:${bg};padding:4px 8px">${esc(c.text)}</td>`;
+                });
+                h += '</tr>';
+            });
+            h += '</table></body></html>';
+            cmpExcelDownload(new Blob(['\uFEFF' + h], { type: 'application/vnd.ms-excel;charset=utf-8;' }), filename);
+        }
+
+        async function exportToExcel() {
+            if (typeof currentComparison === 'undefined' || !currentComparison || getFilteredRows().length === 0) {
+                showToast('Không có dữ liệu để xuất file!');
+                return;
+            }
+            const model = cmpExcelModel();
+            const stamp = new Date().toISOString().slice(0, 10);
+            let ok = false;
+            try { ok = await cmpLoadExcelJS(); } catch (e) { ok = false; }
+            if (ok && window.ExcelJS) {
+                try {
+                    await cmpWriteXlsx(model, `So_Sanh_Excel_${stamp}.xlsx`);
+                    showToast('Đã xuất file Excel (.xlsx) có màu thành công!');
+                    return;
+                } catch (e) { /* loi ghi xlsx: roi xuong ban .xls cung mau ben duoi */ }
+            }
+            cmpWriteXlsHtml(model, `So_Sanh_Excel_${stamp}.xls`);
+            showToast('Đã xuất file Excel (.xls) có màu thành công!');
         }
     
   </script>
